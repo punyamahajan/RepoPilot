@@ -1,0 +1,96 @@
+name: repopilot-lab
+
+x-ollama-host: &ollama-host
+  OLLAMA_BASE_URL: http://host.docker.internal:11434
+
+x-host-mapping: &host-mapping
+  - "host.docker.internal:host-gateway"
+
+services:
+  ingestion:
+    build:
+      context: .
+      dockerfile: ingestion/Dockerfile
+    environment:
+      <<: *ollama-host
+      INDEX_PATH: /repopilot/data/index.json
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data:/repopilot/data
+    extra_hosts: *host-mapping
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    environment:
+      <<: *ollama-host
+      INGESTION_SERVICE_URL: http://ingestion:5001
+    ports:
+      - "5000:5000"
+    extra_hosts: *host-mapping
+    depends_on:
+      ingestion:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=5)"]
+      interval: 15s
+      timeout: 8s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    environment:
+      INGESTION_SERVICE_URL: http://ingestion:5001
+      LLM_SERVICE_URL: http://app:5000
+      RESULTS_PATH: /repopilot/evaluation/results.json
+      EVALUATION_MODELS: codellama,starcoder2,qwen2.5-coder
+    volumes:
+      - ./evaluation:/repopilot/evaluation:ro
+      - ./reports:/repopilot/reports:ro
+    ports:
+      - "5050:5050"
+    depends_on:
+      ingestion:
+        condition: service_healthy
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5050/health', timeout=5)"]
+      interval: 15s
+      timeout: 8s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  evaluation:
+    build:
+      context: .
+      dockerfile: evaluation/Dockerfile
+    profiles: ["tools"]
+    environment:
+      <<: *ollama-host
+      INGESTION_SERVICE_URL: http://ingestion:5001
+      LLM_SERVICE_URL: http://app:5000
+      EVALUATION_MODELS: codellama,starcoder2,qwen2.5-coder
+    volumes:
+      - ./evaluation:/repopilot/evaluation
+      - ./data:/repopilot/data
+    extra_hosts: *host-mapping
+    depends_on:
+      ingestion:
+        condition: service_healthy
+      app:
+        condition: service_healthy

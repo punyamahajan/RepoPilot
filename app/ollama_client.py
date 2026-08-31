@@ -15,6 +15,7 @@ import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_MODEL = "codellama"
+LAST_RESPONSE_METADATA = {}
 
 
 def query_llm(prompt: str, context: str = "", model: str = DEFAULT_MODEL, timeout: int = 120) -> str:
@@ -55,6 +56,12 @@ def query_llm(prompt: str, context: str = "", model: str = DEFAULT_MODEL, timeou
     response = requests.post(OLLAMA_URL, json=payload, timeout=timeout)
     response.raise_for_status()
     data = response.json()
+    global LAST_RESPONSE_METADATA
+    LAST_RESPONSE_METADATA = {
+        "eval_count": data.get("eval_count", 0),
+        "prompt_eval_count": data.get("prompt_eval_count", 0),
+        "total_duration": data.get("total_duration", 0),
+    }
     return data.get("response", "").strip()
 
 

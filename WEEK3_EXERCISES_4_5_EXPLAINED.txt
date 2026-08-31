@@ -1,0 +1,277 @@
+RepoPilot Lab - Week 3 Exercises 4 and 5 Explained
+=================================================
+
+1. What was added
+-----------------
+
+The original project already had a working RAG pipeline inside one Python process:
+
+    question -> vector search -> retrieved context -> Ollama -> answer
+
+Exercise 4 splits that pipeline into separate services which communicate using HTTP.
+Exercise 5 packages the services into separate Docker containers.
+
+The completed architecture is:
+
+    User
+      |
+      v
+    Application Service (orchestrator.py)
+      |
+      | POST /search
+      v
+    Retrieval/RAG Service (ingestion/ingestion_service.py)
+      |
+      | returns relevant code chunks
+      v
+    Application Service
+      |
+      | POST /ask with the retrieved context
+      v
+    LLM Service (app/main.py)
+      |
+      | POST /api/generate
+      v
+    Ollama / Code Llama
+      |
+      v
+    Final answer
+
+
+2. Retrieval/RAG Service
+------------------------
+
+New file: ingestion/ingestion_service.py
+
+This Flask service wraps the existing functions in ingestion/vectorstore.py. It does
+not replace or rewrite the vector store.
+
+It runs on port 5001 and provides these endpoints:
+
+GET /health
+
+    Shows whether the service is running and whether an index is loaded.
+
+POST /build-index
+
+    Example request:
+
+        {"repo_path": "data/sample_repo"}
+
+    This calls the existing build_index() function, saves the index to
+    data/index.json, stores the VectorStore in memory, and returns the number of
+    indexed chunks.
+
+POST /search
+
+    Example request:
+
+        {"query": "What does the login function do?", "k": 3}
+
+    This calls the existing VectorStore.similarity_search() method. The response
+    contains a JSON list named "chunks" with the most relevant code sections.
+
+When the service starts, it automatically loads data/index.json if that file already
+exists. Therefore, rebuilding the index on every startup is not required.
+
+A lock protects the in-memory store so one request cannot search while another
+request is replacing the index.
+
+
+3. LLM Service
+--------------
+
+Changed file: app/main.py
+
+The existing POST /ask endpoint is still available on port 5000. It now supports two
+ways of receiving context.
+
+Mode A - context supplied directly
+
+    {
+      "prompt": "What does login do?",
+      "context": "retrieved source code goes here",
+      "use_retrieval": false
+    }
+
+In this mode, /ask sends the supplied context to the existing query_llm() function.
+This preserves the behavior used by the old integration scripts and by the new
+orchestrator.
+
+Mode B - LLM Service retrieves context itself
+
+    {
+      "prompt": "What does login do?",
+      "use_retrieval": true,
+      "k": 3
+    }
+
+In this mode, the LLM Service calls the Retrieval/RAG Service's POST /search endpoint,
+joins the returned chunks, and passes the resulting context to query_llm().
+
+If the request contains no context and does not specify use_retrieval, automatic
+retrieval is used by default. If a context field is present, direct-context mode is
+used by default.
+
+The response includes:
+
+    prompt             the original question
+    model              the Ollama model name
+    used_rag           whether non-empty context was used
+    retrieved_chunks   chunks fetched internally, if any
+    response           the final model answer
+
+Input validation was added for prompt, context, use_retrieval, and k. Failures from
+an HTTP dependency return an upstream-service error instead of crashing Flask.
+
+The GET /health endpoint checks whether Ollama is reachable and lists its installed
+models.
+
+
+4. Application Service / Orchestrator
+-------------------------------------
+
+New file: orchestrator.py
+
+This command-line script demonstrates one request passing through multiple services.
+It performs the following steps:
+
+    1. Accepts a question from the command line.
+    2. Calls POST http://localhost:5001/search.
+    3. Receives relevant code chunks.
+    4. Joins those chunks into one context string.
+    5. Calls POST http://localhost:5000/ask with that context.
+    6. Prints the final answer.
+
+Example:
+
+    python orchestrator.py "How is the payment fee calculated?"
+
+Optional arguments are available:
+
+    --k 3              number of chunks to retrieve
+    --model codellama  Ollama generation model
+
+The service URLs can be changed using these environment variables:
+
+    INGESTION_SERVICE_URL
+    LLM_SERVICE_URL
+
+
+5. Docker files
+---------------
+
+New file: app/Dockerfile
+
+Builds the LLM Service image, installs requirements.txt, and starts app/main.py with
+Gunicorn on port 5000.
+
+New file: ingestion/Dockerfile
+
+Builds the Retrieval/RAG Service image, copies the ingestion and data directories,
+and starts ingestion_service.py with Gunicorn on port 5001.
+
+New file: docker-compose.yml
+
+Defines two containers:
+
+    ingestion-service   Retrieval/RAG Service on host port 5001
+    llm-service         LLM Service on host port 5000
+
+Docker Compose creates a shared network automatically. On that network, the LLM
+container reaches the retrieval container using this internal address:
+
+    http://ingestion-service:5001
+
+Ollama normally remains on the host computer instead of running in this Compose
+project. Both containers reach it using:
+
+    http://host.docker.internal:11434
+
+The extra_hosts setting also supplies a host-gateway mapping for environments that
+need it.
+
+
+6. Ollama URL configuration
+---------------------------
+
+The original Ollama client and embedding modules use localhost URLs. Localhost inside
+a container means the container itself, not the Windows host.
+
+To solve this without editing the protected modules, each new service reads the
+OLLAMA_BASE_URL environment variable and configures the existing module when the
+service starts.
+
+Local default:
+
+    http://localhost:11434
+
+Docker Compose value:
+
+    http://host.docker.internal:11434
+
+This keeps the original function signatures unchanged while making them usable from
+containers.
+
+
+7. Other files
+--------------
+
+New file: SERVICES.md
+
+Briefly maps each component to the assignment terminology: Application Service,
+Retrieval/RAG Service, and LLM Service.
+
+Changed file: requirements.txt
+
+Added Gunicorn. Flask's built-in server is useful for development, while Gunicorn is
+used to serve Flask inside the Linux containers.
+
+Changed file: Readme.md
+
+Added detailed local and Docker run instructions, health checks, API examples, index
+building instructions, and shutdown commands.
+
+
+8. What was intentionally not changed
+-------------------------------------
+
+The existing signatures and implementations in these protected files were not
+changed:
+
+    app/ollama_client.py
+    ingestion/chunking.py
+    ingestion/embeddings.py
+    ingestion/vectorstore.py
+
+These completed Exercise 1-3 files were also left unchanged:
+
+    integration_test.py
+    exercise3_rag_comparison.py
+    data/sample_repo/
+
+As a result, the original single-process RAG pipeline still works, while the new
+service-based and Docker-based workflows are available alongside it.
+
+
+9. Quick local request flow
+---------------------------
+
+Start Ollama:
+
+    ollama serve
+
+Start retrieval in a second terminal:
+
+    python ingestion/ingestion_service.py
+
+Start the LLM Service in a third terminal:
+
+    python app/main.py
+
+Ask a question in a fourth terminal:
+
+    python orchestrator.py "What fields does the User class have?"
+
+The final command proves that retrieval and generation are happening through separate
+HTTP services.
