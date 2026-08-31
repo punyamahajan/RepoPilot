@@ -1,74 +1,105 @@
-# Person A — Application + Ollama Integration
+# RepoPilot Lab — Person A + Person B (+ integration)
 
-Covers Week 3, Exercise 1:
+Covers Week 3, Exercise 1 (App + Ollama) and Exercise 2 (Knowledge Base).
+
+## Repo layout
 
 ```
-User -> Application -> API -> Ollama -> Code Llama -> Response
+app/                <- Person A: Ollama wrapper + Flask API
+  ollama_client.py
+  main.py
+  test_cli.py
+ingestion/           <- Person B: chunking, embeddings, vectorstore
+  chunking.py
+  embeddings.py
+  vectorstore.py
+data/
+  sample_repo/       <- small demo repo (auth.py, payment.py, models.py) to index right away
+  index.json          <- generated after you build the index (not committed — see .gitignore below)
+integration_test.py   <- proves A + B talk to each other correctly
+requirements.txt
 ```
-
-## Files
-
-- `app/ollama_client.py` — core wrapper. `query_llm(prompt, context="", model="codellama")` is the function everyone else builds on top of.
-- `app/main.py` — Flask API exposing `POST /ask` and `GET /health`.
-- `app/test_cli.py` — no-server sanity check, useful for quick manual testing or a live-demo fallback.
-- `requirements.txt` — `flask`, `requests`.
 
 ## Setup
 
 1. Install Ollama: https://ollama.com/download
-2. Pull the model:
+2. Pull models:
    ```
-   ollama pull codellama
+   ollama pull codellama          # for generation
+   ollama pull nomic-embed-text   # for embeddings
    ```
-   (For Week 4 Exercise 1 you'll also want `ollama pull starcoder2` and a third model, e.g. `ollama pull deepseek-coder`.)
-3. Start Ollama (usually runs automatically after install; if not: `ollama serve`)
+   (For Week 4 Ex.1 also pull `starcoder2` and one more, e.g. `deepseek-coder`.)
+3. Start Ollama (`ollama serve` if it's not already running)
 4. Install Python deps:
    ```
    pip install -r requirements.txt
    ```
 
-## Running it
+## Person A — `app/`
 
-**Option A — quick CLI test:**
+`query_llm(prompt, context="", model="codellama")` in `ollama_client.py` is the function everyone builds on. `main.py` wraps it in a Flask `/ask` endpoint. `test_cli.py` is a no-server sanity check.
+
 ```
 cd app
-python test_cli.py
+python test_cli.py          # quick manual test
+# or
+python main.py               # run as a service, then curl localhost:5000/ask
 ```
 
-**Option B — as a service (matches the "Application + API" framing for the brief):**
+## Person B — `ingestion/`
+
+`build_index(repo_path)` in `vectorstore.py` runs the full Documents -> Chunking -> Embeddings -> Vector Representation pipeline and saves the result to disk. `load_index(path)` reloads it later without re-embedding everything.
+
 ```
-cd app
-python main.py
+cd ingestion
+python vectorstore.py ../data/sample_repo
 ```
-Then in another terminal:
+This chunks the sample repo, embeds every chunk via Ollama, saves to `../data/index.json`, and runs a test query so you can see retrieval working.
+
+To index the **real target repo** once you've picked one for the project, just point it at that path instead:
 ```
-curl -X POST http://localhost:5000/ask \
-     -H "Content-Type: application/json" \
-     -d '{"prompt": "What does a REST API do?"}'
+python vectorstore.py /path/to/target/repo
 ```
 
-Health check:
+## Connecting A + B — `integration_test.py`
+
+This is the real proof the two halves work together — no stubs, actual `query_llm()` calls fed with actual retrieved context from the vectorstore:
+
 ```
-curl http://localhost:5000/health
+Question -> vectorstore.similarity_search() [B] -> context -> query_llm() [A] -> response
 ```
 
-## Interface contract (for Person B / Person C)
+Run from the **repo root** (not from inside `app/` or `ingestion/`):
+```
+python integration_test.py
+```
 
-Don't change this signature without a heads-up in the group chat:
+First run builds the index from `data/sample_repo` (takes a few seconds — it's embedding 3 small files) and caches it to `data/index.json`. Every run after that loads the cached index instantly. Delete `data/index.json` if you change the sample repo or switch to the real target repo and want a fresh index.
+
+It runs three test questions and prints, for each: the question, the retrieved context chunks, and the final LLM response — exactly the `Question -> Retrieved Context -> LLM Response` log format Exercise 3 and the Week 4 RAG-analysis exercise both want. Good idea to save this output to a file for your report.
+
+**Why this works without any restructuring:** `integration_test.py` adds both `app/` and `ingestion/` to `sys.path` before importing, so each module keeps its simple, flat `from ollama_client import query_llm` / `from chunking import chunk_repo` style — nobody had to rewrite their imports to package form.
+
+## Interface contract (for Person C)
+
+Don't change these signatures without a heads-up in the group chat — Person C's `retrieval.py` is built against stub versions of both and expects to swap in these exact ones on integration day:
 
 ```python
+# app/ollama_client.py
 query_llm(prompt: str, context: str = "", model: str = "codellama") -> str
+
+# ingestion/vectorstore.py
+build_index(repo_path: str) -> VectorStore
+load_index(path: str) -> VectorStore
+VectorStore.similarity_search(query: str, k: int = 3) -> list[str]
 ```
 
-- Person C calls this with `context` = whatever they retrieved from the vectorstore. Leaving `context=""` gives the no-RAG baseline response for the RAG-vs-no-RAG comparison (Week 3, Ex.3).
-- `model` lets anyone rerun the same prompt against a different pulled model for Week 4, Ex.1 — no code changes needed, just pass a different string.
-
-## Suggested repo layout (once merged with B and C)
+## .gitignore suggestion
 
 ```
-/app          <- this folder (Person A)
-/ingestion    <- Person B: chunking, embeddings, vectorstore build
-/retrieval    <- Person C: RAG logic, context assembly
-/data         <- shared: target repo + eval questions
-requirements.txt
+data/index.json
+__pycache__/
+*.pyc
+.venv/
 ```
+(Don't commit the generated index — everyone should be able to rebuild it locally from `data/sample_repo` or the real target repo.)
