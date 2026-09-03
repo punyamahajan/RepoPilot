@@ -40,7 +40,6 @@ def model_rows():
 @app.get("/")
 def index():
     return render_template("index.html", rows=model_rows(), models=MODELS,
-                           rag_comparison=read_markdown("reports/exercise3_rag_vs_no_rag.md"),
                            pipeline_analysis=read_markdown("evaluation/RAG_PIPELINE_ANALYSIS.md"))
 
 
