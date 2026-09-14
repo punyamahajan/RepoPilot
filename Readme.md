@@ -57,20 +57,20 @@ Repository directory
 
 `ingestion/chunking.py` walks supported code and documentation files. `ingestion/embeddings.py` asks Ollama for an embedding for each chunk. `ingestion/vectorstore.py` stores the vectors and source metadata in JSON.
 
-### Live question-answering flow
+### Live multi-model comparison flow
 
 ```text
 Question
   -> POST ingestion /search
   -> question embedding
   -> cosine similarity against indexed chunks
-  -> top three source chunks
-  -> POST app /ask with question, context, and selected model
-  -> Ollama generation
-  -> grounded response
+  -> top three source chunks (retrieved once)
+  -> POST app /ask for all 3 models (codellama, starcoder2, qwen2.5-coder)
+  -> Ollama generation with grounded context
+  -> Comparison table showing answers, latencies, and shared source context
 ```
 
-The dashboard follows this flow directly. `orchestrator.py` provides the same flow from the command line. The LLM service can also perform retrieval itself when `/ask` receives `use_retrieval: true`.
+The dashboard triggers all three models concurrently and renders their responses in a comparative table directly under the evaluation charts. `orchestrator.py` provides a single-model query flow from the command line. The LLM service can also perform retrieval itself when `/ask` receives `use_retrieval: true`.
 
 ### Evaluation flow
 
@@ -164,33 +164,29 @@ Install:
 
 All commands below must be run from the repository root.
 
-## Recommended setup: Docker Compose
+## How to Start on Localhost (Docker Compose - Recommended)
 
 ### 1. Start Ollama on the host
 
-Ollama may already be running if its desktop application is open. Otherwise:
-
-```powershell
-ollama serve
-```
-
-For container access, Ollama must listen beyond host loopback. On Windows PowerShell, set this before starting Ollama if Docker cannot reach it:
+Ollama may already be running if its desktop application is open. Otherwise, open a PowerShell window:
 
 ```powershell
 $env:OLLAMA_HOST="0.0.0.0:11434"
 ollama serve
 ```
 
+> Setting `OLLAMA_HOST="0.0.0.0:11434"` is essential on Windows so Docker containers can communicate with Ollama on `host.docker.internal:11434`.
+
 ### 2. Install or confirm the models
 
-Install the embedding model and use the setup script for the three generation models:
+Install the embedding model and pull all three code models using the setup script:
 
 ```powershell
 ollama pull nomic-embed-text
 python evaluation/setup_models.py
 ```
 
-Confirm manually if desired:
+Confirm that the models are ready:
 
 ```powershell
 ollama list
@@ -198,39 +194,37 @@ ollama list
 
 The list should contain `nomic-embed-text`, `codellama`, `starcoder2`, and `qwen2.5-coder`.
 
-### 3. Build and start the three long-running services
+### 3. Build and start the services
 
-```powershell
-docker-compose up --build -d
-```
-
-With the newer integrated Compose command, the equivalent is:
+From the repository root, start all long-running services in the background:
 
 ```powershell
 docker compose up --build -d
 ```
 
-Compose starts these services in dependency order:
+Compose starts these services on localhost:
 
-| Service | Host URL | Role |
+| Service | Localhost URL | Role |
 |---|---|---|
-| `ingestion` | http://localhost:5001 | Index construction and search |
-| `app` | http://localhost:5000 | LLM generation API |
-| `dashboard` | http://localhost:5050 | Results and live demo UI |
-| `evaluation` | One-off only | Benchmark and report runner |
+| `dashboard` | **http://localhost:5050** | Evaluation charts, reports, and live multi-model comparison table |
+| `app` | **http://localhost:5000** | LLM generation API (connects to host Ollama with 300s timeout) |
+| `ingestion` | **http://localhost:5001** | Vector indexing and similarity search |
+| `evaluation` | One-off container | Benchmark and analysis report runner |
 
-Open **http://localhost:5050** in a browser.
+Open **http://localhost:5050** in your browser.
 
 ### 4. Check service health
+
+Verify that all services are healthy:
 
 ```powershell
 curl.exe http://localhost:5001/health
 curl.exe http://localhost:5000/health
 curl.exe http://localhost:5050/health
-docker-compose ps
+docker compose ps
 ```
 
-The ingestion response should report `index_ready: true`. If it does not, build the sample index using the path visible inside its container:
+The ingestion response should report `index_ready: true`. If it reports `false`, build the index from the sample repository:
 
 ```powershell
 curl.exe -X POST http://localhost:5001/build-index `
@@ -238,21 +232,37 @@ curl.exe -X POST http://localhost:5001/build-index `
   -d '{"repo_path":"/repopilot/data/sample_repo"}'
 ```
 
-For Bash, use a single line or replace PowerShell backticks with backslashes.
+### 5. Ask a question & compare models in the UI
 
-### 5. Ask a question
+1. Open **http://localhost:5050** in your browser.
+2. Scroll to the **Live Model Comparison** section located directly underneath the evaluation charts.
+3. Enter your question into the textarea, such as:
+   ```text
+   How is the payment fee calculated?
+   ```
+4. Click **Compare All Models**.
+5. The application retrieves relevant repository context and queries all 3 models (`codellama`, `starcoder2`, `qwen2.5-coder`) simultaneously.
+6. The responses appear in the comparison table with:
+   - **Model**: Model name and badge indicator.
+   - **Latency**: Generation time (e.g. `3.82 s`, `8.01 s`).
+   - **Generated Answer**: Formatted code/explanation from each model side-by-side.
+   - **Retrieved Context**: Click the collapsible details box to view the exact RAG code chunks used across all models.
 
-Use the Ask form at http://localhost:5050, select a model, and submit a repository question.
-
-You can also call the app service and let it retrieve context:
+You can also test the API directly from the command line:
 
 ```powershell
+# Query all 3 models at once
+curl.exe -X POST http://localhost:5050/api/ask `
+  -H "Content-Type: application/json" `
+  -d '{"question":"How is the payment fee calculated?","model":"all"}'
+
+# Or test a single model through the LLM service
 curl.exe -X POST http://localhost:5000/ask `
   -H "Content-Type: application/json" `
   -d '{"prompt":"How is the payment fee calculated?","model":"codellama","use_retrieval":true}'
 ```
 
-Or use the host orchestrator while the containers are running:
+Or use the CLI orchestrator:
 
 ```powershell
 python orchestrator.py "Which function verifies a password?" --model codellama
@@ -296,41 +306,49 @@ docker-compose logs -f ingestion app dashboard
 docker-compose down
 ```
 
-## Run everything locally without Docker
+## Method 2: Run everything locally on localhost without Docker
+
+If you prefer running services directly via Python rather than Docker:
 
 ### 1. Create and activate a virtual environment
+
+From the repository root:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements-dashboard.txt
 ```
 
 On Linux/macOS, activate with `source .venv/bin/activate`.
 
 ### 2. Start Ollama and prepare models
 
+In a dedicated terminal:
+
 ```powershell
 ollama serve
 ```
 
-In another terminal with the virtual environment active:
+In another terminal with the virtual environment activated, download the required embedding and comparison models:
 
 ```powershell
 ollama pull nomic-embed-text
 python evaluation/setup_models.py
 ```
 
-### 3. Start the ingestion service
+### 3. Start the ingestion service (Port 5001)
 
 Terminal 2:
 
 ```powershell
+.\.venv\Scripts\Activate.ps1
 python ingestion/ingestion_service.py
 ```
 
-Build the index if `/health` reports it is unavailable:
+Check that the index is ready at http://localhost:5001/health. If needed, build it:
 
 ```powershell
 curl.exe -X POST http://localhost:5001/build-index `
@@ -338,27 +356,29 @@ curl.exe -X POST http://localhost:5001/build-index `
   -d '{"repo_path":"data/sample_repo"}'
 ```
 
-### 4. Start the LLM service
+### 4. Start the LLM service (Port 5000)
 
 Terminal 3:
 
 ```powershell
+.\.venv\Scripts\Activate.ps1
 python app/main.py
 ```
 
-### 5. Start the dashboard
+### 5. Start the dashboard (Port 5050)
 
 Terminal 4:
 
 ```powershell
+.\.venv\Scripts\Activate.ps1
 python dashboard/app.py
 ```
 
-Open http://localhost:5050.
+Open **http://localhost:5050** in your web browser. Under the evaluation charts, type any repository question and click **Compare All Models** to evaluate Code Llama, StarCoder2, and Qwen2.5-Coder simultaneously in the comparison table.
 
-### 6. Run evaluation locally
+### 6. Run evaluation suite locally (optional)
 
-With ingestion still running:
+With ingestion running:
 
 ```powershell
 python evaluation/run_evaluation.py
@@ -372,7 +392,7 @@ python evaluation/rag_pipeline_analysis.py
 python evaluation/multi_file_questions.py
 ```
 
-Stop each local server with `Ctrl+C`.
+Stop each local server by pressing `Ctrl+C` in its terminal.
 
 ## API reference
 
@@ -424,9 +444,12 @@ Checks the service's connection to host Ollama and lists available models.
 
 ### Dashboard service
 
-- `GET /`: dashboard page.
+- `GET /`: dashboard page (evaluation metrics, charts, live comparison table, and reports).
 - `GET /health`: dashboard-to-ingestion connectivity.
-- `POST /api/ask`: live UI endpoint; accepts `question` and `model`.
+- `POST /api/ask`: live UI and comparison endpoint.
+  - Accepts `{"question": "...", "model": "all"}` (or specific model name).
+  - Triggers all 3 models (`codellama`, `starcoder2`, `qwen2.5-coder`) concurrently.
+  - Returns `question`, `retrieved_chunks`, and `results` array containing each model's response, latency, and status.
 
 ## Evaluation metrics
 

@@ -18,7 +18,7 @@ DEFAULT_MODEL = "codellama"
 LAST_RESPONSE_METADATA = {}
 
 
-def query_llm(prompt: str, context: str = "", model: str = DEFAULT_MODEL, timeout: int = 120) -> str:
+def query_llm(prompt: str, context: str = "", model: str = DEFAULT_MODEL, timeout: int = 600) -> str:
     """
     Send a prompt (optionally with retrieved context) to a model served
     by Ollama and return the plain-text response.

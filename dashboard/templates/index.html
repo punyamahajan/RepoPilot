@@ -7,16 +7,32 @@
 :root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e7eaf0;--soft:#f8fafc;--accent:#4f46e5;--accent-dark:#4338ca;--accent-soft:#eef2ff;--success:#16a34a;--danger:#dc2626;--shadow:0 10px 30px #1720330f,0 1px 3px #1720330a;--radius:12px}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}.topbar{background:#fffffff2;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}.topbar-inner,main{max-width:1440px;margin:auto}.topbar-inner{padding:26px 32px}.eyebrow{margin:0 0 5px;color:var(--accent);font-size:12px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(25px,3vw,34px);line-height:1.2;letter-spacing:-.035em}.subtitle{margin:7px 0 0;color:var(--muted)}main{padding:28px 32px 48px}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:18px}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,.8fr);gap:18px;align-items:start}.side-grid{display:grid;gap:18px}.report-section{margin-top:18px}.card{min-width:0;padding:26px;background:var(--card);border:1px solid #e7eaf0d9;border-radius:var(--radius);box-shadow:var(--shadow)}.kpi-card{padding:21px 22px}.kpi-label{margin:0;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.kpi-value{margin:8px 0 5px;font-size:clamp(24px,3vw,31px);font-weight:760;line-height:1.2;letter-spacing:-.035em;overflow-wrap:anywhere}.kpi-meta{display:flex;align-items:center;gap:6px;margin:0;color:var(--muted);font-size:12px}.trend{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#ecfdf3;color:var(--success);font-size:10px;font-weight:800}.trend.down{background:#fff1f2;color:var(--danger)}
-.card-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}h2{margin:0;font-size:18px;line-height:1.3;letter-spacing:-.018em}h3{margin:0;font-size:14px}.section-note{margin:5px 0 0;color:var(--muted);font-size:13px}.status-pill{flex:none;padding:5px 10px;border-radius:999px;background:#ecfdf3;color:#15803d;font-size:11px;font-weight:750}.status-pill.empty{background:#f2f4f7;color:var(--muted)}
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:right}th{background:#f3f5f8;color:#475467;font-size:11px;font-weight:750;letter-spacing:.025em;text-transform:uppercase;cursor:pointer;user-select:none;transition:.15s}th:hover,th[aria-sort]:not([aria-sort=none]){background:var(--accent-soft);color:var(--accent)}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border:0}tbody tr:hover td{background-color:#fafbff}.sort-icon{display:inline-block;width:11px;margin-left:4px;color:#98a2b3;font-size:8px;line-height:.85;vertical-align:middle}th[aria-sort=ascending] .sort-icon,th[aria-sort=descending] .sort-icon{color:var(--accent)}.model-name{display:inline-flex;align-items:center;gap:9px;font-weight:700}.model-dot{width:9px;height:9px;border-radius:50%;background:var(--model-color,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--model-color,var(--accent)) 14%,transparent)}.metric{background-clip:padding-box;font-variant-numeric:tabular-nums}.empty-state{display:grid;place-items:center;min-height:190px;padding:30px;text-align:center;color:var(--muted)}.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:22px}.empty-state strong{display:block;margin-bottom:3px;color:var(--ink)}
+.card-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}h2{margin:0;font-size:18px;line-height:1.3;letter-spacing:-.018em}h3{margin:0;font-size:14px}.section-note{margin:5px 0 0;color:var(--muted);font-size:13px}.status-pill{flex:none;padding:5px 10px;border-radius:999px;background:#ecfdf3;color:#15803d;font-size:11px;font-weight:750}.status-pill.empty{background:#f2f4f7;color:var(--muted)}.status-pill.idle{background:#f2f4f7;color:var(--muted)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:right}th{background:#f3f5f8;color:#475467;font-size:11px;font-weight:750;letter-spacing:.025em;text-transform:uppercase;cursor:pointer;user-select:none;transition:.15s}#models th:hover,#models th[aria-sort]:not([aria-sort=none]){background:var(--accent-soft);color:var(--accent)}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border:0}tbody tr:hover td{background-color:#fafbff}.sort-icon{display:inline-block;width:11px;margin-left:4px;color:#98a2b3;font-size:8px;line-height:.85;vertical-align:middle}th[aria-sort=ascending] .sort-icon,th[aria-sort=descending] .sort-icon{color:var(--accent)}.model-name{display:inline-flex;align-items:center;gap:9px;font-weight:700}.model-dot{width:9px;height:9px;border-radius:50%;background:var(--model-color,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--model-color,var(--accent)) 14%,transparent)}.metric{background-clip:padding-box;font-variant-numeric:tabular-nums}.empty-state{display:grid;place-items:center;min-height:190px;padding:30px;text-align:center;color:var(--muted)}.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:22px}.empty-state strong{display:block;margin-bottom:3px;color:var(--ink)}
 .chart-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 2px -4px;color:var(--muted);font-size:11px}.legend-item{display:inline-flex;align-items:center;gap:6px}.legend-swatch{width:8px;height:8px;border-radius:50%}.charts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}.chart-panel{min-width:0;padding:17px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.chart-panel h3{margin-bottom:15px}.chart-bars{display:grid;gap:13px}.chart-row{display:grid;grid-template-columns:minmax(85px,1fr) 2fr 58px;gap:9px;align-items:center;font-size:11px}.chart-name{overflow:hidden;text-overflow:ellipsis}.chart-track{height:12px;overflow:hidden;border-radius:999px;background:#e7eaf0}.chart-bar{height:100%;min-width:2px;border-radius:inherit;background:var(--model-color,var(--accent))}.chart-value{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-label{display:block;margin:0 0 16px;color:#344054;font-size:13px;font-weight:680}select,textarea,button{width:100%;font:inherit}select,textarea{margin-top:7px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:8px;outline:0;background:#fff;color:var(--ink);transition:.15s}select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #4f46e521}textarea{min-height:114px;resize:vertical}button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:11px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:720;cursor:pointer;box-shadow:0 2px 5px #4f46e540;transition:.15s}button:hover{background:var(--accent-dark)}button:active{transform:translateY(1px)}button:disabled{cursor:wait;opacity:.78}.spinner{display:none;width:15px;height:15px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}button.loading .spinner{display:inline-block}@keyframes spin{to{transform:rotate(360deg)}}.answer-wrap{margin-top:20px}.answer-label{margin-bottom:8px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}#answer{min-height:96px;padding:15px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:#344054}details{margin-top:12px;color:var(--muted);font-size:13px}summary{cursor:pointer;font-weight:650}#context{margin-top:9px;padding:13px;border-radius:8px;background:#111827;color:#dbe4f0;max-height:260px;overflow:auto}
+label{display:block;margin:0 0 16px;color:#344054;font-size:13px;font-weight:680}select,textarea,button{width:100%;font:inherit}select,textarea{margin-top:7px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:8px;outline:0;background:#fff;color:var(--ink);transition:.15s}select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #4f46e521}textarea{min-height:96px;resize:vertical}button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:11px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:720;cursor:pointer;box-shadow:0 2px 5px #4f46e540;transition:.15s}button:hover{background:var(--accent-dark)}button:active{transform:translateY(1px)}button:disabled{cursor:wait;opacity:.78}.spinner{display:none;width:15px;height:15px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}button.loading .spinner{display:inline-block}@keyframes spin{to{transform:rotate(360deg)}}.answer-wrap{margin-top:20px}.answer-label{margin-bottom:10px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}details{margin-top:12px;color:var(--muted);font-size:13px}summary{cursor:pointer;font-weight:650}#context{margin-top:9px;padding:13px;border-radius:8px;background:#111827;color:#dbe4f0;max-height:260px;overflow:auto}
+.comparison-table{width:100%;border-collapse:collapse;white-space:normal}
+.comparison-table th,.comparison-table td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+.comparison-table th{background:#f3f5f8;color:#475467;font-size:11px;font-weight:750;letter-spacing:.025em;text-transform:uppercase;cursor:default}
+.comparison-table th:hover{background:#f3f5f8;color:#475467}
+.col-model{width:160px;text-align:left}
+.col-latency{width:110px;text-align:center}
+.col-answer{text-align:left}
+.comparison-table td.col-latency{text-align:center}
+.badge-latency{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:750;background:#ecfdf3;color:#15803d;font-variant-numeric:tabular-nums;white-space:nowrap}
+.badge-latency.loading{background:#eef2ff;color:#4338ca}
+.badge-latency.error{background:#fff1f2;color:#dc2626}
+.badge-latency.idle{background:#f2f4f7;color:var(--muted)}
+.model-answer-box{font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#1e293b;background:var(--soft);padding:14px 16px;border-radius:8px;border:1px solid var(--line);min-height:72px;max-height:420px;overflow-y:auto}
+.model-answer-box.loading{color:var(--muted);font-style:italic}
+.model-answer-box.error{color:#dc2626;background:#fef2f2;border-color:#fecaca}
+.model-spec-card{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--soft);border:1px solid var(--line);border-radius:8px}
 .flow-list{display:grid;gap:17px;margin:0;padding:0;list-style:none}.flow-step{display:grid;grid-template-columns:32px 1fr;gap:12px;position:relative}.flow-step:not(:last-child):after{content:"";position:absolute;top:34px;bottom:-15px;left:15px;width:1px;background:#dfe3eb}.step-number{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}.flow-step strong{display:block;margin:2px 0;font-size:13px}.flow-step p{margin:0;color:var(--muted);font-size:12px}.report{max-height:620px;overflow:auto}.report>h2{margin-bottom:18px}.report h1,.report h2,.report h3{margin-top:1.4em}.report>h2:first-child{margin-top:0}.report table{white-space:normal;font-size:13px}.report th{cursor:default}.report img{max-width:100%}.report code{padding:2px 5px;border-radius:4px;background:#f2f4f7}
 @media(max-width:1080px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}.side-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.topbar-inner,main{padding-left:18px;padding-right:18px}main{padding-top:20px}.kpi-grid,.side-grid,.charts-grid{grid-template-columns:1fr}.card{padding:20px}.kpi-card{padding:19px}.chart-box{height:200px}}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-inner"><p class="eyebrow">Evaluation workspace</p><h1>RepoPilot Lab</h1><p class="subtitle">Week 4 model evaluation and live repository Q&amp;A</p></div></header>
+<header class="topbar"><div class="topbar-inner"><p class="eyebrow">Evaluation workspace</p><h1>RepoPilot Lab</h1><p class="subtitle">Week 4 model evaluation and multi-model repository Q&amp;A comparison</p></div></header>
 <main>
 {% if rows %}{% set best_accuracy=rows|max(attribute='accuracy') %}{% set fastest=rows|min(attribute='latency_seconds') %}{% set lowest_hallucination=rows|min(attribute='hallucination_rate') %}{% set largest_run=rows|max(attribute='questions') %}{% set total_questions=largest_run.questions %}{% endif %}
 <section class="kpi-grid" aria-label="Evaluation highlights">
@@ -31,17 +47,224 @@ label{display:block;margin:0 0 16px;color:#344054;font-size:13px;font-weight:680
 <th data-type="text" aria-sort="none">Model <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Accuracy <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Relevance <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Latency <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Tokens <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Hallucination <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Test pass <span class="sort-icon">▲<br>▼</span></th>
 </tr></thead><tbody>{% for r in rows %}<tr data-model="{{ r.model }}"><td><span class="model-name"><span class="model-dot"></span>{{ r.model }}</span></td><td class="metric" data-v="{{ r.accuracy }}" data-metric="accuracy">{{ '%.1f%%'|format(r.accuracy*100) }}</td><td class="metric" data-v="{{ r.relevance }}" data-metric="relevance">{{ '%.3f'|format(r.relevance) }}</td><td class="metric" data-v="{{ r.latency_seconds }}" data-metric="latency" data-inverse="true">{{ '%.2f s'|format(r.latency_seconds) }}</td><td class="metric" data-v="{{ r.total_tokens }}" data-metric="tokens" data-inverse="true">{{ '%.1f'|format(r.total_tokens) }}</td><td class="metric" data-v="{{ r.hallucination_rate }}" data-metric="hallucination" data-inverse="true">{{ '%.1f%%'|format(r.hallucination_rate*100) }}</td><td class="metric" data-v="{{ '' if r.test_pass_rate is none else r.test_pass_rate }}" data-metric="test-pass">{{ 'n/a' if r.test_pass_rate is none else '%.1f%%'|format(r.test_pass_rate*100) }}</td></tr>{% endfor %}</tbody></table></div>
 {% set max_latency=(rows|max(attribute='latency_seconds')).latency_seconds %}<div class="chart-legend" id="chartLegend" aria-label="Model colors"></div><div class="charts-grid"><div class="chart-panel"><h3>Accuracy by model</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span class="chart-name">{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ r.accuracy*100 }}%"></div></div><span class="chart-value">{{ '%.1f%%'|format(r.accuracy*100) }}</span></div>{% endfor %}</div></div><div class="chart-panel"><h3>Average latency</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span class="chart-name">{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ (r.latency_seconds/max_latency*100) if max_latency else 0 }}%"></div></div><span class="chart-value">{{ '%.2fs'|format(r.latency_seconds) }}</span></div>{% endfor %}</div></div></div>
-{% else %}<div class="empty-state"><div><span class="empty-icon">⌁</span><strong>No results yet</strong>Run the evaluation service to populate this view.</div></div>{% endif %}</section>
+{% else %}<div class="empty-state"><div><span class="empty-icon">⌁</span><strong>No results yet</strong>Run the evaluation service to populate this view.</div></div>{% endif %}
+
+<!-- Live Multi-Model Comparison (Placed directly under the Model Evaluation Chart) -->
+<div class="live-compare-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--line)">
+  <div class="card-heading">
+    <div>
+      <h2>Live Model Comparison</h2>
+      <p class="section-note">Ask a repository question to trigger all {{ models|length }} models simultaneously and compare their answers side-by-side</p>
+    </div>
+    <span class="status-pill idle" id="compareStatusPill">Ready</span>
+  </div>
+  <label for="question">Repository question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+    <button id="ask" type="button" style="width:auto;min-width:210px"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
+    <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none">⏱ Elapsed: <span id="elapsedSecs">0.0</span>s</span>
+  </div>
+  <div class="answer-label">Model Answers Comparison</div>
+  <div class="table-wrap comparison-table-wrap">
+    <table id="comparisonTable" class="comparison-table">
+      <thead>
+        <tr>
+          <th class="col-model">Model</th>
+          <th class="col-latency">Latency</th>
+          <th class="col-answer">Generated Answer</th>
+        </tr>
+      </thead>
+      <tbody id="comparisonTbody">
+        {% for m in models %}
+        <tr data-compare-model="{{ m }}">
+          <td class="col-model"><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
+          <td class="col-latency"><span class="badge-latency idle">Idle</span></td>
+          <td class="col-answer"><div class="model-answer-box" style="color:var(--muted);font-style:italic">Ready. Click "Compare All Models" to generate and compare answers.</div></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <details id="contextDetails" style="margin-top:16px">
+    <summary>Retrieved RAG context (shared across all models)</summary>
+    <pre id="context"></pre>
+  </details>
+</div>
+</section>
 <div class="side-grid">
-<section class="card"><div class="card-heading"><div><h2>Live Ask</h2><p class="section-note">Query the repository through RAG</p></div></div><label for="model">Model<select id="model">{% for m in models %}<option>{{ m }}</option>{% endfor %}</select></label><label for="question">Repository question<textarea id="question" rows="4" placeholder="How is the payment fee calculated?"></textarea></label><button id="ask" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Ask</span></button><div class="answer-wrap"><div class="answer-label">Response</div><pre id="answer" aria-live="polite">Ready. Ask a repository question to begin.</pre><details><summary>Retrieved context</summary><pre id="context"></pre></details></div></section>
-<section class="card"><div class="card-heading"><div><h2>How it flows</h2><p class="section-note">From question to grounded answer</p></div></div><ol class="flow-list"><li class="flow-step"><span class="step-number">01</span><div><strong>Ask a question</strong><p>Choose a model and send your repository question.</p></div></li><li class="flow-step"><span class="step-number">02</span><div><strong>Retrieve context</strong><p>Ingestion search finds the top three relevant code chunks.</p></div></li><li class="flow-step"><span class="step-number">03</span><div><strong>Generate an answer</strong><p>The selected model uses that context through the LLM service.</p></div></li><li class="flow-step"><span class="step-number">04</span><div><strong>Review evidence</strong><p>The answer and retrieved source context appear together.</p></div></li></ol></section>
+<section class="card"><div class="card-heading"><div><h2>How it flows</h2><p class="section-note">From question to grounded comparison</p></div></div><ol class="flow-list"><li class="flow-step"><span class="step-number">01</span><div><strong>Ask a question</strong><p>Enter any repository question to trigger all models.</p></div></li><li class="flow-step"><span class="step-number">02</span><div><strong>Retrieve context</strong><p>Ingestion search retrieves top 3 relevant code chunks via vector embeddings.</p></div></li><li class="flow-step"><span class="step-number">03</span><div><strong>Trigger all 3 models</strong><p>Code Llama, StarCoder2, and Qwen2.5-Coder evaluate the grounded prompt.</p></div></li><li class="flow-step"><span class="step-number">04</span><div><strong>Compare in table</strong><p>Directly inspect answer quality, grounding, and latency differences side-by-side.</p></div></li></ol></section>
+<section class="card"><div class="card-heading"><div><h2>Active Models</h2><p class="section-note">Comparison suite specifications</p></div></div><div style="display:grid;gap:10px">
+<div class="model-spec-card"><div><strong style="font-size:13px;display:block">Code Llama</strong><span style="font-size:11px;color:var(--muted)">Meta · 7B parameters</span></div><span class="status-pill" style="background:#eef2ff;color:#4338ca">codellama</span></div>
+<div class="model-spec-card"><div><strong style="font-size:13px;display:block">StarCoder2</strong><span style="font-size:11px;color:var(--muted)">BigCode · 3B parameters</span></div><span class="status-pill" style="background:#e0f2fe;color:#0284c7">starcoder2</span></div>
+<div class="model-spec-card"><div><strong style="font-size:13px;display:block">Qwen2.5-Coder</strong><span style="font-size:11px;color:var(--muted)">Alibaba · 7.6B parameters</span></div><span class="status-pill" style="background:#fef3c7;color:#b45309">qwen2.5-coder</span></div>
+</div></section>
 </div></div>
 <section class="card report report-section"><h2>RAG pipeline analysis</h2>{{ pipeline_analysis|safe }}</section>
 </main>
 <script>
-const modelColors=['#4f46e5','#0ea5e9','#f59e0b','#10b981','#ec4899','#8b5cf6'];const tableRows=[...document.querySelectorAll('#models tbody tr')],colorByModel={};tableRows.forEach((row,i)=>{const color=modelColors[i%modelColors.length];colorByModel[row.dataset.model]=color;row.style.setProperty('--model-color',color)});document.querySelectorAll('[data-chart-model]').forEach(row=>row.style.setProperty('--model-color',colorByModel[row.dataset.chartModel]));const chartLegend=document.getElementById('chartLegend');if(chartLegend)tableRows.forEach(row=>{const item=document.createElement('span');item.className='legend-item';item.innerHTML=`<span class="legend-swatch" style="background:${colorByModel[row.dataset.model]}"></span>${row.dataset.model}`;chartLegend.appendChild(item)});
+const modelColors=['#4f46e5','#0ea5e9','#f59e0b','#10b981','#ec4899','#8b5cf6'];
+const configuredModels = {{ models|tojson }};
+const colorByModel={};
+configuredModels.forEach((model,i)=>{
+  colorByModel[model]=modelColors[i%modelColors.length];
+});
+
+const tableRows=[...document.querySelectorAll('#models tbody tr')];
+tableRows.forEach(row=>{
+  const m=row.dataset.model;
+  if(colorByModel[m]) row.style.setProperty('--model-color',colorByModel[m]);
+});
+document.querySelectorAll('[data-chart-model]').forEach(row=>{
+  const m=row.dataset.chartModel;
+  if(colorByModel[m]) row.style.setProperty('--model-color',colorByModel[m]);
+});
+const chartLegend=document.getElementById('chartLegend');
+if(chartLegend){
+  configuredModels.forEach(model=>{
+    const item=document.createElement('span');
+    item.className='legend-item';
+    item.innerHTML=`<span class="legend-swatch" style="background:${colorByModel[model]}"></span>${model}`;
+    chartLegend.appendChild(item);
+  });
+}
+document.querySelectorAll('[data-compare-model]').forEach(row=>{
+  const m=row.dataset.compareModel;
+  if(colorByModel[m]){
+    row.style.setProperty('--model-color',colorByModel[m]);
+    const dot=row.querySelector('.model-dot');
+    if(dot) dot.style.background=colorByModel[m];
+  }
+});
+
 document.querySelectorAll('#models th').forEach((th,i)=>th.addEventListener('click',()=>{const body=th.closest('table').tBodies[0],ascending=th.getAttribute('aria-sort')!=='ascending',type=th.dataset.type;[...body.rows].sort((a,b)=>{const ac=a.cells[i],bc=b.cells[i],ar=ac.dataset.v??ac.textContent.trim(),br=bc.dataset.v??bc.textContent.trim();let comparison;if(type==='number'){const av=ar===''?Number.NEGATIVE_INFINITY:Number(ar),bv=br===''?Number.NEGATIVE_INFINITY:Number(br);comparison=av-bv}else comparison=ar.localeCompare(br,undefined,{sensitivity:'base'});return comparison*(ascending?1:-1)}).forEach(row=>body.appendChild(row));document.querySelectorAll('#models th').forEach(h=>h.setAttribute('aria-sort','none'));th.setAttribute('aria-sort',ascending?'ascending':'descending')}));
 const metrics=[...new Set([...document.querySelectorAll('.metric')].map(c=>c.dataset.metric))];metrics.forEach(metric=>{const cells=[...document.querySelectorAll(`[data-metric="${metric}"]`)].filter(c=>c.dataset.v!==''),values=cells.map(c=>Number(c.dataset.v)),min=Math.min(...values),max=Math.max(...values),range=max-min;cells.forEach(cell=>{let score=range?(Number(cell.dataset.v)-min)/range:.5;if(cell.dataset.inverse==='true')score=1-score;cell.style.backgroundColor=`rgba(22,163,74,${.06+score*.16})`;if(score<.08&&range)cell.style.backgroundColor='rgba(220,38,38,.08)'})});
-document.getElementById('ask').onclick=async()=>{const answer=document.getElementById('answer'),button=document.getElementById('ask'),buttonLabel=button.querySelector('.button-label');answer.textContent='Thinking…';button.disabled=true;button.classList.add('loading');buttonLabel.textContent='Thinking…';try{const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({question:document.getElementById('question').value,model:document.getElementById('model').value})}),contentType=r.headers.get('content-type')||'',body=await r.text();let d;if(contentType.includes('application/json')){d=JSON.parse(body)}else{throw Error(`API returned ${r.status} ${r.statusText} as ${contentType||'an unknown content type'}. Make sure the dashboard is open at http://localhost:5050 and rebuild/restart the dashboard service.`)}if(!r.ok)throw Error(d.error||`${r.status} ${r.statusText}`);answer.textContent=d.response;document.getElementById('context').textContent=(d.retrieved_chunks||[]).join('\n\n')}catch(e){answer.textContent='Error: '+e.message}finally{button.disabled=false;button.classList.remove('loading');buttonLabel.textContent='Ask'}};
+
+const askBtn=document.getElementById('ask');
+const questionInput=document.getElementById('question');
+const compareTbody=document.getElementById('comparisonTbody');
+const contextPre=document.getElementById('context');
+const timerSpan=document.getElementById('compareTimer');
+const elapsedSecs=document.getElementById('elapsedSecs');
+const statusPill=document.getElementById('compareStatusPill');
+
+let timerInterval=null;
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+askBtn.onclick=async()=>{
+  const question=(questionInput.value||'').trim();
+  if(!question){
+    questionInput.focus();
+    return;
+  }
+  const btnLabel=askBtn.querySelector('.button-label');
+  askBtn.disabled=true;
+  askBtn.classList.add('loading');
+  btnLabel.textContent='Querying all 3 models…';
+
+  const startTime=Date.now();
+  timerSpan.style.display='inline';
+  elapsedSecs.textContent='0.0';
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);
+  },100);
+
+  if(statusPill){
+    statusPill.textContent='Querying…';
+    statusPill.className='status-pill';
+    statusPill.style.background='#eef2ff';
+    statusPill.style.color='#4338ca';
+  }
+
+  configuredModels.forEach(model=>{
+    let row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
+    if(!row){
+      row=document.createElement('tr');
+      row.dataset.compareModel=model;
+      compareTbody.appendChild(row);
+    }
+    const color=colorByModel[model]||'#4f46e5';
+    row.innerHTML=`
+      <td class="col-model"><span class="model-name"><span class="model-dot" style="background:${color}"></span>${model}</span></td>
+      <td class="col-latency"><span class="badge-latency loading"><span class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:4px;"></span>Thinking…</span></td>
+      <td class="col-answer"><div class="model-answer-box loading">Generating grounded answer from ${model} using retrieved repository context…</div></td>
+    `;
+  });
+
+  let completedCount=0;
+  let hasAnySuccess=false;
+  const totalModels=configuredModels.length;
+
+  const queries=configuredModels.map(async(model)=>{
+    try{
+      const r=await fetch('/api/ask',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({question:question,model:model})
+      });
+      const contentType=r.headers.get('content-type')||'';
+      const textBody=await r.text();
+      let d;
+      if(contentType.includes('application/json')){
+        d=JSON.parse(textBody);
+      }else{
+        throw Error(`Server error (${r.status}): ${textBody.slice(0,100)}`);
+      }
+      if(!r.ok) throw Error(d.error||`${r.status} ${r.statusText}`);
+
+      const row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
+      if(row){
+        const color=colorByModel[model]||'#4f46e5';
+        const latencyText=d.latency_seconds!==undefined?`${Number(d.latency_seconds).toFixed(2)} s`:'Done';
+        row.innerHTML=`
+          <td class="col-model"><span class="model-name"><span class="model-dot" style="background:${color}"></span>${model}</span></td>
+          <td class="col-latency"><span class="badge-latency">${latencyText}</span></td>
+          <td class="col-answer"><div class="model-answer-box">${escapeHtml(d.response||'(Empty response)')}</div></td>
+        `;
+      }
+
+      const chunks=d.retrieved_chunks||[];
+      if(chunks.length>0){
+        contextPre.textContent=chunks.join('\n\n');
+        const details=document.getElementById('contextDetails');
+        if(details) details.open=true;
+      }
+      hasAnySuccess=true;
+    }catch(e){
+      const row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
+      if(row){
+        const ans=row.querySelector('.col-answer');
+        if(ans) ans.innerHTML=`<div class="model-answer-box error">Model error: ${escapeHtml(e.message)}</div>`;
+        const lat=row.querySelector('.col-latency');
+        if(lat) lat.innerHTML=`<span class="badge-latency error">Error</span>`;
+      }
+    }finally{
+      completedCount++;
+      if(statusPill){
+        if(completedCount<totalModels){
+          statusPill.textContent=`${completedCount}/${totalModels} done`;
+        }else{
+          statusPill.textContent=hasAnySuccess?'Completed':'Error';
+          statusPill.style.background=hasAnySuccess?'#ecfdf3':'#fff1f2';
+          statusPill.style.color=hasAnySuccess?'#15803d':'#dc2626';
+        }
+      }
+    }
+  });
+
+  await Promise.allSettled(queries);
+  clearInterval(timerInterval);
+  elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);
+  askBtn.disabled=false;
+  askBtn.classList.remove('loading');
+  btnLabel.textContent='Compare All Models';
+};
 </script>
 </body></html>

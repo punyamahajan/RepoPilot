@@ -120,11 +120,13 @@ Open the dashboard:
 http://localhost:5050
 ```
 
-Ask a question in the web interface, such as:
+Ask a question in the web interface under the evaluation charts, such as:
 
 ```text
 How is the payment fee calculated?
 ```
+
+Click **Compare All Models**. The dashboard queries all three models (`codellama`, `starcoder2`, and `qwen2.5-coder`) simultaneously and displays their answers and latencies side-by-side in the comparison table.
 
 You can also test the API directly:
 

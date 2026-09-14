@@ -36,7 +36,7 @@ def main():
         retrieval = requests.post(f"{INGESTION_URL}/search", json={"query": question, "k": 3}, timeout=90)
         retrieval.raise_for_status()
         chunks = retrieval.json().get("chunks", [])
-        llm = requests.post(f"{LLM_URL}/ask", json={"prompt": question, "context": "\n\n".join(chunks), "use_retrieval": False, "model": MODEL}, timeout=180)
+        llm = requests.post(f"{LLM_URL}/ask", json={"prompt": question, "context": "\n\n".join(chunks), "use_retrieval": False, "model": MODEL}, timeout=600)
         llm.raise_for_status()
         response = llm.json()["response"]
         rows.append((question, chunks, response, classify(chunks, expected_file, response, keywords)))

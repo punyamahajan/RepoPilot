@@ -27,7 +27,7 @@ def main():
         found_response.raise_for_status()
         chunks = found_response.json().get("chunks", [])
         found = source_files(chunks)
-        answer_response = requests.post(f"{LLM_URL}/ask", json={"prompt": question, "context": "\n\n".join(chunks), "use_retrieval": False, "model": MODEL}, timeout=180)
+        answer_response = requests.post(f"{LLM_URL}/ask", json={"prompt": question, "context": "\n\n".join(chunks), "use_retrieval": False, "model": MODEL}, timeout=600)
         answer_response.raise_for_status()
         rows.append((question, needed, found, chunks, answer_response.json()["response"]))
     lines = ["# Repository Understanding Evaluation", "", f"Model: `{MODEL}`; retrieval depth: 5 chunks.", ""]

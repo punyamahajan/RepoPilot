@@ -29,7 +29,7 @@ def ask(question: str, k: int = 3, model: str = "codellama") -> dict:
             "use_retrieval": False,
             "model": model,
         },
-        timeout=180,
+        timeout=600,
     )
     llm.raise_for_status()
     return llm.json()

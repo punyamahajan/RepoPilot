@@ -63,7 +63,7 @@ def ask():
             retrieved_chunks = retrieval_response.json().get("chunks", [])
             context = "\n\n".join(retrieved_chunks)
 
-        answer = query_llm(prompt, context=context, model=model)
+        answer = query_llm(prompt, context=context, model=model, timeout=600)
         return jsonify({
             "prompt": prompt,
             "model": model,

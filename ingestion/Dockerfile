@@ -7,4 +7,4 @@ COPY ingestion/ ingestion/
 COPY data/ data/
 
 EXPOSE 5001
-CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "1", "--chdir", "ingestion", "ingestion_service:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "1", "--threads", "4", "--timeout", "600", "--chdir", "ingestion", "ingestion_service:app"]
