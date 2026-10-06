@@ -2,297 +2,651 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RepoPilot Lab</title>
+<title>CodeImpact AI</title>
+<meta name="description" content="AI-powered repository change impact analysis and intelligent code Q&A">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e7eaf0;--soft:#f8fafc;--accent:#4f46e5;--accent-dark:#4338ca;--accent-soft:#eef2ff;--success:#16a34a;--danger:#dc2626;--shadow:0 10px 30px #1720330f,0 1px 3px #1720330a;--radius:12px}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}.topbar{background:#fffffff2;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}.topbar-inner,main{max-width:1440px;margin:auto}.topbar-inner{padding:26px 32px}.topbar-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}.app-nav{display:flex;gap:8px;flex:none}.app-nav a{padding:9px 13px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;font-weight:700;text-decoration:none}.app-nav a:hover{color:var(--accent);border-color:#c7d2fe}.app-nav a.active{color:#fff;background:var(--accent);border-color:var(--accent)}.eyebrow{margin:0 0 5px;color:var(--accent);font-size:12px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(25px,3vw,34px);line-height:1.2;letter-spacing:-.035em}.subtitle{margin:7px 0 0;color:var(--muted)}main{padding:28px 32px 48px}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:18px}.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,.8fr);gap:18px;align-items:start}.side-grid{display:grid;gap:18px}.report-section{margin-top:18px}.card{min-width:0;padding:26px;background:var(--card);border:1px solid #e7eaf0d9;border-radius:var(--radius);box-shadow:var(--shadow)}.kpi-card{padding:21px 22px}.kpi-label{margin:0;color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.kpi-value{margin:8px 0 5px;font-size:clamp(24px,3vw,31px);font-weight:760;line-height:1.2;letter-spacing:-.035em;overflow-wrap:anywhere}.kpi-meta{display:flex;align-items:center;gap:6px;margin:0;color:var(--muted);font-size:12px}.trend{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#ecfdf3;color:var(--success);font-size:10px;font-weight:800}.trend.down{background:#fff1f2;color:var(--danger)}
-.card-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:20px}h2{margin:0;font-size:18px;line-height:1.3;letter-spacing:-.018em}h3{margin:0;font-size:14px}.section-note{margin:5px 0 0;color:var(--muted);font-size:13px}.status-pill{flex:none;padding:5px 10px;border-radius:999px;background:#ecfdf3;color:#15803d;font-size:11px;font-weight:750}.status-pill.empty{background:#f2f4f7;color:var(--muted)}.status-pill.idle{background:#f2f4f7;color:var(--muted)}
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:9px}table{width:100%;border-collapse:collapse;white-space:nowrap}th,td{padding:13px 14px;border-bottom:1px solid var(--line);text-align:right}th{background:#f3f5f8;color:#475467;font-size:11px;font-weight:750;letter-spacing:.025em;text-transform:uppercase;cursor:pointer;user-select:none;transition:.15s}#models th:hover,#models th[aria-sort]:not([aria-sort=none]){background:var(--accent-soft);color:var(--accent)}th:first-child,td:first-child{text-align:left}tbody tr:last-child td{border:0}tbody tr:hover td{background-color:#fafbff}.sort-icon{display:inline-block;width:11px;margin-left:4px;color:#98a2b3;font-size:8px;line-height:.85;vertical-align:middle}th[aria-sort=ascending] .sort-icon,th[aria-sort=descending] .sort-icon{color:var(--accent)}.model-name{display:inline-flex;align-items:center;gap:9px;font-weight:700}.model-dot{width:9px;height:9px;border-radius:50%;background:var(--model-color,var(--accent));box-shadow:0 0 0 3px color-mix(in srgb,var(--model-color,var(--accent)) 14%,transparent)}.metric{background-clip:padding-box;font-variant-numeric:tabular-nums}.empty-state{display:grid;place-items:center;min-height:190px;padding:30px;text-align:center;color:var(--muted)}.empty-icon{display:grid;place-items:center;width:46px;height:46px;margin:0 auto 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:22px}.empty-state strong{display:block;margin-bottom:3px;color:var(--ink)}
-.chart-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:18px 2px -4px;color:var(--muted);font-size:11px}.legend-item{display:inline-flex;align-items:center;gap:6px}.legend-swatch{width:8px;height:8px;border-radius:50%}.charts-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}.chart-panel{min-width:0;padding:17px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.chart-panel h3{margin-bottom:15px}.chart-bars{display:grid;gap:13px}.chart-row{display:grid;grid-template-columns:minmax(85px,1fr) 2fr 58px;gap:9px;align-items:center;font-size:11px}.chart-name{overflow:hidden;text-overflow:ellipsis}.chart-track{height:12px;overflow:hidden;border-radius:999px;background:#e7eaf0}.chart-bar{height:100%;min-width:2px;border-radius:inherit;background:var(--model-color,var(--accent))}.chart-value{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-label{display:block;margin:0 0 16px;color:#344054;font-size:13px;font-weight:680}select,textarea,button{width:100%;font:inherit}select,textarea{margin-top:7px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:8px;outline:0;background:#fff;color:var(--ink);transition:.15s}select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #4f46e521}textarea{min-height:96px;resize:vertical}button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:11px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:720;cursor:pointer;box-shadow:0 2px 5px #4f46e540;transition:.15s}button:hover{background:var(--accent-dark)}button:active{transform:translateY(1px)}button:disabled{cursor:wait;opacity:.78}.spinner{display:none;width:15px;height:15px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}button.loading .spinner{display:inline-block}@keyframes spin{to{transform:rotate(360deg)}}.answer-wrap{margin-top:20px}.answer-label{margin-bottom:10px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}details{margin-top:12px;color:var(--muted);font-size:13px}summary{cursor:pointer;font-weight:650}#context{margin-top:9px;padding:13px;border-radius:8px;background:#111827;color:#dbe4f0;max-height:260px;overflow:auto}
-.comparison-table{width:100%;border-collapse:collapse;white-space:normal}
-.comparison-table th,.comparison-table td{padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
-.comparison-table th{background:#f3f5f8;color:#475467;font-size:11px;font-weight:750;letter-spacing:.025em;text-transform:uppercase;cursor:default}
-.comparison-table th:hover{background:#f3f5f8;color:#475467}
-.col-model{width:160px;text-align:left}
-.col-latency{width:110px;text-align:center}
-.col-answer{text-align:left}
-.comparison-table td.col-latency{text-align:center}
-.badge-latency{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:750;background:#ecfdf3;color:#15803d;font-variant-numeric:tabular-nums;white-space:nowrap}
-.badge-latency.loading{background:#eef2ff;color:#4338ca}
-.badge-latency.error{background:#fff1f2;color:#dc2626}
-.badge-latency.idle{background:#f2f4f7;color:var(--muted)}
-.model-answer-box{font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;color:#1e293b;background:var(--soft);padding:14px 16px;border-radius:8px;border:1px solid var(--line);min-height:72px;max-height:420px;overflow-y:auto}
-.model-answer-box.loading{color:var(--muted);font-style:italic}
-.model-answer-box.error{color:#dc2626;background:#fef2f2;border-color:#fecaca}
-.model-spec-card{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--soft);border:1px solid var(--line);border-radius:8px}
-.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.category-card{padding:18px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.category-card h3{margin-bottom:10px}.category-winner{margin:0 0 7px;font-size:17px;font-weight:760}.category-metric{margin:0;color:var(--muted);font-size:12px}.category-metric strong{color:var(--ink)}
-.reliability-intro{margin:0 0 20px;color:var(--muted);font-size:13px}.reliability-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.reliability-card{min-width:0;padding:18px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.reliability-label{margin:0;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}.reliability-value{margin:8px 0 4px;color:var(--ink);font-size:23px;font-weight:760;letter-spacing:-.03em}.reliability-meta{margin:0;color:var(--muted);font-size:12px}.reliability-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(300px,.95fr);gap:18px;margin-top:18px}.reliability-panel{padding:20px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.reliability-panel h3{font-size:15px;margin-bottom:7px}.reliability-panel .section-note{margin-bottom:16px}.reliability-flow{display:grid;gap:12px;margin:0;padding:0;list-style:none}.reliability-step{display:grid;grid-template-columns:28px 1fr;gap:11px;align-items:start}.reliability-step:not(:last-child) .reliability-step-number:after{content:"";position:absolute;top:29px;bottom:-13px;left:13px;width:1px;background:#dfe3eb}.reliability-step-number{position:relative;display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:800}.reliability-step strong{display:block;margin:1px 0 2px;font-size:13px}.reliability-step p{margin:0;color:var(--muted);font-size:12px}.coverage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.coverage-item{padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px;font-weight:670}.coverage-item:before{content:"✓";margin-right:8px;color:var(--success);font-weight:850}.exercise-table{white-space:normal}.exercise-table th{cursor:default}.exercise-table th:hover{background:#f3f5f8;color:#475467}.exercise-table td{vertical-align:top}.prompt-cell{min-width:260px;max-width:450px}.status-tag{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:750;white-space:nowrap}.status-tag.pass,.status-tag.answered,.status-tag.accept{background:#ecfdf3;color:#15803d}.status-tag.refused,.status-tag.reject{background:#fff7ed;color:#c2410c}.status-tag.fail{background:#fff1f2;color:var(--danger)}.reason-code{font:11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#475467}.evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.reliability-evidence{margin:0;padding:18px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.reliability-evidence summary{color:var(--ink)}.reliability-evidence .report{margin-top:16px;max-height:520px;border-top:1px solid var(--line);padding-top:4px}
-.flow-list{display:grid;gap:17px;margin:0;padding:0;list-style:none}.flow-step{display:grid;grid-template-columns:32px 1fr;gap:12px;position:relative}.flow-step:not(:last-child):after{content:"";position:absolute;top:34px;bottom:-15px;left:15px;width:1px;background:#dfe3eb}.step-number{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:800}.flow-step strong{display:block;margin:2px 0;font-size:13px}.flow-step p{margin:0;color:var(--muted);font-size:12px}.report{max-height:620px;overflow:auto}.report>h2{margin-bottom:18px}.report h1,.report h2,.report h3{margin-top:1.4em}.report>h2:first-child{margin-top:0}.report table{white-space:normal;font-size:13px}.report th{cursor:default}.report img{max-width:100%}.report code{padding:2px 5px;border-radius:4px;background:#f2f4f7}
-@media(max-width:1080px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid,.reliability-layout{grid-template-columns:1fr}.side-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reliability-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:760px){.topbar-inner,main{padding-left:18px;padding-right:18px}.topbar-row{align-items:flex-start;flex-direction:column}.app-nav{width:100%}.app-nav a{flex:1;text-align:center}main{padding-top:20px}.kpi-grid,.side-grid,.charts-grid,.reliability-grid,.coverage-grid,.evidence-grid{grid-template-columns:1fr}.card{padding:20px}.kpi-card{padding:19px}.chart-box{height:200px}}
+:root{--bg:#0a0f1a;--surface:#111827;--card:#1a2236;--card-hover:#1e2842;--ink:#e2e8f0;--muted:#7b8ba5;--line:#1e2d42;--accent:#6366f1;--accent-glow:#818cf820;--accent-soft:#312e81;--success:#22c55e;--danger:#ef4444;--warn:#f59e0b;--high:#ef4444;--medium:#f59e0b;--low:#22c55e;--radius:12px;--font:'Inter',system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box;margin:0}::selection{background:#6366f140}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--font);-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:100;background:#0a0f1aee;border-bottom:1px solid var(--line);backdrop-filter:blur(16px) saturate(1.4)}
+.topbar-inner{max-width:1440px;margin:auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+.brand-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;font-size:17px}
+.brand small{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;display:block;margin-top:-2px}
+.nav-pills{display:flex;gap:6px}
+.nav-pills a{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);transition:.2s}
+.nav-pills a:hover{color:var(--ink);background:#ffffff08}
+.nav-pills a.active{color:#fff;background:var(--accent)}
+
+/* ── Layout ── */
+.container{max-width:1440px;margin:auto;padding:0 32px}
+.hero{padding:48px 0 40px;text-align:center}
+.hero .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.hero h1{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-.04em;line-height:1.15;background:linear-gradient(135deg,#e2e8f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .subtitle{color:var(--muted);margin-top:10px;font-size:15px}
+.section-divider{border:none;border-top:1px solid var(--line);margin:48px 0}
+.section-heading{margin-bottom:28px}
+.section-heading .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.section-heading h2{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.section-heading .note{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* ── Cards ── */
+.card{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);transition:.2s}
+.card:hover{border-color:#2a3d5a}
+
+/* ── KPI row ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.kpi{padding:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.kpi-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.kpi-value{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:6px 0 4px}
+.kpi-meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.trend{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;font-size:9px;font-weight:900}
+.trend.up{background:#22c55e20;color:var(--success)}
+.trend.down{background:#ef444420;color:var(--danger)}
+
+/* ── Two-column workspace ── */
+.workspace{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+.workspace-full{grid-column:1/-1}
+
+/* ── Code Q&A panel ── */
+.qa-panel{display:flex;flex-direction:column;gap:16px}
+.qa-panel label{font-size:13px;font-weight:600;color:#94a3b8}
+.qa-panel textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px/1.6 var(--font);resize:vertical;min-height:88px;outline:none;transition:.2s}
+.qa-panel textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border:none;border-radius:8px;font:14px/1 var(--font);font-weight:700;cursor:pointer;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;box-shadow:0 4px 14px #6366f140}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px #6366f150}
+.btn-primary:disabled{opacity:.6;cursor:wait;transform:none}
+.btn-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.spinner{width:14px;height:14px;border:2px solid #ffffff44;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.loading .spinner{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Comparison table ── */
+.compare-table{width:100%;border-collapse:collapse;margin-top:16px}
+.compare-table th,.compare-table td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}
+.compare-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.compare-table tbody tr:hover td{background:#ffffff04}
+.model-name{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.model-dot{width:8px;height:8px;border-radius:50%;flex:none}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge-ok{background:#22c55e18;color:var(--success)}
+.badge-loading{background:#6366f118;color:#818cf8}
+.badge-error{background:#ef444418;color:var(--danger)}
+.badge-idle{background:#ffffff08;color:var(--muted)}
+.answer-box{font:13px/1.65 'SF Mono',ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;border-radius:8px;background:var(--surface);border:1px solid var(--line);max-height:340px;overflow-y:auto;color:#c6d0e0}
+.answer-box.loading{color:var(--muted);font-style:italic}
+.answer-box.error{color:var(--danger);background:#1a0f0f;border-color:#3b1111}
+details{color:var(--muted);font-size:13px;margin-top:14px}
+summary{cursor:pointer;font-weight:600;color:#94a3b8}
+#context{margin-top:8px;padding:12px;border-radius:8px;background:#0d1117;color:#8b949e;max-height:220px;overflow:auto;font:12px/1.5 'SF Mono',ui-monospace,Consolas,monospace}
+
+/* ── Impact Analysis panel ── */
+.impact-panel{display:flex;flex-direction:column;gap:16px}
+.impact-panel label{font-size:13px;font-weight:600;color:#94a3b8}
+.impact-panel select,.impact-panel input[type="text"]{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px var(--font);outline:none;transition:.2s}
+.impact-panel select:focus,.impact-panel input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
+.impact-panel textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px/1.6 var(--font);resize:vertical;min-height:80px;outline:none;transition:.2s}
+.impact-panel textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
+.input-modes{display:flex;gap:4px;margin-bottom:8px}
+.input-modes button{padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:12px/1 var(--font);font-weight:600;cursor:pointer;transition:.15s}
+.input-modes button.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.options-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;color:#94a3b8}
+.options-row label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.options-row input[type="checkbox"]{accent-color:var(--accent)}
+.run-row{display:flex;gap:10px;align-items:center}
+.run-row select{width:auto;flex:none;margin:0}
+.job-banner{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:10px;background:linear-gradient(135deg,#312e8140,#1e1b4b40);border:1px solid #4338ca40;color:#a5b4fc;font-size:14px}
+.job-banner strong{color:#c7d2fe;display:block}
+.job-banner small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.live-tag{margin-left:auto;padding:4px 10px;border-radius:999px;background:#6366f130;color:#a5b4fc;font-size:10px;font-weight:800;letter-spacing:.06em;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── Impact results ── */
+.result-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.result-header h2{font-size:20px;font-weight:800}
+.risk-badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase}
+.risk-badge.high{background:#ef444420;color:var(--high)}
+.risk-badge.medium{background:#f59e0b20;color:var(--medium)}
+.risk-badge.low{background:#22c55e20;color:var(--low)}
+.result-stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px;font-size:13px;color:var(--muted)}
+.result-stats strong{color:var(--ink);font-size:17px;display:block}
+.report-sub-tabs{display:flex;gap:4px;margin-bottom:16px}
+.report-sub-tabs button{padding:8px 14px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);font:13px/1 var(--font);font-weight:600;cursor:pointer;transition:.15s}
+.report-sub-tabs button.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.file-list{max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--ink);font:13px var(--font);cursor:pointer;text-align:left;transition:.15s;width:100%}
+.file-row:hover{background:#ffffff06;border-color:var(--line)}
+.file-row.chosen{background:#312e8130;border-color:var(--accent)}
+.file-row span{flex:1;overflow:hidden;text-overflow:ellipsis}
+.file-row small{display:block;color:var(--muted);font-size:11px}
+.detail-pane{font-size:13px;color:#b0bec5}
+.detail-pane h3{font-size:15px;color:var(--ink);margin:16px 0 8px}
+.detail-pane pre{background:var(--surface);padding:10px;border-radius:6px;font-size:12px;overflow-x:auto;color:#8b949e;margin:6px 0}
+.detail-pane code{font-size:12px;background:var(--surface);padding:2px 6px;border-radius:4px}
+.ai-finding{padding:16px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--surface)}
+.ai-finding code{font-size:12px;color:#a5b4fc}
+.ai-finding p{margin:8px 0;font-size:13px;color:#b0bec5}
+.ai-finding .suggestion{color:#94a3b8;font-style:italic;font-size:12px}
+.test-card{padding:14px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;background:var(--surface);font-size:13px}
+.test-card strong{color:var(--ink);display:block;margin-bottom:4px}
+.test-card p{color:var(--muted);margin:0}
+.test-card pre{margin:6px 0 0;font-size:11px;color:#7b8ba5}
+
+/* ── Evaluation tables ── */
+.eval-table{width:100%;border-collapse:collapse;font-size:13px}
+.eval-table th,.eval-table td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right}
+.eval-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;user-select:none}
+.eval-table th:first-child,.eval-table td:first-child{text-align:left}
+.eval-table tbody tr:hover td{background:#ffffff04}
+.metric{font-variant-numeric:tabular-nums}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.chart-panel{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.chart-panel h3{font-size:14px;margin-bottom:14px;color:#94a3b8}
+.chart-bars{display:grid;gap:10px}
+.chart-row{display:grid;grid-template-columns:100px 1fr 50px;gap:8px;align-items:center;font-size:11px}
+.chart-track{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.chart-bar{height:100%;border-radius:inherit;min-width:2px}
+.chart-value{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:14px;margin:16px 0 -4px;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* ── Category winners ── */
+.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.category-card{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.category-card h3{font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
+.category-card .winner{font-size:16px;font-weight:800;margin-bottom:4px}
+.category-card .metric-detail{font-size:12px;color:var(--muted)}
+.category-card .metric-detail strong{color:#94a3b8}
+
+/* ── Guardrails ── */
+.guardrail-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.guardrail-stat{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.guardrail-stat .label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.guardrail-stat .value{font-size:22px;font-weight:800;margin:6px 0 3px}
+.guardrail-stat .meta{font-size:11px;color:var(--muted)}
+.status-tag{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.status-tag.pass,.status-tag.answered,.status-tag.accept{background:#22c55e18;color:var(--success)}
+.status-tag.fail,.status-tag.reject{background:#ef444418;color:var(--danger)}
+.status-tag.refused{background:#f59e0b18;color:var(--warn)}
+.exercise-table{width:100%;border-collapse:collapse;font-size:13px;white-space:normal}
+.exercise-table th,.exercise-table td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.exercise-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.prompt-cell{min-width:220px;max-width:380px}
+.reason-code{font:11px/1.4 'SF Mono',ui-monospace,Consolas,monospace;color:#7b8ba5}
+.report-prose{max-height:500px;overflow:auto;font-size:14px;color:#b0bec5;line-height:1.7}
+.report-prose h1,.report-prose h2,.report-prose h3{color:var(--ink);margin-top:1.3em}
+.report-prose code{padding:2px 5px;border-radius:4px;background:var(--surface);font-size:13px}
+.report-prose table{width:100%;border-collapse:collapse;font-size:13px}
+.report-prose th,.report-prose td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+.report-prose th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state strong{color:var(--ink);display:block;margin-bottom:4px}
+.empty-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:22px}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+
+footer.site-footer{text-align:center;padding:40px 32px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:48px}
+
+@media(max-width:1080px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.workspace{grid-template-columns:1fr}.guardrail-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:760px){.container{padding:0 16px}.kpi-grid{grid-template-columns:1fr}.topbar-inner{flex-direction:column;align-items:flex-start}.nav-pills{width:100%;overflow-x:auto}.guardrail-grid{grid-template-columns:1fr 1fr}.charts-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-inner"><div class="topbar-row"><div><p class="eyebrow">Evaluation workspace</p><h1>RepoPilot Lab</h1><p class="subtitle">Week 4 model evaluation and multi-model repository Q&amp;A comparison</p></div><nav class="app-nav" aria-label="Dashboard views"><a class="active" href="/">Dashboard</a><a href="/insights">Visual Insights</a></nav></div></div></header>
-<main>
-{% if rows %}{% set best_accuracy=rows|max(attribute='accuracy') %}{% set fastest=rows|min(attribute='latency_seconds') %}{% set lowest_hallucination=rows|min(attribute='hallucination_rate') %}{% set largest_run=rows|max(attribute='questions') %}{% set total_questions=largest_run.questions %}{% endif %}
-<section class="kpi-grid" aria-label="Evaluation highlights">
-<article class="card kpi-card"><p class="kpi-label">Best accuracy</p><p class="kpi-value">{{ '%.1f%%'|format(best_accuracy.accuracy*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend">▲</span>{{ best_accuracy.model if rows else 'Awaiting results' }}</p></article>
-<article class="card kpi-card"><p class="kpi-label">Fastest model</p><p class="kpi-value">{{ '%.2fs'|format(fastest.latency_seconds) if rows else '—' }}</p><p class="kpi-meta"><span class="trend">⚡</span>{{ fastest.model if rows else 'Awaiting results' }}{% if rows %} · average{% endif %}</p></article>
-<article class="card kpi-card"><p class="kpi-label">Lowest hallucination</p><p class="kpi-value">{{ '%.1f%%'|format(lowest_hallucination.hallucination_rate*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend down">▼</span>{{ lowest_hallucination.model if rows else 'Awaiting results' }}</p></article>
-<article class="card kpi-card"><p class="kpi-label">Questions evaluated</p><p class="kpi-value">{{ total_questions if rows else '—' }}</p><p class="kpi-meta"><span class="trend">✓</span>{{ rows|length if rows else 0 }} models completed</p></article>
-</section>
-<div class="dashboard-grid">
-<section class="card"><div class="card-heading"><div><h2>Model comparison</h2><p class="section-note">Average evaluation metrics by model</p></div><span class="status-pill {{ 'empty' if not rows }}">{{ 'Results loaded' if rows else 'No data' }}</span></div>
-{% if rows %}<div class="table-wrap"><table id="models"><thead><tr>
-<th data-type="text" aria-sort="none">Model <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Accuracy <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Relevance <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Latency <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Tokens <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Hallucination <span class="sort-icon">▲<br>▼</span></th><th data-type="number" aria-sort="none">Test pass <span class="sort-icon">▲<br>▼</span></th>
-</tr></thead><tbody>{% for r in rows %}<tr data-model="{{ r.model }}"><td><span class="model-name"><span class="model-dot"></span>{{ r.model }}</span></td><td class="metric" data-v="{{ r.accuracy }}" data-metric="accuracy">{{ '%.1f%%'|format(r.accuracy*100) }}</td><td class="metric" data-v="{{ r.relevance }}" data-metric="relevance">{{ '%.3f'|format(r.relevance) }}</td><td class="metric" data-v="{{ r.latency_seconds }}" data-metric="latency" data-inverse="true">{{ '%.2f s'|format(r.latency_seconds) }}</td><td class="metric" data-v="{{ r.total_tokens }}" data-metric="tokens" data-inverse="true">{{ '%.1f'|format(r.total_tokens) }}</td><td class="metric" data-v="{{ r.hallucination_rate }}" data-metric="hallucination" data-inverse="true">{{ '%.1f%%'|format(r.hallucination_rate*100) }}</td><td class="metric" data-v="{{ '' if r.test_pass_rate is none else r.test_pass_rate }}" data-metric="test-pass">{{ 'n/a' if r.test_pass_rate is none else '%.1f%%'|format(r.test_pass_rate*100) }}</td></tr>{% endfor %}</tbody></table></div>
-{% set max_latency=(rows|max(attribute='latency_seconds')).latency_seconds %}<div class="chart-legend" id="chartLegend" aria-label="Model colors"></div><div class="charts-grid"><div class="chart-panel"><h3>Accuracy by model</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span class="chart-name">{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ r.accuracy*100 }}%"></div></div><span class="chart-value">{{ '%.1f%%'|format(r.accuracy*100) }}</span></div>{% endfor %}</div></div><div class="chart-panel"><h3>Average latency</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span class="chart-name">{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ (r.latency_seconds/max_latency*100) if max_latency else 0 }}%"></div></div><span class="chart-value">{{ '%.2fs'|format(r.latency_seconds) }}</span></div>{% endfor %}</div></div></div>
-{% else %}<div class="empty-state"><div><span class="empty-icon">⌁</span><strong>No results yet</strong>Run the evaluation service to populate this view.</div></div>{% endif %}
 
-<!-- Live Multi-Model Comparison (Placed directly under the Model Evaluation Chart) -->
-<div class="live-compare-section" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--line)">
-  <div class="card-heading">
-    <div>
-      <h2>Live Model Comparison</h2>
-      <p class="section-note">Ask a repository question to trigger all {{ models|length }} models simultaneously and compare their answers side-by-side</p>
+<!-- ═══════ TOPBAR ═══════ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-icon">⌬</div>
+      <div>CodeImpact AI<small>Change Intelligence</small></div>
     </div>
-    <span class="status-pill idle" id="compareStatusPill">Ready</span>
+    <nav class="nav-pills" aria-label="Page sections">
+      <a class="active" href="#qa">Code Q&amp;A</a>
+      <a href="#impact">Impact Analysis</a>
+      <a href="#eval">Model Evaluation</a>
+      <a href="#guardrails">Guardrails</a>
+    </nav>
   </div>
-  <label for="question">Repository question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
-  <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
-    <button id="ask" type="button" style="width:auto;min-width:210px"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
-    <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none">⏱ Elapsed: <span id="elapsedSecs">0.0</span>s</span>
+</header>
+
+<div class="container">
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <p class="eyebrow">AI-Powered Repository Intelligence</p>
+  <h1>Understand your code. Predict every change.</h1>
+  <p class="subtitle">Ask questions about your codebase, analyze the impact of changes, and evaluate model performance — all in one place.</p>
+</div>
+
+<!-- ═══════ KPI STRIP ═══════ -->
+{% if rows %}{% set best_accuracy=rows|max(attribute='accuracy') %}{% set fastest=rows|min(attribute='latency_seconds') %}{% set lowest_hallucination=rows|min(attribute='hallucination_rate') %}{% set largest_run=rows|max(attribute='questions') %}{% set total_questions=largest_run.questions %}{% endif %}
+<section class="kpi-grid" aria-label="Key metrics">
+  <div class="kpi"><p class="kpi-label">Best Accuracy</p><p class="kpi-value">{{ '%.1f%%'|format(best_accuracy.accuracy*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">▲</span>{{ best_accuracy.model if rows else 'Awaiting data' }}</p></div>
+  <div class="kpi"><p class="kpi-label">Fastest Model</p><p class="kpi-value">{{ '%.2fs'|format(fastest.latency_seconds) if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">⚡</span>{{ fastest.model if rows else 'Awaiting data' }}</p></div>
+  <div class="kpi"><p class="kpi-label">Lowest Hallucination</p><p class="kpi-value">{{ '%.1f%%'|format(lowest_hallucination.hallucination_rate*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend down">▼</span>{{ lowest_hallucination.model if rows else 'Awaiting data' }}</p></div>
+  <div class="kpi"><p class="kpi-label">Questions Evaluated</p><p class="kpi-value">{{ total_questions if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">✓</span>{{ rows|length if rows else 0 }} models</p></div>
+</section>
+
+<!-- ═══════ SHARED ACTIVE REPOSITORY ═══════ -->
+<div class="card" style="margin-bottom:20px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:16px">📁</div>
+    <div>
+      <span style="font-size:11px;font-weight:800;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;display:block">Active Codebase</span>
+      <strong style="font-size:14px">Repository under analysis</strong>
+    </div>
   </div>
-  <div class="answer-label">Model Answers Comparison</div>
-  <div class="table-wrap comparison-table-wrap">
-    <table id="comparisonTable" class="comparison-table">
-      <thead>
-        <tr>
-          <th class="col-model">Model</th>
-          <th class="col-latency">Latency</th>
-          <th class="col-answer">Generated Answer</th>
-        </tr>
-      </thead>
-      <tbody id="comparisonTbody">
-        {% for m in models %}
-        <tr data-compare-model="{{ m }}">
-          <td class="col-model"><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
-          <td class="col-latency"><span class="badge-latency idle">Idle</span></td>
-          <td class="col-answer"><div class="model-answer-box" style="color:var(--muted);font-style:italic">Ready. Click "Compare All Models" to generate and compare answers.</div></td>
-        </tr>
-        {% endfor %}
-      </tbody>
+  <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:540px;min-width:260px">
+    <input type="text" id="sharedRepo" value="." placeholder="e.g. . or data/sample_repo" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px var(--font);outline:none">
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+    <span id="repoStatsBadge" class="badge badge-idle">Scanning repository…</span>
+    <span style="color:var(--muted);font-size:11px">Shared by Code Q&amp;A &amp; Impact Analysis</span>
+  </div>
+</div>
+
+<!-- ═══════ SECTION: Code Q&A + Impact Analysis (side by side) ═══════ -->
+<div class="workspace" id="qa">
+
+  <!-- LEFT: Code Q&A -->
+  <section class="card qa-panel">
+    <div class="section-heading">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <p class="eyebrow">Repository Q&amp;A</p>
+        <span class="badge badge-idle" id="qaRepoBadge" style="font-size:10px">Target: .</span>
+      </div>
+      <h2>Ask your codebase anything</h2>
+      <p class="note">Multi-model RAG comparison — all {{ models|length }} models answer simultaneously from the active repository</p>
+    </div>
+    <label>Your question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-primary" id="ask" type="button" style="flex:none"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
+      <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none">⏱ <span id="elapsedSecs">0.0</span>s</span>
+      <span class="badge badge-idle" id="compareStatusPill">Ready</span>
+    </div>
+    <div class="table-wrap">
+      <table class="compare-table" id="comparisonTable">
+        <thead><tr><th style="width:140px">Model</th><th style="width:90px">Latency</th><th>Answer</th></tr></thead>
+        <tbody id="comparisonTbody">
+          {% for m in models %}
+          <tr data-compare-model="{{ m }}">
+            <td><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
+            <td><span class="badge badge-idle">Idle</span></td>
+            <td><div class="answer-box loading">Click "Compare All Models" to generate answers.</div></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <details id="contextDetails"><summary>Retrieved RAG context (shared)</summary><pre id="context"></pre></details>
+  </section>
+
+  <!-- RIGHT: Impact Analysis -->
+  <section class="card impact-panel" id="impact">
+    <div class="section-heading">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <p class="eyebrow">Change Impact Analysis</p>
+        <span class="badge badge-idle" id="impactRepoBadge" style="font-size:10px">Target: .</span>
+      </div>
+      <h2>Predict the ripple effect</h2>
+      <p class="note">Describe a code change to map affected files, tests, and risks in the active repository</p>
+    </div>
+    <div class="input-modes">
+      <button class="sel" data-mode="description">Describe</button>
+      <button data-mode="diff">Paste diff</button>
+      <button data-mode="file">Select file</button>
+      <button data-mode="git">Git changes</button>
+    </div>
+    <div id="impactFileSelect" style="display:none"><label>Modified file<select id="impactFile"><option value="">Choose a file…</option></select></label></div>
+    <div id="impactDiffArea" style="display:none"><textarea id="impactDiff" placeholder="Paste your git diff here…" rows="4" spellcheck="false"></textarea></div>
+    <div id="impactGitNote" style="display:none;padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:13px;color:#94a3b8"><strong>Working tree vs HEAD</strong><br>Includes staged, unstaged, deleted, and untracked supported files.</div>
+    <textarea id="impactDesc" rows="4" placeholder="e.g. Change password validation rules. Which login flows and tests might be affected?"></textarea>
+    <div class="options-row">
+      <label><input type="checkbox" id="impactSemantic" checked> Semantic retrieval</label>
+      <label><input type="checkbox" id="impactLlm" checked> AI reasoning</label>
+    </div>
+    <div class="run-row">
+      <select id="impactModel"><option value="codellama">Code Llama</option><option value="qwen2.5-coder">Qwen2.5 Coder</option><option value="starcoder2">StarCoder2</option></select>
+      <button class="btn btn-primary" id="analyzeBtn" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Analyze Impact</span></button>
+    </div>
+    <p style="font-size:11px;color:var(--muted)">Read-only analysis. Suggested fixes are never applied automatically.</p>
+  </section>
+</div>
+
+<!-- ═══════ Impact Results (full width, shown after analysis) ═══════ -->
+<section id="impactResults" class="card workspace-full" style="display:none;margin-bottom:32px">
+  <div class="result-header">
+    <div>
+      <p class="eyebrow" style="margin-bottom:4px">CHANGE IMPACT REPORT</p>
+      <h2 id="impactTitle">Impact Report</h2>
+      <p id="impactSummary" style="color:var(--muted);font-size:13px;margin-top:4px"></p>
+    </div>
+    <a class="btn btn-secondary" id="exportBtn" style="display:none">⬇ Export</a>
+  </div>
+  <div class="result-stats" id="impactStats"></div>
+  <div class="report-sub-tabs" id="impactTabs">
+    <button class="sel" data-tab="impactMap">Impact Map</button>
+    <button data-tab="impactTests">Tests &amp; Fixes</button>
+    <button data-tab="impactAi">AI Reasoning</button>
+    <button data-tab="impactEvidence">Source Evidence</button>
+  </div>
+  <div id="impactMap"></div>
+  <div id="impactTests" style="display:none"></div>
+  <div id="impactAi" style="display:none"></div>
+  <div id="impactEvidence" style="display:none"></div>
+</section>
+
+<!-- ═══════ Job Banner ═══════ -->
+<div id="jobBanner" class="job-banner" style="display:none;margin-bottom:32px">
+  <div class="spinner" style="display:inline-block;border-color:#818cf844;border-top-color:#818cf8"></div>
+  <div><strong id="jobMessage">Submitting analysis</strong><small>First-time embedding can take several minutes. Cached chunks are reused.</small></div>
+  <span class="live-tag">LIVE</span>
+</div>
+
+<hr class="section-divider" id="eval">
+
+<!-- ═══════ SECTION: Model Evaluation ═══════ -->
+<div class="section-heading">
+  <p class="eyebrow">Model Evaluation</p>
+  <h2>Multi-model performance comparison</h2>
+  <p class="note">Average evaluation metrics across all tested questions</p>
+</div>
+
+{% if rows %}
+<div class="card" style="margin-bottom:20px">
+  <div class="table-wrap">
+    <table class="eval-table" id="models">
+      <thead><tr>
+        <th data-type="text">Model</th><th data-type="number">Accuracy</th><th data-type="number">Relevance</th><th data-type="number">Latency</th><th data-type="number">Tokens</th><th data-type="number">Hallucination</th><th data-type="number">Test pass</th>
+      </tr></thead>
+      <tbody>{% for r in rows %}<tr data-model="{{ r.model }}">
+        <td><span class="model-name"><span class="model-dot"></span>{{ r.model }}</span></td>
+        <td class="metric" data-v="{{ r.accuracy }}" data-metric="accuracy">{{ '%.1f%%'|format(r.accuracy*100) }}</td>
+        <td class="metric" data-v="{{ r.relevance }}" data-metric="relevance">{{ '%.3f'|format(r.relevance) }}</td>
+        <td class="metric" data-v="{{ r.latency_seconds }}" data-metric="latency" data-inverse="true">{{ '%.2f s'|format(r.latency_seconds) }}</td>
+        <td class="metric" data-v="{{ r.total_tokens }}" data-metric="tokens" data-inverse="true">{{ '%.1f'|format(r.total_tokens) }}</td>
+        <td class="metric" data-v="{{ r.hallucination_rate }}" data-metric="hallucination" data-inverse="true">{{ '%.1f%%'|format(r.hallucination_rate*100) }}</td>
+        <td class="metric" data-v="{{ '' if r.test_pass_rate is none else r.test_pass_rate }}" data-metric="test-pass">{{ 'n/a' if r.test_pass_rate is none else '%.1f%%'|format(r.test_pass_rate*100) }}</td>
+      </tr>{% endfor %}</tbody>
     </table>
   </div>
-  <details id="contextDetails" style="margin-top:16px">
-    <summary>Retrieved RAG context (shared across all models)</summary>
-    <pre id="context"></pre>
-  </details>
+  {% set max_latency=(rows|max(attribute='latency_seconds')).latency_seconds %}
+  <div class="legend" id="chartLegend"></div>
+  <div class="charts-row">
+    <div class="chart-panel"><h3>Accuracy by model</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span>{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ r.accuracy*100 }}%"></div></div><span class="chart-value">{{ '%.1f%%'|format(r.accuracy*100) }}</span></div>{% endfor %}</div></div>
+    <div class="chart-panel"><h3>Average latency</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span>{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ (r.latency_seconds/max_latency*100) if max_latency else 0 }}%"></div></div><span class="chart-value">{{ '%.2fs'|format(r.latency_seconds) }}</span></div>{% endfor %}</div></div>
+  </div>
 </div>
-</section>
-<div class="side-grid">
-<section class="card"><div class="card-heading"><div><h2>How it flows</h2><p class="section-note">From question to grounded comparison</p></div></div><ol class="flow-list"><li class="flow-step"><span class="step-number">01</span><div><strong>Ask a question</strong><p>Enter any repository question to trigger all models.</p></div></li><li class="flow-step"><span class="step-number">02</span><div><strong>Retrieve context</strong><p>Ingestion search retrieves top 3 relevant code chunks via vector embeddings.</p></div></li><li class="flow-step"><span class="step-number">03</span><div><strong>Trigger all 3 models</strong><p>Code Llama, StarCoder2, and Qwen2.5-Coder evaluate the grounded prompt.</p></div></li><li class="flow-step"><span class="step-number">04</span><div><strong>Compare in table</strong><p>Directly inspect answer quality, grounding, and latency differences side-by-side.</p></div></li></ol></section>
-<section class="card"><div class="card-heading"><div><h2>Active Models</h2><p class="section-note">Comparison suite specifications</p></div></div><div style="display:grid;gap:10px">
-<div class="model-spec-card"><div><strong style="font-size:13px;display:block">Code Llama</strong><span style="font-size:11px;color:var(--muted)">Meta · 7B parameters</span></div><span class="status-pill" style="background:#eef2ff;color:#4338ca">codellama</span></div>
-<div class="model-spec-card"><div><strong style="font-size:13px;display:block">StarCoder2</strong><span style="font-size:11px;color:var(--muted)">BigCode · 3B parameters</span></div><span class="status-pill" style="background:#e0f2fe;color:#0284c7">starcoder2</span></div>
-<div class="model-spec-card"><div><strong style="font-size:13px;display:block">Qwen2.5-Coder</strong><span style="font-size:11px;color:var(--muted)">Alibaba · 7.6B parameters</span></div><span class="status-pill" style="background:#fef3c7;color:#b45309">qwen2.5-coder</span></div>
-</div></section>
-</div></div>
-<section class="card report-section"><div class="card-heading"><div><h2>Category-wise model winners</h2><p class="section-note">Each model is evaluated on the same questions; the primary metric changes with the software-engineering task.</p></div><span class="status-pill {{ 'empty' if not category_summaries }}">{{ '7 categories' if category_summaries else 'No data' }}</span></div>
-{% if category_summaries %}<div class="category-grid">{% for item in category_summaries %}<article class="category-card" data-category="{{ item.category }}"><h3>{{ item.label }}</h3><p class="category-winner">{{ item.model }}</p><p class="category-metric">Best by <strong>{{ item.metric }}</strong>: {{ item.score }}</p><p class="category-metric">Completion: {{ '%.1f%%'|format(item.completion_rate*100) }}</p></article>{% endfor %}</div>{% else %}<div class="empty-state"><div><span class="empty-icon">⌁</span><strong>No category results yet</strong>Run the full evaluation to populate this view.</div></div>{% endif %}
-</section>
-<section class="card report report-section"><h2>Quantitative evaluation analysis</h2>{{ evaluation_analysis|safe }}</section>
-<section class="card report report-section"><h2>RAG pipeline analysis</h2>{{ pipeline_analysis|safe }}</section>
-<section class="card report report-section"><h2>Repository understanding</h2>{{ repository_analysis|safe }}</section>
-<section class="card report-section" aria-labelledby="reliability-title">
-  <div class="card-heading">
-    <div><h2 id="reliability-title">Exercise 5 · Reliability &amp; safety</h2><p class="section-note">Guardrails control each request; output tests verify that unsupported responses are not accepted.</p></div>
-    <span class="status-pill {{ 'empty' if not exercise5.guardrails.available }}">{{ 'Results loaded' if exercise5.guardrails.available else 'No data' }}</span>
-  </div>
-  <p class="reliability-intro">These cards summarise the saved Exercise 5 test runs. The same guardrails also run live for every question in the comparison panel above.</p>
-  <div class="reliability-grid">
-    <article class="reliability-card"><p class="reliability-label">Guardrail tests</p><p class="reliability-value">{{ exercise5.guardrails.passed }}/{{ exercise5.guardrails.total }}</p><p class="reliability-meta">Expected decisions passed</p></article>
-    <article class="reliability-card"><p class="reliability-label">False accepts</p><p class="reliability-value">{{ exercise5.guardrails.false_accepts }}/{{ exercise5.guardrails.refused_total }}</p><p class="reliability-meta">Unsupported requests answered</p></article>
-    <article class="reliability-card"><p class="reliability-label">False refusals</p><p class="reliability-value">{{ exercise5.guardrails.false_refusals }}/{{ exercise5.guardrails.supported_total }}</p><p class="reliability-meta">Supported requests blocked</p></article>
-    <article class="reliability-card"><p class="reliability-label">Stopped pre-model</p><p class="reliability-value">{{ exercise5.guardrails.blocked_before_model }}/{{ exercise5.guardrails.refused_total }}</p><p class="reliability-meta">Requests saved from generation</p></article>
-    <article class="reliability-card"><p class="reliability-label">Output tests</p><p class="reliability-value">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }}</p><p class="reliability-meta">Acceptance-policy checks passed</p></article>
-  </div>
-  <div class="reliability-layout">
-    <article class="reliability-panel"><h3>How reliability flows</h3><p class="section-note">The same staged controls are applied to every live request.</p><ol class="reliability-flow"><li class="reliability-step"><span class="reliability-step-number">01</span><div><strong>Check the request</strong><p>Validate scope, length, safety, prompt injection, model, and retrieval depth.</p></div></li><li class="reliability-step"><span class="reliability-step-number">02</span><div><strong>Retrieve repository evidence</strong><p>Embed the question, search the vector index, and collect the most relevant chunks.</p></div></li><li class="reliability-step"><span class="reliability-step-number">03</span><div><strong>Require sufficient evidence</strong><p>Refuse before model generation when the retrieval score or evidence overlap is insufficient.</p></div></li><li class="reliability-step"><span class="reliability-step-number">04</span><div><strong>Validate the generated answer</strong><p>Reject empty, irrelevant, or unsupported factual answers before they reach the user.</p></div></li></ol></article>
-    <article class="reliability-panel"><h3>Guardrail coverage</h3><p class="section-note">The tested policy boundaries are visible instead of being hidden in a report.</p><div class="coverage-grid"><div class="coverage-item">Out-of-scope questions</div><div class="coverage-item">Unsafe requests</div><div class="coverage-item">Prompt injection</div><div class="coverage-item">Excessively long input</div><div class="coverage-item">Insufficient evidence</div><div class="coverage-item">Unsupported output</div></div></article>
-  </div>
-</section>
-<section class="card report-section"><div class="card-heading"><div><h2>Guardrail effectiveness</h2><p class="section-note">{{ exercise5.guardrails.total }} live test cases: expected decision, actual decision, reason, model use, and latency.</p></div><span class="status-pill">{{ exercise5.guardrails.passed }}/{{ exercise5.guardrails.total }} passed</span></div>{% if exercise5.guardrails.available %}<div class="table-wrap"><table class="exercise-table"><thead><tr><th>Scenario</th><th>Expected</th><th>Actual / reason</th><th>LLM called</th><th>Latency</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.guardrails.rows %}<tr><td class="prompt-cell"><strong>{{ row.category|replace('_',' ')|title }}</strong><br><span class="section-note">{{ row.prompt }}</span></td><td><span class="status-tag {{ row.expected_decision }}">{{ row.expected_decision }}</span></td><td><span class="status-tag {{ row.guarded.decision }}">{{ row.guarded.decision }}</span><br><span class="reason-code">{{ row.guarded.reason or 'none' }}</span></td><td>{{ 'Yes' if row.guarded.llm_invoked else 'No' }}</td><td>{{ '%.2f s'|format(row.guarded.latency_seconds) }}</td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state"><div><span class="empty-icon">⌁</span><strong>No guardrail results yet</strong>Run the Exercise 5 guardrail evaluation to populate this table.</div></div>{% endif %}</section>
-<section class="card report-section"><div class="card-heading"><div><h2>AI output testing</h2><p class="section-note">Candidate answers are accepted or rejected before the application treats them as trustworthy.</p></div><span class="status-pill">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }} passed</span></div><div class="table-wrap"><table class="exercise-table"><thead><tr><th>Test condition</th><th>Expected</th><th>Actual</th><th>Reason</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.output_tests.rows %}<tr><td class="prompt-cell"><strong>{{ row.condition }}</strong><br><span class="section-note">{{ row.id }}</span></td><td><span class="status-tag {{ row.expected|lower }}">{{ row.expected|title }}</span></td><td><span class="status-tag {{ row.actual|lower }}">{{ row.actual|title }}</span></td><td><span class="reason-code">{{ row.reason or 'none' }}</span></td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div></section>
-<section class="evidence-grid" aria-label="Exercise 5 full reports"><details class="reliability-evidence"><summary>Open the complete Guardrail Effectiveness Analysis</summary><div class="report">{{ guardrail_analysis|safe }}</div></details><details class="reliability-evidence"><summary>Open the complete AI Output Test Report</summary><div class="report">{{ output_test_analysis|safe }}</div></details></section>
-</main>
-<script>
-const modelColors=['#4f46e5','#0ea5e9','#f59e0b','#10b981','#ec4899','#8b5cf6'];
-const configuredModels = {{ models|tojson }};
-const colorByModel={};
-configuredModels.forEach((model,i)=>{
-  colorByModel[model]=modelColors[i%modelColors.length];
-});
 
-const tableRows=[...document.querySelectorAll('#models tbody tr')];
-tableRows.forEach(row=>{
-  const m=row.dataset.model;
-  if(colorByModel[m]) row.style.setProperty('--model-color',colorByModel[m]);
+<!-- Category Winners -->
+<div class="card" style="margin-bottom:20px">
+  <div class="section-heading" style="margin-bottom:16px"><h2>Category-wise model winners</h2><p class="note">Each model evaluated on the same questions; the primary metric changes with the SE task.</p></div>
+  {% if category_summaries %}<div class="category-grid">{% for item in category_summaries %}<div class="category-card"><h3>{{ item.label }}</h3><p class="winner">{{ item.model }}</p><p class="metric-detail">Best by <strong>{{ item.metric }}</strong>: {{ item.score }}</p><p class="metric-detail">Completion: {{ '%.1f%%'|format(item.completion_rate*100) }}</p></div>{% endfor %}</div>{% else %}<div class="empty-state"><span class="empty-icon">⌁</span><strong>No category data</strong></div>{% endif %}
+</div>
+
+{% else %}
+<div class="card" style="margin-bottom:20px"><div class="empty-state"><span class="empty-icon">⌁</span><strong>No evaluation results yet</strong>Run the evaluation service to populate this view.</div></div>
+{% endif %}
+
+<!-- Analysis Reports -->
+<div class="card" style="margin-bottom:20px"><div class="section-heading" style="margin-bottom:16px"><h2>Evaluation Analysis Reports</h2></div>
+  <details style="margin-bottom:12px"><summary>Quantitative Evaluation Analysis</summary><div class="report-prose" style="margin-top:12px">{{ evaluation_analysis|safe }}</div></details>
+  <details style="margin-bottom:12px"><summary>RAG Pipeline Analysis</summary><div class="report-prose" style="margin-top:12px">{{ pipeline_analysis|safe }}</div></details>
+  <details><summary>Repository Understanding</summary><div class="report-prose" style="margin-top:12px">{{ repository_analysis|safe }}</div></details>
+</div>
+
+<hr class="section-divider" id="guardrails">
+
+<!-- ═══════ SECTION: Guardrails ═══════ -->
+<div class="section-heading">
+  <p class="eyebrow">Reliability &amp; Safety</p>
+  <h2>Guardrail effectiveness</h2>
+  <p class="note">Guardrails control each request; output tests verify unsupported responses are rejected.</p>
+</div>
+
+<div class="guardrail-grid">
+  <div class="guardrail-stat"><p class="label">Guardrail tests</p><p class="value">{{ exercise5.guardrails.passed }}/{{ exercise5.guardrails.total }}</p><p class="meta">Expected decisions passed</p></div>
+  <div class="guardrail-stat"><p class="label">False accepts</p><p class="value">{{ exercise5.guardrails.false_accepts }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Unsupported requests answered</p></div>
+  <div class="guardrail-stat"><p class="label">False refusals</p><p class="value">{{ exercise5.guardrails.false_refusals }}/{{ exercise5.guardrails.supported_total }}</p><p class="meta">Supported requests blocked</p></div>
+  <div class="guardrail-stat"><p class="label">Stopped pre-model</p><p class="value">{{ exercise5.guardrails.blocked_before_model }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Requests saved from LLM</p></div>
+  <div class="guardrail-stat"><p class="label">Output tests</p><p class="value">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }}</p><p class="meta">Acceptance-policy checks</p></div>
+</div>
+
+{% if exercise5.guardrails.available %}
+<div class="card" style="margin-bottom:20px">
+  <h2 style="font-size:16px;margin-bottom:16px">Guardrail test results</h2>
+  <div class="table-wrap"><table class="exercise-table"><thead><tr><th>Scenario</th><th>Expected</th><th>Actual / reason</th><th>LLM called</th><th>Latency</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.guardrails.rows %}<tr><td class="prompt-cell"><strong>{{ row.category|replace('_',' ')|title }}</strong><br><span style="color:var(--muted);font-size:12px">{{ row.prompt }}</span></td><td><span class="status-tag {{ row.expected_decision }}">{{ row.expected_decision }}</span></td><td><span class="status-tag {{ row.guarded.decision }}">{{ row.guarded.decision }}</span><br><span class="reason-code">{{ row.guarded.reason or 'none' }}</span></td><td>{{ 'Yes' if row.guarded.llm_invoked else 'No' }}</td><td>{{ '%.2f s'|format(row.guarded.latency_seconds) }}</td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom:20px">
+  <h2 style="font-size:16px;margin-bottom:16px">AI output testing</h2>
+  <div class="table-wrap"><table class="exercise-table"><thead><tr><th>Test condition</th><th>Expected</th><th>Actual</th><th>Reason</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.output_tests.rows %}<tr><td class="prompt-cell"><strong>{{ row.condition }}</strong><br><span style="color:var(--muted);font-size:12px">{{ row.id }}</span></td><td><span class="status-tag {{ row.expected|lower }}">{{ row.expected|title }}</span></td><td><span class="status-tag {{ row.actual|lower }}">{{ row.actual|title }}</span></td><td><span class="reason-code">{{ row.reason or 'none' }}</span></td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div>
+</div>
+
+<div class="card" style="margin-bottom:20px">
+  <details><summary>Guardrail Effectiveness Analysis (full report)</summary><div class="report-prose" style="margin-top:12px">{{ guardrail_analysis|safe }}</div></details>
+  <details style="margin-top:12px"><summary>AI Output Test Report (full report)</summary><div class="report-prose" style="margin-top:12px">{{ output_test_analysis|safe }}</div></details>
+</div>
+
+</div><!-- end .container -->
+
+<footer class="site-footer">CodeImpact AI — Repository evidence. Traceable reasoning. Informed changes.</footer>
+
+<script>
+/* ── Model colors ── */
+const modelColors=['#6366f1','#0ea5e9','#f59e0b','#22c55e','#ec4899','#8b5cf6'];
+const configuredModels={{ models|tojson }};
+const colorByModel={};
+configuredModels.forEach((m,i)=>colorByModel[m]=modelColors[i%modelColors.length]);
+
+/* Apply colors to eval table */
+document.querySelectorAll('#models tbody tr').forEach(row=>{
+  const m=row.dataset.model;if(colorByModel[m])row.style.setProperty('--model-color',colorByModel[m]);
 });
 document.querySelectorAll('[data-chart-model]').forEach(row=>{
-  const m=row.dataset.chartModel;
-  if(colorByModel[m]) row.style.setProperty('--model-color',colorByModel[m]);
+  const m=row.dataset.chartModel;if(colorByModel[m])row.querySelector('.chart-bar').style.background=colorByModel[m];
 });
 const chartLegend=document.getElementById('chartLegend');
-if(chartLegend){
-  configuredModels.forEach(model=>{
-    const item=document.createElement('span');
-    item.className='legend-item';
-    item.innerHTML=`<span class="legend-swatch" style="background:${colorByModel[model]}"></span>${model}`;
-    chartLegend.appendChild(item);
-  });
-}
+if(chartLegend)configuredModels.forEach(m=>{chartLegend.innerHTML+=`<span><i style="background:${colorByModel[m]}"></i>${m}</span>`;});
+
+/* Apply colors to compare table */
 document.querySelectorAll('[data-compare-model]').forEach(row=>{
-  const m=row.dataset.compareModel;
-  if(colorByModel[m]){
-    row.style.setProperty('--model-color',colorByModel[m]);
-    const dot=row.querySelector('.model-dot');
-    if(dot) dot.style.background=colorByModel[m];
-  }
+  const m=row.dataset.compareModel,c=colorByModel[m];
+  if(c){row.style.setProperty('--model-color',c);const d=row.querySelector('.model-dot');if(d)d.style.background=c;}
 });
 
-document.querySelectorAll('#models th').forEach((th,i)=>th.addEventListener('click',()=>{const body=th.closest('table').tBodies[0],ascending=th.getAttribute('aria-sort')!=='ascending',type=th.dataset.type;[...body.rows].sort((a,b)=>{const ac=a.cells[i],bc=b.cells[i],ar=ac.dataset.v??ac.textContent.trim(),br=bc.dataset.v??bc.textContent.trim();let comparison;if(type==='number'){const av=ar===''?Number.NEGATIVE_INFINITY:Number(ar),bv=br===''?Number.NEGATIVE_INFINITY:Number(br);comparison=av-bv}else comparison=ar.localeCompare(br,undefined,{sensitivity:'base'});return comparison*(ascending?1:-1)}).forEach(row=>body.appendChild(row));document.querySelectorAll('#models th').forEach(h=>h.setAttribute('aria-sort','none'));th.setAttribute('aria-sort',ascending?'ascending':'descending')}));
-const metrics=[...new Set([...document.querySelectorAll('.metric')].map(c=>c.dataset.metric))];metrics.forEach(metric=>{const cells=[...document.querySelectorAll(`[data-metric="${metric}"]`)].filter(c=>c.dataset.v!==''),values=cells.map(c=>Number(c.dataset.v)),min=Math.min(...values),max=Math.max(...values),range=max-min;cells.forEach(cell=>{let score=range?(Number(cell.dataset.v)-min)/range:.5;if(cell.dataset.inverse==='true')score=1-score;cell.style.backgroundColor=`rgba(22,163,74,${.06+score*.16})`;if(score<.08&&range)cell.style.backgroundColor='rgba(220,38,38,.08)'})});
+/* ── Metric heatmap ── */
+const metrics=[...new Set([...document.querySelectorAll('.metric')].map(c=>c.dataset.metric))];
+metrics.forEach(metric=>{const cells=[...document.querySelectorAll(`[data-metric="${metric}"]`)].filter(c=>c.dataset.v!==''),values=cells.map(c=>Number(c.dataset.v)),min=Math.min(...values),max=Math.max(...values),range=max-min;cells.forEach(cell=>{let score=range?(Number(cell.dataset.v)-min)/range:.5;if(cell.dataset.inverse==='true')score=1-score;cell.style.backgroundColor=score<.08&&range?'rgba(239,68,68,.08)':`rgba(34,197,94,${.05+score*.14})`})});
 
-const askBtn=document.getElementById('ask');
-const questionInput=document.getElementById('question');
-const compareTbody=document.getElementById('comparisonTbody');
-const contextPre=document.getElementById('context');
-const timerSpan=document.getElementById('compareTimer');
-const elapsedSecs=document.getElementById('elapsedSecs');
-const statusPill=document.getElementById('compareStatusPill');
+/* ── Table sort ── */
+document.querySelectorAll('#models th').forEach((th,i)=>th.addEventListener('click',()=>{const body=th.closest('table').tBodies[0],asc=th.getAttribute('aria-sort')!=='ascending',type=th.dataset.type;[...body.rows].sort((a,b)=>{const ar=a.cells[i].dataset.v??a.cells[i].textContent.trim(),br=b.cells[i].dataset.v??b.cells[i].textContent.trim();return(type==='number'?(Number(ar)||0)-(Number(br)||0):ar.localeCompare(br))*(asc?1:-1)}).forEach(r=>body.appendChild(r));document.querySelectorAll('#models th').forEach(h=>h.removeAttribute('aria-sort'));th.setAttribute('aria-sort',asc?'ascending':'descending')}));
 
+/* ── Nav highlight on scroll ── */
+const navLinks=document.querySelectorAll('.nav-pills a');
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.nav-pills a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.3});
+['qa','impact','eval','guardrails'].forEach(id=>{const el=document.getElementById(id);if(el)observer.observe(el)});
+
+/* ── Code Q&A ── */
+function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+const askBtn=document.getElementById('ask'),questionInput=document.getElementById('question'),compareTbody=document.getElementById('comparisonTbody'),contextPre=document.getElementById('context'),timerSpan=document.getElementById('compareTimer'),elapsedSecs=document.getElementById('elapsedSecs'),statusPill=document.getElementById('compareStatusPill');
 let timerInterval=null;
+askBtn.onclick=async()=>{
+  const question=(questionInput.value||'').trim();if(!question){questionInput.focus();return}
+  askBtn.disabled=true;askBtn.classList.add('loading');askBtn.querySelector('.button-label').textContent='Querying…';
+  const startTime=Date.now();timerSpan.style.display='inline';elapsedSecs.textContent='0.0';clearInterval(timerInterval);timerInterval=setInterval(()=>elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1),100);
+  statusPill.textContent='Querying…';statusPill.className='badge badge-loading';
+  configuredModels.forEach(m=>{
+    let row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(!row){row=document.createElement('tr');row.dataset.compareModel=m;compareTbody.appendChild(row)}
+    const c=colorByModel[m]||'#6366f1';
+    row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${m}</span></td><td><span class="badge badge-loading"><span class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:3px"></span>…</span></td><td><div class="answer-box loading">Generating…</div></td>`;
+  });
+  let done=0,ok=false;const total=configuredModels.length;
+  const currentRepo=(document.getElementById('sharedRepo')?.value||'.').trim();
+  const queries=configuredModels.map(async m=>{
+    try{
+      const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,model:m,repository:currentRepo})});
+      const ct=r.headers.get('content-type')||'';const txt=await r.text();let d;if(ct.includes('application/json'))d=JSON.parse(txt);else throw Error(`Server error (${r.status})`);if(!r.ok)throw Error(d.error||r.statusText);
+      const row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(row){const c=colorByModel[m]||'#6366f1';row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${m}</span></td><td><span class="badge badge-ok">${d.latency_seconds!==undefined?Number(d.latency_seconds).toFixed(2)+'s':'Done'}</span></td><td><div class="answer-box">${escapeHtml(d.response||'(Empty)')}</div></td>`}
+      const chunks=d.retrieved_chunks||[];if(chunks.length){contextPre.textContent=chunks.join('\n\n');document.getElementById('contextDetails').open=true}ok=true;
+    }catch(e){const row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(row){const a=row.querySelector('.answer-box');if(a){a.className='answer-box error';a.textContent='Error: '+e.message}const l=row.querySelector('.badge');if(l){l.className='badge badge-error';l.textContent='Error'}}}
+    finally{done++;statusPill.textContent=done<total?`${done}/${total}`:(ok?'Done':'Error');if(done>=total){statusPill.className='badge '+(ok?'badge-ok':'badge-error')}}
+  });
+  await Promise.allSettled(queries);clearInterval(timerInterval);elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);askBtn.disabled=false;askBtn.classList.remove('loading');askBtn.querySelector('.button-label').textContent='Compare All Models';
+};
 
-function escapeHtml(str){
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+/* ── Impact Analysis ── */
+let impactMode='description',impactJob=null,impactReport=null,impactSelected='',impactTab='impactMap';
+const analyzeBtn=document.getElementById('analyzeBtn');
+const jobBanner=document.getElementById('jobBanner'),jobMessage=document.getElementById('jobMessage');
+const resultSection=document.getElementById('impactResults');
+
+/* Mode switching */
+document.querySelectorAll('.input-modes button').forEach(btn=>{btn.addEventListener('click',()=>{
+  document.querySelectorAll('.input-modes button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
+  impactMode=btn.dataset.mode;
+  document.getElementById('impactFileSelect').style.display=impactMode==='file'?'':'none';
+  document.getElementById('impactDiffArea').style.display=impactMode==='diff'?'':'none';
+  document.getElementById('impactGitNote').style.display=impactMode==='git'?'':'none';
+  document.getElementById('impactDesc').required=impactMode==='description';
+})});
+
+/* Load repo files for file selector & sync badges */
+async function loadRepoFiles(){
+  const repo=(document.getElementById('sharedRepo')?.value||'.').trim();
+  const qaBadge=document.getElementById('qaRepoBadge');
+  const impactBadge=document.getElementById('impactRepoBadge');
+  if(qaBadge)qaBadge.textContent='Target: '+repo;
+  if(impactBadge)impactBadge.textContent='Target: '+repo;
+  try{
+    const res=await fetch('/api/repository?repository='+encodeURIComponent(repo));
+    const data=await res.json();
+    const sel=document.getElementById('impactFile');sel.innerHTML='<option value="">Choose a file…</option>';
+    if(data.files){
+      data.files.forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=f.id;sel.appendChild(o)});
+      const badge=document.getElementById('repoStatsBadge');
+      if(badge){badge.className='badge badge-ok';badge.textContent=`${data.files.length} components · ${data.edges||0} links`}
+    }else{
+      const badge=document.getElementById('repoStatsBadge');
+      if(badge){badge.className='badge badge-error';badge.textContent=data.error||'Not found'}
+    }
+  }catch(e){
+    const badge=document.getElementById('repoStatsBadge');
+    if(badge){badge.className='badge badge-error';badge.textContent='Connection error'}
+  }
+}
+loadRepoFiles();
+const sharedRepoInput=document.getElementById('sharedRepo');
+if(sharedRepoInput){
+  sharedRepoInput.addEventListener('change',loadRepoFiles);
+  sharedRepoInput.addEventListener('blur',loadRepoFiles);
 }
 
-askBtn.onclick=async()=>{
-  const question=(questionInput.value||'').trim();
-  if(!question){
-    questionInput.focus();
-    return;
-  }
-  const btnLabel=askBtn.querySelector('.button-label');
-  askBtn.disabled=true;
-  askBtn.classList.add('loading');
-  btnLabel.textContent='Querying all 3 models…';
+/* Report sub-tabs */
+document.getElementById('impactTabs').addEventListener('click',e=>{
+  const btn=e.target.closest('button');if(!btn)return;
+  document.querySelectorAll('#impactTabs button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');
+  impactTab=btn.dataset.tab;
+  ['impactMap','impactTests','impactAi','impactEvidence'].forEach(id=>{document.getElementById(id).style.display=id===impactTab?'':'none'});
+});
 
-  const startTime=Date.now();
-  timerSpan.style.display='inline';
-  elapsedSecs.textContent='0.0';
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);
-  },100);
-
-  if(statusPill){
-    statusPill.textContent='Querying…';
-    statusPill.className='status-pill';
-    statusPill.style.background='#eef2ff';
-    statusPill.style.color='#4338ca';
-  }
-
-  configuredModels.forEach(model=>{
-    let row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
-    if(!row){
-      row=document.createElement('tr');
-      row.dataset.compareModel=model;
-      compareTbody.appendChild(row);
-    }
-    const color=colorByModel[model]||'#4f46e5';
-    row.innerHTML=`
-      <td class="col-model"><span class="model-name"><span class="model-dot" style="background:${color}"></span>${model}</span></td>
-      <td class="col-latency"><span class="badge-latency loading"><span class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:4px;"></span>Thinking…</span></td>
-      <td class="col-answer"><div class="model-answer-box loading">Generating grounded answer from ${model} using retrieved repository context…</div></td>
-    `;
-  });
-
-  let completedCount=0;
-  let hasAnySuccess=false;
-  const totalModels=configuredModels.length;
-
-  const queries=configuredModels.map(async(model)=>{
-    try{
-      const r=await fetch('/api/ask',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({question:question,model:model})
-      });
-      const contentType=r.headers.get('content-type')||'';
-      const textBody=await r.text();
-      let d;
-      if(contentType.includes('application/json')){
-        d=JSON.parse(textBody);
-      }else{
-        throw Error(`Server error (${r.status}): ${textBody.slice(0,100)}`);
-      }
-      if(!r.ok) throw Error(d.error||`${r.status} ${r.statusText}`);
-
-      const row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
-      if(row){
-        const color=colorByModel[model]||'#4f46e5';
-        const latencyText=d.latency_seconds!==undefined?`${Number(d.latency_seconds).toFixed(2)} s`:'Done';
-        row.innerHTML=`
-          <td class="col-model"><span class="model-name"><span class="model-dot" style="background:${color}"></span>${model}</span></td>
-          <td class="col-latency"><span class="badge-latency">${latencyText}</span></td>
-          <td class="col-answer"><div class="model-answer-box">${escapeHtml(d.response||'(Empty response)')}</div></td>
-        `;
-      }
-
-      const chunks=d.retrieved_chunks||[];
-      if(chunks.length>0){
-        contextPre.textContent=chunks.join('\n\n');
-        const details=document.getElementById('contextDetails');
-        if(details) details.open=true;
-      }
-      hasAnySuccess=true;
-    }catch(e){
-      const row=compareTbody.querySelector(`tr[data-compare-model="${model}"]`);
-      if(row){
-        const ans=row.querySelector('.col-answer');
-        if(ans) ans.innerHTML=`<div class="model-answer-box error">Model error: ${escapeHtml(e.message)}</div>`;
-        const lat=row.querySelector('.col-latency');
-        if(lat) lat.innerHTML=`<span class="badge-latency error">Error</span>`;
-      }
-    }finally{
-      completedCount++;
-      if(statusPill){
-        if(completedCount<totalModels){
-          statusPill.textContent=`${completedCount}/${totalModels} done`;
-        }else{
-          statusPill.textContent=hasAnySuccess?'Completed':'Error';
-          statusPill.style.background=hasAnySuccess?'#ecfdf3':'#fff1f2';
-          statusPill.style.color=hasAnySuccess?'#15803d':'#dc2626';
-        }
-      }
-    }
-  });
-
-  await Promise.allSettled(queries);
-  clearInterval(timerInterval);
-  elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);
-  askBtn.disabled=false;
-  askBtn.classList.remove('loading');
-  btnLabel.textContent='Compare All Models';
+/* Submit analysis */
+analyzeBtn.onclick=async()=>{
+  const desc=document.getElementById('impactDesc').value.trim();
+  const diff=document.getElementById('impactDiff')?.value?.trim()||'';
+  const file=document.getElementById('impactFile')?.value||'';
+  const repo=(document.getElementById('sharedRepo')?.value||'.').trim();
+  if(!desc&&impactMode==='description'){document.getElementById('impactDesc').focus();return}
+  analyzeBtn.disabled=true;analyzeBtn.classList.add('loading');analyzeBtn.querySelector('.button-label').textContent='Analyzing…';
+  try{
+    const payload={repository:repo,description:desc,semantic:document.getElementById('impactSemantic').checked,use_llm:document.getElementById('impactLlm').checked,model:document.getElementById('impactModel').value,use_git:impactMode==='git',changed_files:impactMode==='file'&&file?[file]:[],diff:impactMode==='diff'?diff:''};
+    const job=await fetch('/api/analyses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json());
+    if(job.error){throw Error(job.error)}
+    impactJob=job;jobBanner.style.display='flex';jobMessage.textContent=job.message||'Queued…';pollJob(job.id);
+  }catch(e){alert('Analysis error: '+e.message)}
+  finally{analyzeBtn.disabled=false;analyzeBtn.classList.remove('loading');analyzeBtn.querySelector('.button-label').textContent='Analyze Impact'}
 };
+
+async function pollJob(jobId){
+  const poll=async()=>{
+    try{const data=await fetch('/api/jobs/'+jobId).then(r=>r.json());
+    if(data.error){jobBanner.style.display='none';return}
+    jobMessage.textContent=data.message||data.status;
+    if(data.status==='completed'){jobBanner.style.display='none';if(data.report_id)await loadReport(data.report_id);return}
+    if(data.status==='failed'){jobBanner.style.display='none';alert('Analysis failed: '+(data.message||'Unknown error'));return}
+    setTimeout(poll,2000);}catch(e){jobBanner.style.display='none'}
+  };poll();
+}
+
+async function loadReport(reportId){
+  try{
+    const report=await fetch('/api/reports/'+reportId).then(r=>r.json());
+    impactReport=report;impactSelected=report.changed_files[0]||'';
+    resultSection.style.display='';
+    document.getElementById('impactTitle').innerHTML=`Impact Report <span class="risk-badge ${(report.risk||'').toLowerCase()}">${report.risk||'?'}</span>`;
+    document.getElementById('impactSummary').textContent=(report.summary||'')+(report.duration_seconds?' · '+report.duration_seconds+'s':'');
+    document.getElementById('impactStats').innerHTML=`<div><strong>${report.changed_files.length}</strong><span>Change seeds</span></div><div><strong>${report.affected.length}</strong><span>Affected files</span></div><div><strong>${report.recommended_tests.length}</strong><span>Recommended tests</span></div><div><strong>${report.semantic_candidates.length}</strong><span>Related candidates</span></div>`;
+    document.getElementById('exportBtn').href='/api/reports/'+reportId+'/markdown';document.getElementById('exportBtn').style.display='';
+    renderImpactMap(report);renderTests(report);renderAi(report);renderEvidence(report);
+    resultSection.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){alert('Could not load report: '+e.message)}
+}
+
+function renderImpactMap(report){
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+  html+='<div><h3 style="font-size:14px;margin-bottom:10px;color:#94a3b8">Affected components</h3><div class="file-list">';
+  report.affected.forEach(item=>{
+    html+=`<button class="file-row ${impactSelected===item.file?'chosen':''}" onclick="selectImpactFile('${item.file.replace(/'/g,"\\'")}')"><span>${escapeHtml(item.file)}<small>${item.relationship} · ${item.kind}</small></span><span class="risk-badge ${(item.risk||'').toLowerCase()}" style="flex:none">${item.risk}</span></button>`;
+  });
+  html+='</div></div><div class="detail-pane" id="impactDetail">';
+  if(impactSelected){const a=report.affected.find(x=>x.file===impactSelected);
+    if(a){html+=`<h3>${escapeHtml(a.file)}</h3><p><span class="risk-badge ${(a.risk||'').toLowerCase()}">${a.risk}</span> ${a.relationship}</p>`;
+    a.risk_reasons.forEach(r=>{html+=`<p>${escapeHtml(r)}</p>`});
+    if(a.path.length){html+='<h3>Why this file?</h3>';a.path.forEach(e=>{html+=`<div style="margin-bottom:8px"><code>${escapeHtml(e.source)}:${e.line}</code> <span style="color:var(--muted)">${e.relation} → ${escapeHtml(e.target)}</span><pre>${escapeHtml(e.evidence)}</pre></div>`})}
+    if(a.suggestions.length){html+='<h3>Suggestions</h3>';a.suggestions.forEach(s=>{html+=`<p>✓ ${escapeHtml(s)}</p>`})}}}
+  html+='</div></div>';
+  document.getElementById('impactMap').innerHTML=html;
+}
+
+function selectImpactFile(file){impactSelected=file;if(impactReport)renderImpactMap(impactReport)}
+
+function renderTests(report){
+  let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+  html+='<div><h3 style="font-size:14px;margin-bottom:10px;color:#94a3b8">Recommended regression tests</h3>';
+  if(report.recommended_tests.length){report.recommended_tests.forEach(t=>{html+=`<div class="test-card"><strong>${escapeHtml(t.file)}</strong><p>${escapeHtml(t.reason)}</p>${t.command?'<pre>'+escapeHtml(t.command.join(' '))+'</pre>':''}</div>`})}
+  else{html+='<p style="color:var(--muted)">No tests traced. Consider adding regression tests.</p>'}
+  html+='</div><div><h3 style="font-size:14px;margin-bottom:10px;color:#94a3b8">Mitigation checklist</h3>';
+  report.affected.filter(a=>a.depth===0||a.risk==='High').forEach(item=>{html+=`<div class="test-card"><strong>${escapeHtml(item.file)}</strong>`;item.suggestions.forEach(s=>{html+=`<p>✓ ${escapeHtml(s)}</p>`});html+='</div>'});
+  html+='</div></div>';
+  document.getElementById('impactTests').innerHTML=html;
+}
+
+function renderAi(report){
+  let html=`<h3 style="font-size:14px;margin-bottom:10px;color:#94a3b8">Evidence-grounded AI review · ${report.ai.model||'?'}</h3>`;
+  if(report.ai.error)html+=`<p style="color:var(--danger)">${escapeHtml(report.ai.error)}</p>`;
+  if(report.ai.findings.length){report.ai.findings.forEach(f=>{html+=`<div class="ai-finding"><div><code>${escapeHtml(f.file)}</code> <span class="risk-badge ${(f.risk||'').toLowerCase()}">${f.risk}</span></div><p>${escapeHtml(f.reasoning)}</p><p class="suggestion">${escapeHtml(f.suggestion)}</p></div>`})}
+  else{html+='<p style="color:var(--muted)">No validated AI findings.</p>'}
+  document.getElementById('impactAi').innerHTML=html;
+}
+
+function renderEvidence(report){
+  let html='<h3 style="font-size:14px;margin-bottom:10px;color:#94a3b8">Source evidence</h3>';
+  report.evidence.forEach(c=>{html+=`<div style="margin-bottom:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)"><div style="margin-bottom:6px"><code>${escapeHtml(c.file)}:${c.start}-${c.end}</code> <span style="color:var(--muted);font-size:11px">${c.revision||'current'}</span></div><pre style="margin:0;font-size:12px;color:#8b949e;max-height:200px;overflow:auto">${escapeHtml(c.text)}</pre></div>`});
+  if(!report.evidence.length)html+='<p style="color:var(--muted)">No source evidence available.</p>';
+  document.getElementById('impactEvidence').innerHTML=html;
+}
+
+/* Load saved reports on page load */
+(async()=>{try{const reports=await fetch('/api/reports').then(r=>r.json());if(reports.length)await loadReport(reports[0].id)}catch(e){}})();
 </script>
 </body></html>

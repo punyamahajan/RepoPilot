@@ -1,0 +1,333 @@
+{
+  "cases": [
+    {
+      "id": "password-length",
+      "expected": [
+        "auth.py",
+        "users.py",
+        "registration.py",
+        "reset.py",
+        "tests/test_auth.py",
+        "tests/test_registration.py",
+        "tests/test_reset.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.7142857142857143,
+        "f1": 0.8333333333333333,
+        "true_positives": 5,
+        "false_positives": [],
+        "false_negatives": [
+          "registration.py",
+          "tests/test_registration.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 7,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.0003310000174678862,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "password-digits",
+      "expected": [
+        "auth.py",
+        "users.py",
+        "registration.py",
+        "reset.py",
+        "tests/test_auth.py",
+        "tests/test_registration.py",
+        "tests/test_reset.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.5714285714285714,
+        "f1": 0.7272727272727273,
+        "true_positives": 4,
+        "false_positives": [],
+        "false_negatives": [
+          "registration.py",
+          "tests/test_registration.py",
+          "tests/test_reset.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 7,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.0001669999910518527,
+      "analysis_seconds": 0.05,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "registration-contract",
+      "expected": [
+        "users.py",
+        "registration.py",
+        "tests/test_registration.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8,
+        "true_positives": 2,
+        "false_positives": [],
+        "false_negatives": [
+          "tests/test_registration.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 3,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.0001944000250659883,
+      "analysis_seconds": 0.05,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "registration-status",
+      "expected": [
+        "registration.py",
+        "tests/test_registration.py"
+      ],
+      "keyword": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "true_positives": 2,
+        "false_positives": [
+          "auth.py"
+        ],
+        "false_negatives": []
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 2,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00017930002650246024,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "reset-result",
+      "expected": [
+        "reset.py",
+        "tests/test_reset.py"
+      ],
+      "keyword": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "true_positives": 2,
+        "false_positives": [
+          "users.py"
+        ],
+        "false_negatives": []
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 2,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00021109997760504484,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "fee-rate",
+      "expected": [
+        "pricing.py",
+        "checkout.py",
+        "reporting.py",
+        "tests/test_checkout.py",
+        "tests/test_reporting.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.7499999999999999,
+        "true_positives": 3,
+        "false_positives": [],
+        "false_negatives": [
+          "tests/test_checkout.py",
+          "tests/test_reporting.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 5,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.0001466000103391707,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "fee-rounding",
+      "expected": [
+        "pricing.py",
+        "checkout.py",
+        "reporting.py",
+        "tests/test_checkout.py",
+        "tests/test_reporting.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.7499999999999999,
+        "true_positives": 3,
+        "false_positives": [],
+        "false_negatives": [
+          "tests/test_checkout.py",
+          "tests/test_reporting.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 5,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00014449999434873462,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "negative-amount",
+      "expected": [
+        "pricing.py",
+        "checkout.py",
+        "reporting.py",
+        "tests/test_checkout.py",
+        "tests/test_reporting.py"
+      ],
+      "keyword": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.7499999999999999,
+        "true_positives": 3,
+        "false_positives": [],
+        "false_negatives": [
+          "tests/test_checkout.py",
+          "tests/test_reporting.py"
+        ]
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 5,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00014910002937540412,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "checkout-total",
+      "expected": [
+        "checkout.py",
+        "tests/test_checkout.py"
+      ],
+      "keyword": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "true_positives": 2,
+        "false_positives": [
+          "pricing.py"
+        ],
+        "false_negatives": []
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 2,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00013560004299506545,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    },
+    {
+      "id": "fee-aggregation",
+      "expected": [
+        "reporting.py",
+        "tests/test_reporting.py"
+      ],
+      "keyword": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "true_positives": 2,
+        "false_positives": [
+          "pricing.py"
+        ],
+        "false_negatives": []
+      },
+      "graph": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "true_positives": 2,
+        "false_positives": [],
+        "false_negatives": []
+      },
+      "hybrid": null,
+      "keyword_seconds": 0.00013930001296103,
+      "analysis_seconds": 0.04,
+      "semantic_status": "disabled"
+    }
+  ],
+  "macro_average": {
+    "keyword": {
+      "precision": 0.8666666666666666,
+      "recall": 0.7752380952380953,
+      "f1": 0.781060606060606
+    },
+    "graph": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "hybrid": null
+  }
+}

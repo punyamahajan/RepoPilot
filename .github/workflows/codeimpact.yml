@@ -1,0 +1,79 @@
+name: CodeImpact analysis
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            codeimpact/requirements.txt
+      - name: Install application and analysis dependencies
+        run: python -m pip install -r requirements.txt -r codeimpact/requirements.txt
+      - name: Validate application and analyzer
+        run: |
+          python -m unittest discover -s tests -v
+          python -m pytest codeimpact/tests data/codeimpact_demo/tests -q
+      - name: Analyze pull request and run traced Python tests
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${BASE_SHA:-HEAD~1}"
+          python -m codeimpact.cli --repo . --git --base "$base" --head HEAD --no-semantic --no-llm --run-tests --output .codeimpact/impact
+          python -m codeimpact.evaluate --output .codeimpact/benchmark
+      - name: Save impact and benchmark reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeimpact-report
+          path: |
+            .codeimpact/impact.md
+            .codeimpact/impact.json
+            .codeimpact/benchmark.md
+            .codeimpact/benchmark.json
+          if-no-files-found: warn
+
+  comment:
+    needs: analyze
+    if: always() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      # The reporting job never checks out or executes pull-request code.
+      - uses: actions/download-artifact@v4
+        with:
+          name: codeimpact-report
+          path: report
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('report/impact.md')) return;
+            const marker = '<!-- codeimpact-report -->';
+            const raw = fs.readFileSync('report/impact.md', 'utf8');
+            const body = marker + '\n' + raw.slice(0, 50000) + '\n\nFull report and execution results are in the workflow artifacts.';
+            const args = {...context.repo, issue_number: context.issue.number};
+            const comments = await github.paginate(github.rest.issues.listComments, args);
+            const existing = comments.find(c => c.user.type === 'Bot' && c.body.startsWith(marker));
+            if (existing) await github.rest.issues.updateComment({...context.repo, comment_id: existing.id, body});
+            else await github.rest.issues.createComment({...args, body});

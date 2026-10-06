@@ -1,0 +1,12 @@
+[
+  {"id":"password-length", "file":"auth.py", "description":"Require a longer password for account creation and password reset.", "expected":["auth.py","users.py","registration.py","reset.py","tests/test_auth.py","tests/test_registration.py","tests/test_reset.py"]},
+  {"id":"password-digits", "file":"auth.py", "description":"Change validation to require digits in passwords.", "expected":["auth.py","users.py","registration.py","reset.py","tests/test_auth.py","tests/test_registration.py","tests/test_reset.py"]},
+  {"id":"registration-contract", "file":"users.py", "description":"Change the record returned when registering a user.", "expected":["users.py","registration.py","tests/test_registration.py"]},
+  {"id":"registration-status", "file":"registration.py", "description":"Change the registration status response.", "expected":["registration.py","tests/test_registration.py"]},
+  {"id":"reset-result", "file":"reset.py", "description":"Return a structured password reset result.", "expected":["reset.py","tests/test_reset.py"]},
+  {"id":"fee-rate", "file":"pricing.py", "description":"Increase the platform fee rate for purchases.", "expected":["pricing.py","checkout.py","reporting.py","tests/test_checkout.py","tests/test_reporting.py"]},
+  {"id":"fee-rounding", "file":"pricing.py", "description":"Change fee rounding precision for decimal amounts.", "expected":["pricing.py","checkout.py","reporting.py","tests/test_checkout.py","tests/test_reporting.py"]},
+  {"id":"negative-amount", "file":"pricing.py", "description":"Reject negative purchase amounts with a different exception.", "expected":["pricing.py","checkout.py","reporting.py","tests/test_checkout.py","tests/test_reporting.py"]},
+  {"id":"checkout-total", "file":"checkout.py", "description":"Change checkout total calculation.", "expected":["checkout.py","tests/test_checkout.py"]},
+  {"id":"fee-aggregation", "file":"reporting.py", "description":"Change how transaction fees are aggregated in reports.", "expected":["reporting.py","tests/test_reporting.py"]}
+]

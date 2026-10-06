@@ -55,14 +55,23 @@ services:
       context: .
       dockerfile: dashboard/Dockerfile
     environment:
+      <<: *ollama-host
       INGESTION_SERVICE_URL: http://ingestion:5001
       LLM_SERVICE_URL: http://app:5000
       RESULTS_PATH: /repopilot/evaluation/results.json
       EVALUATION_MODELS: codellama,starcoder2,qwen2.5-coder
       GUNICORN_CMD_ARGS: "--timeout 600 --threads 4"
+    command: sh -c "pip install -r codeimpact/requirements.txt && gunicorn --bind 0.0.0.0:5050 --workers 1 --threads 4 --timeout 600 dashboard.app:app"
     volumes:
       - ./evaluation:/repopilot/evaluation:ro
       - ./reports:/repopilot/reports:ro
+      - ./dashboard:/repopilot/dashboard
+      - ./codeimpact:/repopilot/codeimpact
+      - ./server.py:/repopilot/server.py
+      - ./data:/repopilot/data:ro
+      - ./app:/repopilot/app:ro
+      - ./ingestion:/repopilot/ingestion:ro
+    extra_hosts: *host-mapping
     ports:
       - "5050:5050"
     depends_on:
