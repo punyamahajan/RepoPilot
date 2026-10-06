@@ -77,8 +77,15 @@ def search():
                 return jsonify({
                     "error": "index is not ready; call POST /build-index first"
                 }), 409
-            chunks = store.similarity_search(query, k=k)
-        return jsonify({"query": query, "k": k, "chunks": chunks})
+            matches = store.similarity_search_with_scores(query, k=k)
+            chunks = [match["chunk"] for match in matches]
+        return jsonify({
+            "query": query,
+            "k": k,
+            "chunks": chunks,
+            "matches": matches,
+            "top_score": matches[0]["score"] if matches else None,
+        })
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500
 

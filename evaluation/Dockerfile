@@ -6,5 +6,7 @@ COPY app/ app/
 COPY ingestion/ ingestion/
 COPY evaluation/ evaluation/
 COPY data/ data/
+COPY reports/ reports/
+COPY exercise3_rag_comparison.py .
 ENV PYTHONPATH=/repopilot/evaluation:/repopilot/app:/repopilot/ingestion
 CMD ["python", "evaluation/run_evaluation.py"]

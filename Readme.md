@@ -13,6 +13,8 @@ The project also contains a repeatable evaluation suite that compares three Olla
 - Separate ingestion, LLM, dashboard, and evaluation services.
 - A live browser UI for demonstrations.
 - Quantitative model evaluation and qualitative RAG analysis.
+- Input, retrieval-sufficiency, and generated-output guardrails.
+- Reproducible guardrail-effectiveness and AI-output test suites.
 - Docker Compose deployment while Ollama remains on the host.
 
 ## Architecture
@@ -61,16 +63,19 @@ Repository directory
 
 ```text
 Question
-  -> POST ingestion /search
+  -> POST app /ask
+  -> deterministic input/scope/safety checks
+  -> app calls ingestion /search
   -> question embedding
   -> cosine similarity against indexed chunks
-  -> top three source chunks (retrieved once)
-  -> POST app /ask for all 3 models (codellama, starcoder2, qwen2.5-coder)
+  -> evidence-sufficiency check
+  -> top three trusted source chunks
   -> Ollama generation with grounded context
+  -> relevance/grounding output validation
   -> Comparison table showing answers, latencies, and shared source context
 ```
 
-The dashboard triggers all three models concurrently and renders their responses in a comparative table directly under the evaluation charts. `orchestrator.py` provides a single-model query flow from the command line. The LLM service can also perform retrieval itself when `/ask` receives `use_retrieval: true`.
+The dashboard triggers all three models concurrently and renders their responses in a comparative table directly under the evaluation charts. `orchestrator.py` provides a single-model query flow from the command line. The LLM service owns retrieval so caller-supplied context cannot bypass evidence checks.
 
 ### Evaluation flow
 
@@ -112,6 +117,7 @@ Only the model changes during a comparison. The application, prompt construction
 RepoPilot/
 ├── app/                         LLM HTTP service
 │   ├── main.py                  GET /health and POST /ask
+│   ├── guardrails.py            Input, evidence, and output acceptance policy
 │   ├── ollama_client.py         Ollama generation client
 │   ├── test_cli.py              Basic CLI test
 │   └── Dockerfile
@@ -134,6 +140,10 @@ RepoPilot/
 │   ├── analyze_results.py       Aggregates results and writes ANALYSIS.md
 │   ├── rag_pipeline_analysis.py Writes RAG_PIPELINE_ANALYSIS.md
 │   ├── multi_file_questions.py  Writes REPO_UNDERSTANDING.md
+│   ├── guardrail_cases.json      Supported and undesirable-request test set
+│   ├── run_guardrail_evaluation.py Writes GUARDRAIL_ANALYSIS.md/results JSON
+│   ├── run_output_tests.py       Writes deterministic output-test JSON/report
+│   ├── run_rag_missed_context_case.py Controlled lower-k RAG failure trace
 │   └── Dockerfile
 ├── data/
 │   ├── sample_repo/             Small demonstration repository
@@ -148,6 +158,7 @@ RepoPilot/
 ├── requirements-dashboard.txt   Focused dashboard image dependencies
 ├── requirements-evaluation.txt  Focused evaluator image dependencies
 ├── SERVICES.md                  Service and endpoint reference
+├── tests/                       Deterministic analysis, dashboard, and guardrail tests
 └── README_WEEK4.md              Short pointer to this complete guide
 ```
 
@@ -292,9 +303,13 @@ The smoke command writes `evaluation/results.json`, so run the full evaluation a
 Run these after the full evaluation:
 
 ```powershell
-docker-compose --profile tools run --rm evaluation python evaluation/analyze_results.py
-docker-compose --profile tools run --rm evaluation python evaluation/rag_pipeline_analysis.py
-docker-compose --profile tools run --rm evaluation python evaluation/multi_file_questions.py
+docker compose --profile tools run --rm evaluation python evaluation/analyze_results.py
+docker compose --profile tools run --rm evaluation python exercise3_rag_comparison.py
+docker compose --profile tools run --rm evaluation python evaluation/run_rag_missed_context_case.py
+docker compose --profile tools run --rm evaluation python evaluation/rag_pipeline_analysis.py
+docker compose --profile tools run --rm evaluation python evaluation/multi_file_questions.py
+docker compose --profile tools run --rm evaluation python evaluation/run_guardrail_evaluation.py
+docker compose --profile tools run --rm evaluation python evaluation/run_output_tests.py
 ```
 
 Refresh http://localhost:5050 to see the latest results. The evaluation and report directories are bind-mounted, so rebuilding the dashboard image is unnecessary.
@@ -388,8 +403,12 @@ python evaluation/analyze_results.py
 With both ingestion and app services running:
 
 ```powershell
-python evaluation/rag_pipeline_analysis.py
 python evaluation/multi_file_questions.py
+python evaluation/run_rag_missed_context_case.py
+python evaluation/rag_pipeline_analysis.py
+python evaluation/run_guardrail_evaluation.py
+python evaluation/run_output_tests.py
+python -m unittest discover -s tests -v
 ```
 
 Stop each local server by pressing `Ctrl+C` in its terminal.
@@ -431,14 +450,15 @@ Checks the service's connection to host Ollama and lists available models.
 }
 ```
 
-`POST /ask` with supplied context:
+Direct caller-supplied context is rejected by default so an external caller cannot bypass retrieval and evidence guardrails. The successful response includes `status`, `response`, `sources`, `retrieved_chunks`, and a `guardrail` object. A controlled refusal includes a stable reason such as `OUT_OF_SCOPE`, `INSUFFICIENT_CONTEXT`, `UNSAFE_REQUEST`, or `UNSUPPORTED_OUTPUT`.
+
+Example refusal:
 
 ```json
 {
-  "prompt": "Explain this code",
-  "context": "auth.py (chunk 0): ...",
-  "model": "starcoder2",
-  "use_retrieval": false
+  "status": "refused",
+  "response": "I can only answer questions about this repository's code, architecture, tests, and documentation.",
+  "guardrail": {"allowed": false, "stage": "input", "reason_code": "OUT_OF_SCOPE", "llm_invoked": false}
 }
 ```
 
@@ -462,9 +482,11 @@ Checks the service's connection to host Ollama and lists available models.
 | Test-pass rate | Fraction of applicable generated Python functions that pass the specified expression |
 | Response latency | Wall-clock seconds around one `query_llm()` call |
 | Token usage | Ollama `prompt_eval_count + eval_count` |
-| CPU and memory | Mean Python evaluator CPU percentage and RSS MiB sampled during the call |
+| Client CPU and memory | Mean Python evaluator CPU percentage and RSS MiB sampled during the call |
+| Ollama CPU and memory | Combined CPU percentage and RSS MiB for local Ollama processes sampled during the call |
+| GPU and VRAM | NVIDIA GPU utilization percentage and allocated VRAM sampled with `nvidia-smi` when available |
 
-CPU and memory describe the evaluation client, not the separate host Ollama daemon. Keyword accuracy and hallucination detection are intentionally simple heuristics; use the qualitative reports for deeper interpretation.
+Client and model resource measurements are reported separately. GPU values remain zero when `nvidia-smi` is unavailable. Keyword accuracy and hallucination detection are intentionally simple heuristics; use the qualitative reports for deeper interpretation.
 
 ## Using another target repository
 
@@ -488,6 +510,13 @@ Update `evaluation/eval_questions.json` so each question, expected answer, and e
 | `INDEX_PATH` | `data/index.json` | Ingestion service |
 | `EVALUATION_MODELS` | `codellama,starcoder2,qwen2.5-coder` | Setup, evaluator, dashboard |
 | `RESULTS_PATH` | `evaluation/results.json` | Dashboard |
+| `OLLAMA_NUM_PREDICT` | `512` | Maximum generated tokens per model response |
+| `OLLAMA_TEMPERATURE` | `0` | Deterministic generation for reproducible evaluation and guardrail tests |
+| `ALLOWED_MODELS` | `codellama,starcoder2,qwen2.5-coder` | App model allow-list |
+| `MAX_PROMPT_CHARS` | `2000` | Input length guardrail |
+| `MAX_RETRIEVAL_K` | `5` | Maximum retrieved chunks accepted by the app |
+| `MIN_RETRIEVAL_SCORE` | `0.20` | Minimum top cosine score before generation |
+| `MAX_RESPONSE_CHARS` | `8000` | Generated-output length guardrail |
 
 ## Troubleshooting
 
@@ -524,4 +553,5 @@ The Compose file includes `host.docker.internal:host-gateway`, supported by mode
 
 - Week 3 Exercises 1–5: complete.
 - Week 4 model comparison, evaluation dataset, metrics, analysis, RAG analysis, and repository understanding: implemented.
+- Exercise 5 guardrails, without/with demonstration, quantitative effectiveness measurement, and systematic AI output testing: implemented.
 - Dashboard and four-service Docker deployment: implemented.

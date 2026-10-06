@@ -1,0 +1,104 @@
+{
+  "results": [
+    {
+      "id": "relevant-grounded",
+      "condition": "Relevant and supported answer is accepted",
+      "prompt": "How is the payment fee calculated?",
+      "answer": "calculate_fee multiplies the amount by the default 0.03 rate and rounds the result to two decimals.",
+      "expected": true,
+      "actual": true,
+      "reason": null,
+      "passed": true
+    },
+    {
+      "id": "unsupported-function",
+      "condition": "Unsupported code claim is rejected",
+      "prompt": "How does login work?",
+      "answer": "login calls send_login_email() before creating a token.",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "unsupported-file",
+      "condition": "Invented source file is rejected",
+      "prompt": "Where is login implemented?",
+      "answer": "Login is implemented in sessions.py.",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "irrelevant-output",
+      "condition": "Irrelevant output is rejected",
+      "prompt": "How does login work?",
+      "answer": "Bananas are yellow tropical fruit.",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "empty-output",
+      "condition": "Empty output is rejected",
+      "prompt": "How does login work?",
+      "answer": "",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "generated-code",
+      "condition": "Clearly requested generated code can introduce test symbols",
+      "prompt": "Write a unit test for calculate_fee.",
+      "answer": "```python\ndef test_calculate_fee():\n    assert calculate_fee(100) == 3.0\n```",
+      "expected": true,
+      "actual": true,
+      "reason": null,
+      "passed": true
+    },
+    {
+      "id": "model-insufficient",
+      "condition": "A model insufficiency signal becomes a controlled refusal",
+      "prompt": "How is logout implemented?",
+      "answer": "I do not have sufficient repository evidence to answer that question reliably.",
+      "expected": false,
+      "reason": "INSUFFICIENT_CONTEXT",
+      "actual": false,
+      "passed": true
+    },
+    {
+      "id": "unsupported-relationship",
+      "condition": "Unsupported function-call relationship is rejected",
+      "prompt": "Which functions depend on calculate_fee?",
+      "answer": "calculate_fee() is used by log_transaction().",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "invalid-format",
+      "condition": "Unbalanced generated-code fence is rejected",
+      "prompt": "Write a unit test for calculate_fee.",
+      "answer": "```python\ndef test_fee():\n    assert calculate_fee(100) == 3.0",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    },
+    {
+      "id": "unsupported-flow",
+      "condition": "Unsupported cross-component workflow is rejected",
+      "prompt": "Trace identity from login to payment.",
+      "answer": "The session token is stored in browser storage and included in a request header for payment.",
+      "expected": false,
+      "actual": false,
+      "reason": "UNSUPPORTED_OUTPUT",
+      "passed": true
+    }
+  ]
+}

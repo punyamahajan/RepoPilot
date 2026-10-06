@@ -91,6 +91,7 @@ services:
     volumes:
       - ./evaluation:/repopilot/evaluation
       - ./data:/repopilot/data
+      - ./reports:/repopilot/reports
     extra_hosts: *host-mapping
     depends_on:
       ingestion:

@@ -1,0 +1,19 @@
+{
+  "question": "Which files and functions are involved in user authentication and registration?",
+  "model": "codellama",
+  "k": 1,
+  "expected_files": [
+    "auth.py",
+    "models.py"
+  ],
+  "retrieved_files": [
+    "auth.py"
+  ],
+  "missing_files": [
+    "models.py"
+  ],
+  "retrieved_chunks": [
+    "auth.py (chunk 0):\ndef login(username, password):\n    \"\"\"Checks credentials against the users table and returns a session token.\"\"\"\n    user = find_user(username)\n    if user and verify_password(password, user.password_hash):\n        return create_session_token(user)\n    return None\n\n\ndef find_user(username):\n    \"\"\"Looks up a user record by username in the users table.\"\"\"\n    return db.query(User).filter_by(username=username).first()\n\n\ndef verify_password(password, password_hash):\n    \"\"\"Checks a plaintext password against a stored hash.\"\"\"\n    return bcrypt.checkpw(password.encode(), password_hash.encode())\n\n\ndef create_session_token(user):\n    \"\"\"Generates a signed session token for an authenticated user.\"\"\"\n    return jwt.encode({\"user_id\": user.id}, SECRET_KEY, algorithm=\"HS256\")"
+  ],
+  "response": "The files and functions involved in user authentication and registration are:\n\n* auth.py: This file contains the login() function, which checks credentials against the users table and returns a session token.\n* find_user(): This function looks up a user record by username in the users table.\n* verify_password(): This function checks a plaintext password against a stored hash.\n* create_session_token(): This function generates a signed session token for an authenticated user.\n\nNote that these functions are not necessarily involved in user registration, as registration typically involves creating a new user record in the database. However, these functions are involved in the authentication process, which is an important part of user registration."
+}

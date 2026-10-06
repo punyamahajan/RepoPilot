@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visual Insights · RepoPilot Lab</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e7eaf0;--soft:#f8fafc;--accent:#4f46e5;--accent-dark:#4338ca;--accent-soft:#eef2ff;--success:#16a34a;--warning:#d97706;--danger:#dc2626;--shadow:0 10px 30px #1720330f,0 1px 3px #1720330a;--radius:12px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}.topbar{background:#fffffff2;border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}.topbar-inner,main{max-width:1440px;margin:auto}.topbar-inner{padding:26px 32px}.topbar-row{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}.eyebrow{margin:0 0 5px;color:var(--accent);font-size:12px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(25px,3vw,34px);line-height:1.2;letter-spacing:-.035em}.subtitle{margin:7px 0 0;color:var(--muted)}.app-nav{display:flex;gap:8px;flex:none}.app-nav a{padding:9px 13px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;font-weight:700;text-decoration:none}.app-nav a:hover{color:var(--accent);border-color:#c7d2fe}.app-nav a.active{color:#fff;background:var(--accent);border-color:var(--accent)}main{padding:28px 32px 56px}.stack{display:grid;gap:18px}.card{min-width:0;padding:26px;background:var(--card);border:1px solid #e7eaf0d9;border-radius:var(--radius);box-shadow:var(--shadow)}.card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:20px}h2{margin:0;font-size:20px;letter-spacing:-.02em}h3{margin:0;font-size:14px}.section-note{margin:5px 0 0;color:var(--muted);font-size:13px}.source-pill,.status-pill{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:750}.source-pill{background:var(--accent-soft);color:var(--accent)}.status-pill{background:#ecfdf3;color:#15803d}.status-pill.warning{background:#fff7ed;color:#c2410c}.status-pill.error{background:#fff1f2;color:var(--danger)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:26px;align-items:center;background:linear-gradient(135deg,#fff 0%,#f5f3ff 100%)}.hero h2{font-size:25px}.hero-tags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}.hero-tag{padding:8px 11px;border:1px solid #d9ddff;border-radius:8px;background:#fff;color:#4338ca;font-size:12px;font-weight:700}.summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.summary-item{padding:15px 16px;border:1px solid var(--line);border-radius:9px;background:#fff}.summary-value{margin:0;font-size:22px;font-weight:780}.summary-label{margin:2px 0 0;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.control-row{display:grid;grid-template-columns:minmax(280px,1fr) auto;gap:14px;align-items:end}.control-row label{display:block;color:#344054;font-size:13px;font-weight:700}textarea,button{font:inherit}textarea{width:100%;margin-top:7px;padding:11px 12px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:var(--ink);outline:0}textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #4f46e521}textarea{min-height:96px;resize:vertical}button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 18px;border:0;border-radius:8px;background:var(--accent);color:#fff;font-weight:720;cursor:pointer;box-shadow:0 2px 5px #4f46e540}button:hover{background:var(--accent-dark)}button:disabled{cursor:not-allowed;opacity:.62}.secondary{background:#fff;color:var(--accent);border:1px solid #c7d2fe;box-shadow:none}.secondary:hover{background:var(--accent-soft)}.question-copy{margin:16px 0 0;padding:16px;border-left:3px solid var(--accent);border-radius:0 8px 8px 0;background:var(--soft);font-size:15px;font-weight:650}
+.model-legend{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:-2px 0 18px;padding:12px 14px;border:1px solid var(--line);border-radius:9px;background:var(--soft)}.model-legend-label{margin-right:3px;color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.04em;text-transform:uppercase}.model-legend-item{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:999px;background:#fff;color:#344054;font-size:11px;font-weight:720}.model-legend-dot{width:9px;height:9px;border-radius:50%;background:var(--model-color)}.preset-question-list{display:grid;gap:18px}.preset-question-card{overflow:hidden;border:1px solid var(--line);border-radius:11px;background:var(--soft)}.preset-question-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:14px;align-items:start;padding:18px 19px;border-bottom:1px solid var(--line);background:#fff}.question-number{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:800}.question-category{margin:0 0 4px;color:var(--accent);font-size:10px;font-weight:780;letter-spacing:.06em;text-transform:uppercase}.preset-question-title{margin:0;font-size:15px;line-height:1.45}.question-run-count{padding:5px 9px;border-radius:999px;background:#ecfdf3;color:#15803d;font-size:10px;font-weight:750;white-space:nowrap}.insight-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px 18px 0}.insight-chip{min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff}.insight-label{display:block;margin-bottom:2px;color:var(--muted);font-size:9px;font-weight:780;letter-spacing:.04em;text-transform:uppercase}.insight-value{display:block;overflow:hidden;color:#344054;font-size:11px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.question-visual-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px;padding:14px 18px 18px}.preset-chart-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.radar-card{display:flex;flex-direction:column;min-width:0;padding:14px;border:1px solid var(--line);border-radius:9px;background:#fff}.radar-card h3{margin-bottom:5px;font-size:12px}.radar-caption{margin:0;color:var(--muted);font-size:10px}.question-radar{display:block;width:100%;height:auto;margin:auto}.radar-inline-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:2px}.radar-inline-legend .legend-row{font-size:9px}.preset-chart-grid .metric-card{padding:14px}.preset-chart-grid .metric-card h3{font-size:12px}
+.visual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}.visual-panel{min-width:0;padding:19px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}.visual-panel.wide{grid-column:1/-1}.visual-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.visual-title span{color:var(--muted);font-size:11px}.metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.comparison-metric-grid>.metric-card,.preset-chart-grid>.metric-card{min-height:222px}.metric-card{display:flex;flex-direction:column;min-width:0;min-height:222px;padding:16px;border:1px solid var(--line);border-radius:9px;background:#fff}.metric-card h3{min-height:19px;margin-bottom:7px}.metric-chart{display:flex;flex:1;align-items:center}.bar-plot{display:block;width:100%;height:auto;min-height:165px}.chart-empty{display:grid;place-items:center;min-height:165px;color:var(--muted);font-size:13px;text-align:center}
+.radar-wrap{display:grid;grid-template-columns:minmax(320px,.95fr) minmax(260px,.7fr);gap:18px;align-items:center}.radar{display:block;width:100%;height:auto;max-height:360px}.radar-legend{display:grid;gap:11px}.legend-row{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:650}.legend-swatch{width:10px;height:10px;border-radius:50%}.legend-note{margin:12px 0 0;color:var(--muted);font-size:12px}.winner-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.winner-card{padding:15px;border:1px solid var(--line);border-radius:9px;background:#fff}.winner-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.winner-category{font-size:12px;font-weight:750}.winner-model{font-size:11px;font-weight:750}.winner-track{height:9px;overflow:hidden;border-radius:999px;background:#e7eaf0}.winner-fill{height:100%;border-radius:inherit}.winner-meta{margin:7px 0 0;color:var(--muted);font-size:11px}
+.live-form{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:14px;align-items:end}.live-actions{display:grid}.live-visual-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;margin-top:18px}.live-visual-layout .metric-grid{margin-top:0!important}.loading-dot{display:none;width:14px;height:14px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}button.loading .loading-dot{display:block}@keyframes spin{to{transform:rotate(360deg)}}.live-status{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--muted);font-size:12px}.live-status strong{color:var(--ink)}.answer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}.answer-card{min-width:0;padding:17px;border:1px solid var(--line);border-top:3px solid var(--model-color);border-radius:9px;background:#fff}.answer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.answer-model{font-weight:780}.answer-text{max-height:270px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#344054}.answer-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.mini-chip{padding:4px 7px;border-radius:999px;background:#f2f4f7;color:#475467;font-size:10px;font-weight:700}.mini-chip.good{background:#ecfdf3;color:#15803d}.mini-chip.warn{background:#fff7ed;color:#c2410c}.source-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}details{margin-top:14px;color:var(--muted);font-size:12px}summary{cursor:pointer;font-weight:700}.context-code{margin-top:9px;padding:14px;border-radius:8px;background:#111827;color:#dbe4f0;max-height:260px;overflow:auto;white-space:pre-wrap;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}
+@media(max-width:1180px){.question-visual-layout,.live-visual-layout{grid-template-columns:1fr}.radar-card{max-width:520px;width:100%;margin:auto}}@media(max-width:1050px){.metric-grid,.preset-chart-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.answer-grid{grid-template-columns:1fr}.radar-wrap{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero-tags{justify-content:flex-start}}@media(max-width:760px){.topbar-inner,main{padding-left:18px;padding-right:18px}.topbar-row{align-items:flex-start;flex-direction:column}.app-nav{width:100%}.app-nav a{flex:1;text-align:center}.summary-strip,.visual-grid,.metric-grid,.preset-chart-grid,.insight-strip{grid-template-columns:1fr}.visual-panel.wide{grid-column:auto}.control-row,.live-form{grid-template-columns:1fr}.card{padding:20px}.preset-question-head{grid-template-columns:38px minmax(0,1fr)}.question-number{width:38px;height:38px}.question-run-count{grid-column:2}.hero-tags{display:grid;grid-template-columns:1fr 1fr;width:100%}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-inner"><div class="topbar-row"><div><p class="eyebrow">Evaluation workspace</p><h1>RepoPilot Lab</h1><p class="subtitle">Graphical model comparison and live runtime insights</p></div><nav class="app-nav" aria-label="Dashboard views"><a href="/">Dashboard</a><a class="active" href="/insights">Visual Insights</a></nav></div></div></header>
+<main class="stack">
+  <section class="card hero">
+    <div><p class="eyebrow">New visual workspace</p><h2>Compare three models through graphs</h2><p class="section-note">Saved evidence and one live runtime are deliberately separated. No live accuracy is invented when a correct answer is not predefined.</p><div class="summary-strip"><div class="summary-item"><p class="summary-value">{{ insights.question_count }}</p><p class="summary-label">Saved questions</p></div><div class="summary-item"><p class="summary-value">{{ insights.run_count }}</p><p class="summary-label">Recorded model runs</p></div><div class="summary-item"><p class="summary-value">1</p><p class="summary-label">Live question at a time</p></div></div></div>
+    <div class="hero-tags"><span class="hero-tag">Saved evaluation graphs</span><span class="hero-tag">Live model graphs</span><span class="hero-tag">No comparison tables</span><span class="hero-tag">Same RAG conditions</span></div>
+  </section>
+
+  <section class="card" aria-labelledby="preset-title">
+    <div class="card-heading"><div><p class="eyebrow">Preset comparison</p><h2 id="preset-title">Five representative evaluation questions</h2><p class="section-note">Each saved question is shown independently through small metric bar graphs. Values are unchanged from the recorded evaluation runs.</p></div><span class="source-pill">Saved Evaluation</span></div>
+    <div class="model-legend" id="modelLegend"><span class="model-legend-label">Consistent model colors</span></div>
+    <div class="preset-question-list" id="presetQuestionsGrid" aria-label="Five saved question comparisons"></div>
+  </section>
+
+  <section class="card" aria-labelledby="live-title">
+    <div class="card-heading"><div><p class="eyebrow">Live comparison</p><h2 id="live-title">Ask one repository question</h2><p class="section-note">One input runs through Code Llama, StarCoder2, and Qwen2.5-Coder under the same RAG configuration. Each new run replaces the previous live graphs.</p></div><span class="source-pill">Live Measurement</span></div>
+    <div class="live-form"><label style="margin:0;color:#344054;font-size:13px;font-weight:700">Repository question<textarea id="liveQuestion" placeholder="Example: How is the payment fee calculated?"></textarea></label><div class="live-actions"><button id="runLive"><span class="loading-dot"></span><span id="runLabel">Compare all models</span></button></div></div>
+    <div class="live-status" id="liveStatus"><strong>Ready.</strong> Enter one repository question to create live comparison graphs.</div>
+    <div id="liveResult" hidden>
+      <div class="live-visual-layout">
+        <article class="radar-card"><h3>Current runtime radar</h3><p class="radar-caption">Higher is better on every normalized axis.</p><svg class="question-radar" id="liveRadar" viewBox="0 0 300 280" role="img" aria-label="Current live model radar chart"></svg><div class="radar-inline-legend" id="liveRadarLegend"></div></article>
+        <div class="metric-grid comparison-metric-grid" id="liveMetricGrid" aria-label="Current live metric bar graphs"></div>
+      </div>
+      <div class="answer-grid" id="answerGrid"></div>
+      <div class="source-list" id="sourceList"></div>
+      <details id="contextDetails"><summary>View retrieved repository context</summary><div class="context-code" id="liveContext"></div></details>
+    </div>
+  </section>
+
+</main>
+<script>
+const preset={{ insights|tojson }};
+const models={{ models|tojson }};
+const colors=['#4f46e5','#0ea5e9','#f59e0b'];
+const colorByModel=Object.fromEntries(models.map((model,index)=>[model,colors[index%colors.length]]));
+
+function escapeHtml(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function number(value,fallback=0){const parsed=Number(value);return Number.isFinite(parsed)?parsed:fallback}
+function percent(value){return `${(number(value)*100).toFixed(1)}%`}
+function seconds(value){return `${number(value).toFixed(2)} s`}
+function tokens(value){return `${Math.round(number(value))}`}
+
+function renderBars(root,rows,{maxValue=null,formatter=value=>String(value)}={}){
+  if(!rows.length){root.innerHTML='<div class="chart-empty">No recorded values for this metric.</div>';return}
+  const max=maxValue??Math.max(...rows.map(row=>number(row.value)),1);
+  const width=360,height=190,left=20,right=12,top=22,baseline=142,plotHeight=112;
+  const plotWidth=width-left-right;const slot=plotWidth/rows.length;const barWidth=Math.min(58,slot*.52);
+  let markup='';
+  [0,.25,.5,.75,1].forEach(scale=>{const y=baseline-plotHeight*scale;markup+=`<line x1="${left}" y1="${y}" x2="${width-right}" y2="${y}" stroke="${scale===0?'#cfd5df':'#e7eaf0'}" stroke-width="1"/>`});
+  rows.forEach((row,index)=>{
+    const raw=Math.max(0,number(row.value));const ratio=max?Math.min(1,raw/max):0;const visualHeight=raw===0?2:Math.max(3,ratio*plotHeight);
+    const x=left+slot*index+(slot-barWidth)/2;const y=baseline-visualHeight;const center=x+barWidth/2;
+    const label=String(row.label).replace('qwen2.5-coder','Qwen2.5').replace('starcoder2','StarCoder2').replace('codellama','Code Llama');
+    markup+=`<rect x="${x}" y="${y}" width="${barWidth}" height="${visualHeight}" rx="5" fill="${row.color}"/><text x="${center}" y="${Math.max(12,y-6)}" text-anchor="middle" font-size="10" font-weight="700" fill="#475467">${escapeHtml(formatter(row.value))}</text><text x="${center}" y="164" text-anchor="middle" font-size="10" font-weight="650" fill="#344054">${escapeHtml(label)}</text>`;
+  });
+  root.innerHTML=`<svg class="bar-plot" viewBox="0 0 ${width} ${height}" role="img" aria-label="Three-model vertical bar plot">${markup}</svg>`;
+}
+
+function metricCard(title,rows,options={}){
+  const card=document.createElement('article');
+  card.className='metric-card';
+  card.innerHTML=`<h3>${escapeHtml(title)}</h3><div class="metric-chart"></div>`;
+  renderBars(card.querySelector('.metric-chart'),rows,options);
+  return card;
+}
+
+function modelRows(rows,key){return rows.map(row=>({label:row.model,value:row[key],color:colorByModel[row.model]||'#64748b'}))}
+
+function polarPoint(cx,cy,radius,index,count){const angle=-Math.PI/2+(Math.PI*2*index/count);return [cx+Math.cos(angle)*radius,cy+Math.sin(angle)*radius]}
+function renderRadarChart(svg,legend,rows,axes,valuesForRow){
+  const cx=150,cy=130,radius=88;let markup='';
+  [.25,.5,.75,1].forEach(scale=>{const points=axes.map((_,index)=>polarPoint(cx,cy,radius*scale,index,axes.length).join(',')).join(' ');markup+=`<polygon points="${points}" fill="none" stroke="#dfe3eb" stroke-width="1"/>`});
+  axes.forEach((axis,index)=>{const end=polarPoint(cx,cy,radius,index,axes.length);const label=polarPoint(cx,cy,radius+23,index,axes.length);markup+=`<line x1="${cx}" y1="${cy}" x2="${end[0]}" y2="${end[1]}" stroke="#dfe3eb"/><text x="${label[0]}" y="${label[1]}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="650" fill="#667085">${escapeHtml(axis)}</text>`});
+  rows.forEach(row=>{const color=colorByModel[row.model]||'#64748b';const values=valuesForRow(row);const points=values.map((value,index)=>polarPoint(cx,cy,radius*Math.max(0,Math.min(1,number(value))),index,axes.length).join(',')).join(' ');markup+=`<polygon points="${points}" fill="${color}" fill-opacity=".10" stroke="${color}" stroke-width="2"/>`});
+  svg.innerHTML=markup;
+  legend.innerHTML=rows.map(row=>`<span class="legend-row"><span class="legend-swatch" style="background:${colorByModel[row.model]||'#64748b'}"></span>${escapeHtml(row.model)}</span>`).join('');
+}
+
+function winnerNames(rows,key,direction='max'){
+  const available=rows.filter(row=>row[key]!==null&&row[key]!==undefined);
+  if(!available.length)return 'Not applicable';
+  const target=Math[direction](...available.map(row=>number(row[key])));
+  return available.filter(row=>number(row[key])===target).map(row=>row.model).join(' + ');
+}
+
+function renderPresetQuestions(){
+  const root=document.getElementById('presetQuestionsGrid');
+  root.innerHTML='';
+  const definitions=[
+    ['Accuracy','accuracy',1,percent],
+    ['Relevance','relevance',1,value=>number(value).toFixed(3)],
+    ['Retrieval quality','retrieval_quality',1,percent],
+    ['Grounded output','grounding',1,percent],
+    ['Latency','latency_seconds',null,seconds],
+    ['Token usage','total_tokens',null,tokens],
+  ];
+  preset.questions.forEach((question,index)=>{
+    const card=document.createElement('article');
+    card.className='preset-question-card';
+    card.dataset.questionId=question.question_id;
+    card.innerHTML=`<div class="preset-question-head"><span class="question-number">Q${index+1}</span><div><p class="question-category">${escapeHtml(question.category_label)}</p><h3 class="preset-question-title">${escapeHtml(question.question)}</h3></div><span class="question-run-count">3 recorded runs</span></div><div class="insight-strip"><div class="insight-chip"><span class="insight-label">Best accuracy</span><span class="insight-value" title="${escapeHtml(winnerNames(question.models,'accuracy'))}">${escapeHtml(winnerNames(question.models,'accuracy'))}</span></div><div class="insight-chip"><span class="insight-label">Fastest response</span><span class="insight-value">${escapeHtml(winnerNames(question.models,'latency_seconds','min'))}</span></div><div class="insight-chip"><span class="insight-label">Fewest tokens</span><span class="insight-value">${escapeHtml(winnerNames(question.models,'total_tokens','min'))}</span></div></div><div class="question-visual-layout"><article class="radar-card"><h3>Question radar comparison</h3><p class="radar-caption">Speed and token efficiency are normalized so higher is better.</p><svg class="question-radar" viewBox="0 0 300 280" role="img" aria-label="Radar chart for question ${index+1}"></svg><div class="radar-inline-legend"></div></article><div class="preset-chart-grid"></div></div>`;
+    const grid=card.querySelector('.preset-chart-grid');
+    definitions.forEach(([title,key,maxValue,formatter])=>grid.appendChild(metricCard(title,modelRows(question.models,key),{maxValue,formatter})));
+    if(question.models.some(row=>row.test_passed!==null))grid.appendChild(metricCard('Code test pass',modelRows(question.models,'test_passed'),{maxValue:1,formatter:value=>value===null?'n/a':(value?'PASS':'FAIL')}));
+    const minimumLatency=Math.min(...question.models.map(row=>Math.max(number(row.latency_seconds,1),.001)));
+    const minimumTokens=Math.min(...question.models.map(row=>Math.max(number(row.total_tokens,1),1)));
+    renderRadarChart(card.querySelector('.question-radar'),card.querySelector('.radar-inline-legend'),question.models,['Accuracy','Relevance','Retrieval','Grounding','Speed','Token efficiency'],row=>[number(row.accuracy),number(row.relevance),number(row.retrieval_quality),number(row.grounding),minimumLatency/Math.max(number(row.latency_seconds,1),.001),minimumTokens/Math.max(number(row.total_tokens,1),1)]);
+    root.appendChild(card);
+  });
+}
+
+document.getElementById('modelLegend').insertAdjacentHTML('beforeend',models.map(model=>`<span class="model-legend-item"><span class="model-legend-dot" style="--model-color:${colorByModel[model]}"></span>${escapeHtml(model)}</span>`).join(''));
+renderPresetQuestions();
+
+function liveRows(results,key,getValue){return results.map(row=>({label:row.model,value:getValue?getValue(row):row[key],color:colorByModel[row.model]||'#64748b'}))}
+function renderLiveMetricGrid(results){
+  const grid=document.getElementById('liveMetricGrid');grid.innerHTML='';
+  const metrics=[
+    ['Live latency',liveRows(results,'latency_seconds'),null,seconds],
+    ['Exact token usage',liveRows(results,null,row=>row.metrics?.total_tokens||0),null,tokens],
+    ['Retrieval evidence',liveRows(results,null,row=>row.guardrail?.top_score||0),1,value=>number(value).toFixed(3)],
+    ['Grounding accepted',liveRows(results,null,row=>row.status==='answered'&&row.guardrail?.allowed?1:0),1,percent],
+    ['Guardrail answered',liveRows(results,null,row=>row.status==='answered'?1:0),1,percent],
+  ];
+  metrics.forEach(([title,rows,maxValue,formatter])=>grid.appendChild(metricCard(title,rows,{maxValue,formatter})));
+}
+
+function renderLiveRadar(results){
+  const minimumLatency=Math.min(...results.map(row=>Math.max(number(row.latency_seconds,1),.001)));
+  const minimumTokens=Math.min(...results.map(row=>Math.max(number(row.metrics?.total_tokens,1),1)));
+  renderRadarChart(document.getElementById('liveRadar'),document.getElementById('liveRadarLegend'),results,['Speed','Token efficiency','Evidence','Grounding','Guardrail'],row=>[minimumLatency/Math.max(number(row.latency_seconds,1),.001),minimumTokens/Math.max(number(row.metrics?.total_tokens,1),1),number(row.guardrail?.top_score),row.status==='answered'&&row.guardrail?.allowed?1:0,row.status==='answered'?1:0]);
+}
+
+function renderAnswers(results){
+  const grid=document.getElementById('answerGrid');
+  grid.innerHTML=results.map(row=>{
+    const accepted=row.status==='answered';const reason=row.guardrail?.reason_code||'passed';const total=row.metrics?.total_tokens||0;
+    return `<article class="answer-card" style="--model-color:${colorByModel[row.model]||'#64748b'}"><div class="answer-head"><span class="answer-model">${escapeHtml(row.model)}</span><span class="status-pill ${accepted?'':'warning'}">${accepted?'Answered':'Refused'}</span></div><div class="answer-text">${escapeHtml(row.response||'(Empty response)')}</div><div class="answer-meta"><span class="mini-chip">${seconds(row.latency_seconds)}</span><span class="mini-chip">${tokens(total)} tokens</span><span class="mini-chip ${accepted?'good':'warn'}">${escapeHtml(reason)}</span></div></article>`
+  }).join('');
+}
+
+function renderSources(payload){
+  const results=payload.results||[];const sources=[...new Set(results.flatMap(row=>row.sources||[]))];
+  document.getElementById('sourceList').innerHTML=sources.length?`<strong style="font-size:12px">Retrieved sources:</strong>${sources.map(source=>`<span class="source-pill">${escapeHtml(source)}</span>`).join('')}`:'<span class="section-note">No repository sources passed the retrieval guardrail.</span>';
+  document.getElementById('liveContext').textContent=(payload.retrieved_chunks||[]).join('\n\n')||'No context returned.';
+  const signatures=new Set(results.map(row=>JSON.stringify(row.retrieved_chunks||[])));
+  const shared=signatures.size<=1;
+  return {sources,shared};
+}
+
+const runButton=document.getElementById('runLive');const questionInput=document.getElementById('liveQuestion');
+
+runButton.addEventListener('click',async()=>{
+  const question=questionInput.value.trim();if(!question){questionInput.focus();return}
+  runButton.disabled=true;runButton.classList.add('loading');document.getElementById('runLabel').textContent='Running live comparison…';document.getElementById('liveStatus').innerHTML='<strong>Working.</strong> Retrieving evidence and querying all three local models.';
+  try{
+    const response=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({question,model:'all'})});
+    const payload=await response.json();if(!response.ok)throw new Error(payload.error||`Request failed (${response.status})`);
+    const results=payload.results||[];if(!results.length)throw new Error('No model results were returned.');
+    renderLiveMetricGrid(results);renderLiveRadar(results);renderAnswers(results);const retrieval=renderSources(payload);document.getElementById('liveResult').hidden=false;
+    const answered=results.filter(row=>row.status==='answered').length;document.getElementById('liveStatus').innerHTML=`<strong>Live comparison complete.</strong> ${answered}/3 models answered · shared retrieval ${retrieval.shared?'confirmed':'not confirmed'} · ${retrieval.sources.length} source file(s).`;
+  }catch(error){document.getElementById('liveStatus').innerHTML=`<strong>Live comparison failed.</strong> ${escapeHtml(error.message)}`}
+  finally{runButton.classList.remove('loading');runButton.disabled=false;document.getElementById('runLabel').textContent='Compare all models'}
+});
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-"""Application Service CLI: retrieval API -> LLM API -> answer."""
+"""Application Service CLI: guarded LLM API -> retrieval -> answer."""
 
 import argparse
 import os
@@ -6,27 +6,16 @@ import os
 import requests
 
 
-INGESTION_SERVICE_URL = os.getenv(
-    "INGESTION_SERVICE_URL", "http://localhost:5001"
-).rstrip("/")
 LLM_SERVICE_URL = os.getenv("LLM_SERVICE_URL", "http://localhost:5000").rstrip("/")
 
 
 def ask(question: str, k: int = 3, model: str = "codellama") -> dict:
-    retrieval = requests.post(
-        f"{INGESTION_SERVICE_URL}/search",
-        json={"query": question, "k": k},
-        timeout=60,
-    )
-    retrieval.raise_for_status()
-    chunks = retrieval.json()["chunks"]
-
     llm = requests.post(
         f"{LLM_SERVICE_URL}/ask",
         json={
             "prompt": question,
-            "context": "\n\n".join(chunks),
-            "use_retrieval": False,
+            "use_retrieval": True,
+            "k": k,
             "model": model,
         },
         timeout=600,
@@ -41,8 +30,8 @@ def main():
     parser.add_argument("--k", type=int, default=3, help="Context chunks to retrieve")
     parser.add_argument("--model", default="codellama", help="Ollama model name")
     args = parser.parse_args()
-    if args.k < 1:
-        parser.error("--k must be positive")
+    if not 1 <= args.k <= 5:
+        parser.error("--k must be between 1 and 5")
 
     result = ask(args.question, k=args.k, model=args.model)
     print(result["response"])

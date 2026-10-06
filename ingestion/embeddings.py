@@ -12,18 +12,40 @@ Before using this, pull an embedding model once:
     ollama pull nomic-embed-text
 """
 
+import os
+import time
+
 import requests
 
 OLLAMA_EMBED_URL = "http://localhost:11434/api/embeddings"
 DEFAULT_EMBED_MODEL = "nomic-embed-text"
+EMBED_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_EMBED_TIMEOUT", "180"))
+EMBED_RETRIES = int(os.getenv("OLLAMA_EMBED_RETRIES", "3"))
 
 
 def get_embedding(text: str, model: str = DEFAULT_EMBED_MODEL) -> list:
     """Returns the embedding vector (list of floats) for a piece of text."""
     payload = {"model": model, "prompt": text}
-    resp = requests.post(OLLAMA_EMBED_URL, json=payload, timeout=60)
-    resp.raise_for_status()
-    return resp.json().get("embedding", [])
+    last_error = None
+    for attempt in range(1, EMBED_RETRIES + 1):
+        try:
+            resp = requests.post(
+                OLLAMA_EMBED_URL,
+                json=payload,
+                timeout=EMBED_TIMEOUT_SECONDS,
+            )
+            resp.raise_for_status()
+            embedding = resp.json().get("embedding", [])
+            if not embedding:
+                raise ValueError("Ollama returned an empty embedding")
+            return embedding
+        except (requests.RequestException, ValueError) as exc:
+            last_error = exc
+            if attempt < EMBED_RETRIES:
+                time.sleep(attempt)
+    raise RuntimeError(
+        f"Embedding failed after {EMBED_RETRIES} attempts: {last_error}"
+    ) from last_error
 
 
 def get_embeddings_batch(texts: list, model: str = DEFAULT_EMBED_MODEL) -> list:

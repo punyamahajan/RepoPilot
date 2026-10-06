@@ -25,12 +25,13 @@ Compose health checks ensure ingestion is healthy before app starts, and both in
 
 - `GET /health`
 - `POST /build-index` with `{"repo_path":"..."}`
-- `POST /search` with `{"query":"...","k":3}`
+- `POST /search` with `{"query":"...","k":3}`; returns chunks, source metadata, and cosine scores
 
 ### App/LLM
 
 - `GET /health`
-- `POST /ask` with a prompt, model, and either supplied context or `use_retrieval: true`
+- `POST /ask` with a prompt, allow-listed model, `use_retrieval: true`, and `k` from 1–5
+- The app owns trusted retrieval and applies input, evidence, and output guardrails. Direct caller-supplied context is rejected by default.
 
 ### Dashboard
 

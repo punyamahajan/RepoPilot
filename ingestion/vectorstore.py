@@ -45,6 +45,10 @@ class VectorStore:
         Person A's/C's citation requirement — file + line/chunk — is easy
         to satisfy downstream).
         """
+        return [match["chunk"] for match in self.similarity_search_with_scores(query, k)]
+
+    def similarity_search_with_scores(self, query: str, k: int = 3) -> list:
+        """Return top-k chunks with cosine scores and structured source metadata."""
         if self.vectors is None or len(self.chunks) == 0:
             return []
         query_vec = np.array(get_embedding(query), dtype=np.float32)
@@ -53,7 +57,14 @@ class VectorStore:
         results = []
         for idx in top_k_idx:
             c = self.chunks[idx]
-            results.append(f"{c['file']} (chunk {c['chunk_id']}):\n{c['text']}")
+            chunk = f"{c['file']} (chunk {c['chunk_id']}):\n{c['text']}"
+            results.append({
+                "file": c["file"],
+                "chunk_id": c["chunk_id"],
+                "text": c["text"],
+                "chunk": chunk,
+                "score": float(sims[idx]),
+            })
         return results
 
     @staticmethod
