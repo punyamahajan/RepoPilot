@@ -421,23 +421,6 @@ footer.site-footer{text-align:center;padding:40px 32px;color:var(--muted);font-s
   <div class="guardrail-stat"><p class="label">Output tests</p><p class="value">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }}</p><p class="meta">Acceptance-policy checks</p></div>
 </div>
 
-{% if exercise5.guardrails.available %}
-<div class="card" style="margin-bottom:20px">
-  <h2 style="font-size:16px;margin-bottom:16px">Guardrail test results</h2>
-  <div class="table-wrap"><table class="exercise-table"><thead><tr><th>Scenario</th><th>Expected</th><th>Actual / reason</th><th>LLM called</th><th>Latency</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.guardrails.rows %}<tr><td class="prompt-cell"><strong>{{ row.category|replace('_',' ')|title }}</strong><br><span style="color:var(--muted);font-size:12px">{{ row.prompt }}</span></td><td><span class="status-tag {{ row.expected_decision }}">{{ row.expected_decision }}</span></td><td><span class="status-tag {{ row.guarded.decision }}">{{ row.guarded.decision }}</span><br><span class="reason-code">{{ row.guarded.reason or 'none' }}</span></td><td>{{ 'Yes' if row.guarded.llm_invoked else 'No' }}</td><td>{{ '%.2f s'|format(row.guarded.latency_seconds) }}</td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div>
-</div>
-{% endif %}
-
-<div class="card" style="margin-bottom:20px">
-  <h2 style="font-size:16px;margin-bottom:16px">AI output testing</h2>
-  <div class="table-wrap"><table class="exercise-table"><thead><tr><th>Test condition</th><th>Expected</th><th>Actual</th><th>Reason</th><th>Result</th></tr></thead><tbody>{% for row in exercise5.output_tests.rows %}<tr><td class="prompt-cell"><strong>{{ row.condition }}</strong><br><span style="color:var(--muted);font-size:12px">{{ row.id }}</span></td><td><span class="status-tag {{ row.expected|lower }}">{{ row.expected|title }}</span></td><td><span class="status-tag {{ row.actual|lower }}">{{ row.actual|title }}</span></td><td><span class="reason-code">{{ row.reason or 'none' }}</span></td><td><span class="status-tag {{ 'pass' if row.passed else 'fail' }}">{{ 'PASS' if row.passed else 'FAIL' }}</span></td></tr>{% endfor %}</tbody></table></div>
-</div>
-
-<div class="card" style="margin-bottom:20px">
-  <details><summary>Guardrail Effectiveness Analysis (full report)</summary><div class="report-prose" style="margin-top:12px">{{ guardrail_analysis|safe }}</div></details>
-  <details style="margin-top:12px"><summary>AI Output Test Report (full report)</summary><div class="report-prose" style="margin-top:12px">{{ output_test_analysis|safe }}</div></details>
-</div>
-
 </div><!-- end .container -->
 
 <footer class="site-footer">CodeImpact AI — Repository evidence. Traceable reasoning. Informed changes.</footer>
