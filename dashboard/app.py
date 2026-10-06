@@ -217,6 +217,64 @@ def output_test_rows():
     } for row in rows]
 
 
+def benchmark_dynamic_series(records=None):
+    """Build multi-metric per-question evaluation trajectory for dynamic oscilloscope graphs."""
+    records = evaluation_records() if records is None else records
+    q_ids = []
+    seen = set()
+    questions_meta = []
+    for r in records:
+        qid = r.get("question_id")
+        if qid and qid not in seen:
+            seen.add(qid)
+            q_ids.append(qid)
+            questions_meta.append({
+                "id": qid,
+                "question": r.get("question", qid),
+                "category": r.get("category", "general"),
+            })
+
+    series = {m: {"accuracy": [], "relevance": [], "latency": [], "tokens": [], "hallucination": []} for m in MODELS}
+
+    for qid in q_ids:
+        for m in MODELS:
+            matching = [r for r in records if r.get("model") == m and r.get("question_id") == qid]
+            if matching:
+                r = matching[0]
+                acc = float(r.get("accuracy") or 0.0)
+                rel = float(r.get("relevance") or 0.0)
+                lat = float(r.get("latency_seconds") or 0.0)
+                tok = float(r.get("total_tokens") or 0.0)
+                hal = 1.0 if r.get("hallucinated") else 0.0
+            else:
+                acc, rel, lat, tok, hal = 0.0, 0.0, 0.0, 0.0, 0.0
+            series[m]["accuracy"].append(round(acc, 3))
+            series[m]["relevance"].append(round(rel, 3))
+            series[m]["latency"].append(round(lat, 2))
+            series[m]["tokens"].append(round(tok, 1))
+            series[m]["hallucination"].append(hal)
+
+    # Compute rolling cumulative hallucination rate for smooth waveform
+    for m in MODELS:
+        cumsum = 0.0
+        rolling = []
+        for idx, v in enumerate(series[m]["hallucination"]):
+            cumsum += v
+            rolling.append(round(cumsum / (idx + 1), 3))
+        series[m]["hallucination"] = rolling
+
+    return {
+        "models": MODELS,
+        "questions": questions_meta,
+        "series": series,
+    }
+
+
+@app.get("/api/benchmark/series")
+def api_benchmark_series():
+    return jsonify(benchmark_dynamic_series())
+
+
 @app.get("/")
 def index():
     records = evaluation_records()
@@ -232,6 +290,7 @@ def index():
         exercise5=exercise5,
         guardrail_analysis=read_markdown("evaluation/GUARDRAIL_ANALYSIS.md"),
         output_test_analysis=read_markdown("evaluation/AI_OUTPUT_TEST_REPORT.md"),
+        benchmark_series=benchmark_dynamic_series(records),
     )
 
 

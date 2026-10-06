@@ -5,125 +5,255 @@
 <title>CodeImpact AI</title>
 <meta name="description" content="AI-powered repository change impact analysis and intelligent code Q&A">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0f1a;--surface:#111827;--card:#1a2236;--card-hover:#1e2842;--ink:#e2e8f0;--muted:#7b8ba5;--line:#1e2d42;--accent:#6366f1;--accent-glow:#818cf820;--accent-soft:#312e81;--success:#22c55e;--danger:#ef4444;--warn:#f59e0b;--high:#ef4444;--medium:#f59e0b;--low:#22c55e;--radius:12px;--font:'Inter',system-ui,-apple-system,sans-serif}
-*{box-sizing:border-box;margin:0}::selection{background:#6366f140}
+:root{--bg:#0a0f1a;--surface:#111827;--card:#1a2236;--card-hover:#1e2842;--ink:#e2e8f0;--muted:#7b8ba5;--line:#1e2d42;--accent:#6366f1;--accent-glow:#818cf820;--accent-soft:#312e81;--motion-yellow:#fbd509;--motion-ink:#0a0e1a;--success:#22c55e;--danger:#ef4444;--warn:#f59e0b;--high:#ef4444;--medium:#f59e0b;--low:#22c55e;--radius:12px;--font:'Inter',system-ui,-apple-system,sans-serif;--mono:'JetBrains Mono',ui-monospace,Consolas,monospace}
+*{box-sizing:border-box;margin:0}::selection{background:#fbd50940;color:#000}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--font);-webkit-font-smoothing:antialiased}
 a{color:var(--accent);text-decoration:none}
 
-/* ── Topbar ── */
-.topbar{position:sticky;top:0;z-index:100;background:#0a0f1aee;border-bottom:1px solid var(--line);backdrop-filter:blur(16px) saturate(1.4)}
-.topbar-inner{max-width:1440px;margin:auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
-.brand-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;font-size:17px}
-.brand small{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;display:block;margin-top:-2px}
-.nav-pills{display:flex;gap:6px}
-.nav-pills a{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);transition:.2s}
-.nav-pills a:hover{color:var(--ink);background:#ffffff08}
-.nav-pills a.active{color:#fff;background:var(--accent)}
+/* ══════════════ MOTION UI HERO STYLES ══════════════ */
+.motion-hero-wrapper{position:relative;width:100%;background:#fbd509;overflow:hidden;color:#0f172a}
+.motion-topbar{position:relative;z-index:20;width:100%;border-bottom:1px solid rgba(15,23,42,0.12);background:rgba(251,213,9,0.92);backdrop-filter:blur(16px)}
+.motion-topbar-inner{max-width:1440px;margin:0 auto;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.motion-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#0a0a0a}
+.motion-brand-mark{display:flex;align-items:center;gap:3px}
+.motion-slash{width:4.5px;height:18px;background:#0a0a0a;transform:skewX(-20deg);border-radius:1px}
+.motion-brand-text{font-size:19px;font-weight:900;letter-spacing:-.04em;color:#0a0a0a;display:flex;align-items:baseline;gap:6px}
+.motion-brand-sub{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#334155}
+.motion-nav-links{display:flex;align-items:center;gap:18px}
+.motion-nav-links a{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#0f172a;text-decoration:none;padding:7px 11px;border-radius:6px;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.motion-nav-links a:hover,.motion-nav-links a.active{background:rgba(0,0,0,0.08)}
+.motion-new-badge{background:#0a0a0a;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;letter-spacing:.04em}
+.motion-nav-actions{display:flex;align-items:center;gap:12px}
+.motion-search-btn{background:transparent;border:none;cursor:pointer;padding:8px;border-radius:50%;color:#0a0a0a;display:grid;place-items:center;transition:background .15s}
+.motion-search-btn:hover{background:rgba(0,0,0,0.08)}
+.motion-plus-btn{background:#0a0a0a;color:#fff !important;font-family:var(--mono);font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;border-radius:6px;text-decoration:none;transition:transform .15s,background .15s;display:inline-flex;align-items:center;gap:4px}
+.motion-plus-btn:hover{transform:translateY(-1px);background:#1e293b}
 
-/* ── Layout ── */
-.container{max-width:1440px;margin:auto;padding:0 32px}
-.hero{padding:48px 0 40px;text-align:center}
-.hero .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.hero h1{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-.04em;line-height:1.15;background:linear-gradient(135deg,#e2e8f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero .subtitle{color:var(--muted);margin-top:10px;font-size:15px}
+/* Canvas Stage */
+.motion-canvas-container{position:relative;width:100%;min-height:560px;display:flex;align-items:center;overflow:hidden}
+.motion-ascii-canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;pointer-events:auto;cursor:crosshair}
+
+/* Floating Obsidian Card */
+.motion-hero-content{position:relative;z-index:10;max-width:1440px;width:100%;margin:0 auto;padding:52px 32px;pointer-events:none}
+.motion-hero-card{pointer-events:auto;max-width:530px;background:#0b0f19;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:44px 42px;box-shadow:0 30px 70px -15px rgba(0,0,0,0.55),0 0 0 1px rgba(0,0,0,0.3);animation:cardReveal .8s cubic-bezier(0.16,1,0.3,1) both}
+@keyframes cardReveal{from{opacity:0;transform:translateY(18px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.motion-card-meta{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7b8ba5;margin-bottom:22px}
+.motion-card-title{font-size:clamp(30px,3.8vw,42px);font-weight:900;line-height:1.12;letter-spacing:-.04em;color:#fff;margin-bottom:18px}
+.motion-card-brand{display:block;color:#fff;margin-bottom:2px}
+.motion-hl{color:#fbd509;font-style:normal;font-weight:900}
+.motion-card-desc{font-size:14.5px;line-height:1.65;color:#94a3b8;margin-bottom:28px}
+.motion-card-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.motion-card-primary-btn{background:#fbd509;color:#0a0a0a !important;font-family:var(--mono);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:13px 22px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .2s cubic-bezier(0.16,1,0.3,1),box-shadow .2s,background .2s;box-shadow:0 4px 16px rgba(251,213,9,0.3)}
+.motion-card-primary-btn:hover{transform:translateY(-2px);background:#fde047;box-shadow:0 8px 24px rgba(251,213,9,0.5)}
+.motion-card-secondary-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cbd5e1 !important;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.motion-card-secondary-btn:hover{color:#fff !important;text-decoration:underline}
+
+/* Readout Strip */
+.motion-readout-strip{position:relative;z-index:10;width:100%;border-top:1px solid rgba(15,23,42,0.14);background:rgba(251,213,9,0.5)}
+.motion-readout-inner{max-width:1440px;margin:0 auto;padding:14px 32px;display:grid;grid-template-columns:repeat(4,1fr);text-align:center;gap:16px}
+.motion-readout-item{font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#0f172a}
+
+/* ── Layout & Legacy Support ── */
+/* ── Motion UI Sticky Topbar Scroll Morph ── */
+.motion-topbar{position:sticky;top:0;z-index:100;transition:background .25s ease,border-color .25s ease,box-shadow .25s ease}
+.motion-topbar.scrolled{background:rgba(9,13,22,0.92);border-bottom-color:rgba(255,255,255,0.1);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.motion-topbar.scrolled .motion-brand-text{color:#fff}
+.motion-topbar.scrolled .motion-slash{background:var(--motion-yellow)}
+.motion-topbar.scrolled .motion-brand-sub{color:var(--motion-yellow)}
+.motion-topbar.scrolled .motion-nav-links a{color:#cbd5e1}
+.motion-topbar.scrolled .motion-nav-links a:hover,.motion-topbar.scrolled .motion-nav-links a.active{background:rgba(255,255,255,0.08);color:#fff}
+.motion-topbar.scrolled .motion-search-btn{color:#fff}
+.motion-topbar.scrolled .motion-plus-btn{background:var(--motion-yellow);color:#0a0a0a !important}
+
+/* ── Motion UI Section Headings (Numbered Index) ── */
+.motion-section{margin-bottom:48px}
+.fresh-section-heading{margin-bottom:28px;display:flex;flex-direction:column;gap:8px}
+.fresh-section-index{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--motion-yellow);background:rgba(251,213,9,0.08);border:1px solid rgba(251,213,9,0.22);border-radius:6px;padding:4px 10px;width:fit-content}
+.index-num{color:#fff;font-weight:800;padding-right:6px;border-right:1px solid rgba(251,213,9,0.3)}
+.fresh-section-copy h2{font-size:clamp(22px,2.6vw,30px);font-weight:800;letter-spacing:-.035em;color:#fff}
+.fresh-section-copy p,.fresh-section-copy .section-desc{color:var(--muted);font-size:14.5px;line-height:1.6;max-width:760px;margin-top:4px}
 .section-divider{border:none;border-top:1px solid var(--line);margin:48px 0}
-.section-heading{margin-bottom:28px}
-.section-heading .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-.section-heading h2{font-size:22px;font-weight:800;letter-spacing:-.03em}
-.section-heading .note{color:var(--muted);font-size:13px;margin-top:4px}
 
-/* ── Cards ── */
-.card{padding:24px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);transition:.2s}
-.card:hover{border-color:#2a3d5a}
+/* ── Motion Dev-Tool Plus Terminal Frames ── */
+.plus-terminal{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.plus-terminal:hover{border-color:var(--line-bright);box-shadow:0 12px 32px rgba(0,0,0,0.4)}
+.plus-terminal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:rgba(0,0,0,0.35);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--muted)}
+.terminal-dots{display:flex;align-items:center;gap:6px}
+.plus-terminal-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot-r{background:#ef4444}
+.dot-y{background:#f59e0b}
+.dot-g{background:#10b981}
+.plus-terminal-title{font-weight:600;letter-spacing:.04em;color:#cbd5e1}
+.plus-terminal-body{padding:24px}
 
-/* ── KPI row ── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-.kpi{padding:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
-.kpi-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
-.kpi-value{font-size:28px;font-weight:800;letter-spacing:-.03em;margin:6px 0 4px}
-.kpi-meta{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+/* UI Kicker & Panel Typography */
+.ui-kicker{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ui-kicker-prefix{color:var(--motion-yellow);font-weight:800}
+.panel-title{font-size:18px;font-weight:800;letter-spacing:-.03em;color:#fff}
+.note{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* ── Motion Bento KPI Grid ── */
+.motion-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.motion-kpi-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;transition:transform .2s cubic-bezier(0.16,1,0.3,1),border-color .2s,box-shadow .2s;display:flex;flex-direction:column;justify-content:space-between}
+.motion-kpi-card:hover{transform:translateY(-2px);border-color:rgba(251,213,9,0.35);box-shadow:0 12px 28px -8px rgba(0,0,0,0.5),0 0 16px rgba(251,213,9,0.08)}
+.kpi-kicker{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:4px}
+.kpi-kicker span{color:var(--motion-yellow)}
+.kpi-val{font-size:32px;font-weight:900;letter-spacing:-.04em;color:#fff;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+.kpi-sub{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
 .trend{display:inline-grid;place-items:center;width:17px;height:17px;border-radius:50%;font-size:9px;font-weight:900}
 .trend.up{background:#22c55e20;color:var(--success)}
 .trend.down{background:#ef444420;color:var(--danger)}
 
-/* ── Two-column workspace ── */
-.workspace{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
-.workspace-full{grid-column:1/-1}
+/* ── Active Repository Dev-Tool Bar ── */
+.repo-bar-body{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.repo-bar-meta{display:flex;flex-direction:column;gap:2px}
+.repo-bar-meta strong{font-size:14px;color:#fff}
+.repo-bar-input-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:540px;min-width:260px;position:relative}
+.repo-prompt{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--motion-yellow);position:absolute;left:14px}
+.motion-input{width:100%;padding:10px 14px 10px 32px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13.5px var(--mono);outline:none;transition:border-color .2s,box-shadow .2s}
+.motion-input:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
+.repo-bar-status{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.repo-bar-status small{color:var(--muted);font-size:11px}
+.motion-radar-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--motion-cyan)}
+.radar-dot{width:7px;height:7px;border-radius:50%;background:var(--motion-cyan);box-shadow:0 0 8px var(--motion-cyan);animation:pulse 2s infinite}
+.dot-live{background:#22c55e;box-shadow:0 0 8px #22c55e}
 
-/* ── Code Q&A panel ── */
-.qa-panel{display:flex;flex-direction:column;gap:16px}
-.qa-panel label{font-size:13px;font-weight:600;color:#94a3b8}
-.qa-panel textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px/1.6 var(--font);resize:vertical;min-height:88px;outline:none;transition:.2s}
-.qa-panel textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border:none;border-radius:8px;font:14px/1 var(--font);font-weight:700;cursor:pointer;transition:.2s}
-.btn-primary{background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;box-shadow:0 4px 14px #6366f140}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px #6366f150}
+/* ── Workspace & Panels ── */
+.workspace{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.workspace-full{grid-column:1/-1}
+.qa-panel label,.impact-panel label{font-size:12.5px;font-weight:700;color:#94a3b8;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.qa-panel textarea,.impact-panel textarea{width:100%;margin-top:8px;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13.5px/1.6 var(--mono);resize:vertical;min-height:92px;outline:none;transition:.2s}
+.qa-panel textarea:focus,.impact-panel textarea:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
+.impact-panel select,.impact-panel input[type="text"]{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13.5px var(--mono);outline:none;transition:.2s}
+.impact-panel select:focus,.impact-panel input:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
+
+/* Motion Segmented Switcher Tabs */
+.ui-adapt-switcher{display:inline-flex;gap:4px;background:rgba(0,0,0,0.4);padding:4px;border-radius:8px;border:1px solid var(--line);width:fit-content;margin-bottom:8px}
+.ui-adapt-switcher button{font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:.05em;padding:7px 14px;border-radius:6px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s ease}
+.ui-adapt-switcher button:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.ui-adapt-switcher button.sel{background:var(--motion-yellow);color:#0a0a0a !important;font-weight:800;box-shadow:0 2px 8px rgba(251,213,9,0.3)}
+
+/* Action Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border:none;border-radius:6px;font:12.5px var(--mono);font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:.2s}
+.btn-primary{background:var(--motion-yellow);color:#0a0a0a !important;box-shadow:0 4px 14px rgba(251,213,9,0.3)}
+.btn-primary:hover{transform:translateY(-1px);background:#fde047;box-shadow:0 6px 20px rgba(251,213,9,0.5)}
 .btn-primary:disabled{opacity:.6;cursor:wait;transform:none}
-.btn-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
-.spinner{width:14px;height:14px;border:2px solid #ffffff44;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-secondary{background:rgba(255,255,255,0.06);color:#fff;border:1px solid var(--line)}
+.btn-secondary:hover{background:rgba(255,255,255,0.12)}
+.spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite;display:none}
 .loading .spinner{display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── Comparison table ── */
-.compare-table{width:100%;border-collapse:collapse;margin-top:16px}
-.compare-table th,.compare-table td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}
-.compare-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
-.compare-table tbody tr:hover td{background:#ffffff04}
-.model-name{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+/* ── Comparison & Evaluation Tables ── */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.compare-table,.eval-table{width:100%;border-collapse:collapse}
+.compare-table th,.compare-table td,.eval-table th,.eval-table td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}
+.compare-table th,.eval-table th{background:rgba(0,0,0,0.45);color:var(--muted);font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.eval-table th,.eval-table td{text-align:right}
+.eval-table th:first-child,.eval-table td:first-child{text-align:left}
+.compare-table tbody tr:hover td,.eval-table tbody tr:hover td{background:rgba(255,255,255,0.03)}
+.model-name{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
 .model-dot{width:8px;height:8px;border-radius:50%;flex:none}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:700;white-space:nowrap}
 .badge-ok{background:#22c55e18;color:var(--success)}
-.badge-loading{background:#6366f118;color:#818cf8}
+.badge-loading{background:#38bdf818;color:var(--motion-cyan)}
 .badge-error{background:#ef444418;color:var(--danger)}
-.badge-idle{background:#ffffff08;color:var(--muted)}
-.answer-box{font:13px/1.65 'SF Mono',ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;border-radius:8px;background:var(--surface);border:1px solid var(--line);max-height:340px;overflow-y:auto;color:#c6d0e0}
+.badge-idle{background:rgba(255,255,255,0.06);color:var(--muted)}
+.answer-box{font:12.5px/1.65 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;border-radius:8px;background:var(--surface);border:1px solid var(--line);max-height:340px;overflow-y:auto;color:#cbd5e1}
 .answer-box.loading{color:var(--muted);font-style:italic}
 .answer-box.error{color:var(--danger);background:#1a0f0f;border-color:#3b1111}
 details{color:var(--muted);font-size:13px;margin-top:14px}
 summary{cursor:pointer;font-weight:600;color:#94a3b8}
-#context{margin-top:8px;padding:12px;border-radius:8px;background:#0d1117;color:#8b949e;max-height:220px;overflow:auto;font:12px/1.5 'SF Mono',ui-monospace,Consolas,monospace}
+#context{margin-top:8px;padding:12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);color:#8b949e;max-height:220px;overflow:auto;font:12px/1.5 var(--mono)}
 
-/* ── Impact Analysis panel ── */
-.impact-panel{display:flex;flex-direction:column;gap:16px}
-.impact-panel label{font-size:13px;font-weight:600;color:#94a3b8}
-.impact-panel select,.impact-panel input[type="text"]{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px var(--font);outline:none;transition:.2s}
-.impact-panel select:focus,.impact-panel input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
-.impact-panel textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px/1.6 var(--font);resize:vertical;min-height:80px;outline:none;transition:.2s}
-.impact-panel textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px #6366f120}
-.input-modes{display:flex;gap:4px;margin-bottom:8px}
-.input-modes button{padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:12px/1 var(--font);font-weight:600;cursor:pointer;transition:.15s}
-.input-modes button.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
-.options-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;color:#94a3b8}
-.options-row label{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
-.options-row input[type="checkbox"]{accent-color:var(--accent)}
-.run-row{display:flex;gap:10px;align-items:center}
-.run-row select{width:auto;flex:none;margin:0}
-.job-banner{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:10px;background:linear-gradient(135deg,#312e8140,#1e1b4b40);border:1px solid #4338ca40;color:#a5b4fc;font-size:14px}
-.job-banner strong{color:#c7d2fe;display:block}
-.job-banner small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
-.live-tag{margin-left:auto;padding:4px 10px;border-radius:999px;background:#6366f130;color:#a5b4fc;font-size:10px;font-weight:800;letter-spacing:.06em;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+/* ── Motion UI Dynamic Multi-Model Oscilloscope & Live Comparison Graph ── */
+.motion-oscilloscope-card{margin-top:28px;padding-top:24px;border-top:1px solid var(--line)}
+.motion-oscilloscope-top{margin-bottom:14px}
+.motion-graph-tabs{display:inline-flex;border:1px solid rgba(255,255,255,0.18);border-radius:6px;overflow:hidden;background:#090d16;margin-bottom:10px;box-shadow:0 4px 14px rgba(0,0,0,0.4)}
+.motion-graph-tab{font-family:var(--mono);font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:10px 22px;background:transparent;color:#94a3b8;border:none;border-right:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:all .15s ease}
+.motion-graph-tab:last-child{border-right:none}
+.motion-graph-tab:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.motion-graph-tab.active{background:var(--motion-yellow) !important;color:#0a0a0a !important;font-weight:900;box-shadow:0 0 16px rgba(251,213,9,0.3)}
+.motion-graph-subtitle{font-size:13.5px;color:#94a3b8;margin:4px 0 16px;font-family:var(--font);line-height:1.5}
 
-/* ── Impact results ── */
+.motion-oscilloscope-screen{background:#06090e;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:inset 0 2px 14px rgba(0,0,0,0.8),0 12px 30px rgba(0,0,0,0.4)}
+.motion-screen-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:11px}
+.motion-screen-kicker{color:var(--motion-yellow);font-weight:800;letter-spacing:.1em;display:inline-flex;align-items:center;gap:6px}
+.motion-screen-kicker .kicker-symbol{font-size:13px;font-weight:900}
+.motion-screen-readout{display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em}
+.readout-tag{color:#f8fafc;letter-spacing:.12em}
+.readout-live{color:var(--motion-cyan);font-size:10.5px}
+
+.motion-canvas-wrapper{position:relative;width:100%;height:320px}
+.motion-oscilloscope-canvas{width:100%;height:100%;display:block;cursor:crosshair}
+
+.motion-graph-hud{position:absolute;top:10px;right:14px;background:rgba(11,15,25,0.95);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:11px;pointer-events:none;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.6);min-width:240px;transition:opacity .15s}
+.hud-q{color:#f8fafc;font-weight:700;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.hud-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:3px}
+
+.motion-graph-legend{display:flex;align-items:center;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.08);flex-wrap:wrap}
+.legend-chip{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);font-family:var(--mono);font-size:11.5px;color:#cbd5e1;cursor:pointer;transition:all .15s ease;user-select:none}
+.legend-chip:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.22);transform:translateY(-1px)}
+.legend-chip.active-highlight{border-color:rgba(255,255,255,0.24);background:rgba(255,255,255,0.06)}
+.legend-chip[data-model="codellama"].active-highlight{border-color:rgba(129,140,248,0.65);background:rgba(129,140,248,0.12);box-shadow:0 0 14px rgba(129,140,248,0.25)}
+.legend-chip[data-model="starcoder2"].active-highlight{border-color:rgba(56,189,248,0.65);background:rgba(56,189,248,0.12);box-shadow:0 0 14px rgba(56,189,248,0.25)}
+.legend-chip[data-model="qwen2.5-coder"].active-highlight{border-color:rgba(251,213,9,0.65);background:rgba(251,213,9,0.12);box-shadow:0 0 14px rgba(251,213,9,0.25)}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.legend-name{font-weight:700;letter-spacing:.03em}
+.legend-val{font-weight:800;color:#fff;margin-left:4px}
+
+/* ── Category Winners Bento Grid ── */
+.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.category-card{padding:20px;border:1px solid var(--line);border-radius:10px;background:var(--card);transition:transform .2s cubic-bezier(0.16,1,0.3,1),border-color .2s,box-shadow .2s}
+.category-card:hover{transform:translateY(-2px);border-color:rgba(251,213,9,0.35);box-shadow:0 12px 28px rgba(0,0,0,0.5)}
+.category-card h3{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:700}
+.category-card .winner{font-size:18px;font-weight:900;letter-spacing:-.02em;color:#fff;margin-bottom:8px}
+.category-card .metric-detail{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.category-card .metric-detail strong{color:var(--motion-yellow)}
+
+/* ── Guardrails Instrument Grid ── */
+.guardrail-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.guardrail-stat{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--card);transition:transform .2s,border-color .2s}
+.guardrail-stat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.18)}
+.guardrail-stat .label{font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.guardrail-stat .value{font-size:26px;font-weight:900;letter-spacing:-.03em;color:#fff;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+.guardrail-stat .meta{font-size:11.5px;color:var(--muted)}
+.status-tag{display:inline-flex;padding:3px 8px;border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:700}
+.status-tag.pass,.status-tag.answered,.status-tag.accept{background:#22c55e18;color:var(--success)}
+.status-tag.fail,.status-tag.reject{background:#ef444418;color:var(--danger)}
+.status-tag.refused{background:#f59e0b18;color:var(--warn)}
+
+/* ── Motion UI Site Footer ── */
+.motion-site-footer{border-top:1px solid var(--line);background:var(--bg);margin-top:64px;padding:48px 0 32px}
+.motion-footer-inner{max-width:1440px;margin:auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.motion-footer-brand{display:flex;align-items:center;gap:12px}
+.motion-footer-brand strong{display:block;font-size:16px;font-weight:900;color:#fff}
+.motion-footer-brand small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.footer-status-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,0.05);border:1px solid var(--line);font-family:var(--mono);font-size:11px;color:#cbd5e1;letter-spacing:.04em}
+.motion-footer-nav{display:flex;gap:20px}
+.motion-footer-nav a{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);text-decoration:none;transition:color .15s}
+.motion-footer-nav a:hover{color:var(--motion-yellow)}
+.motion-footer-bottom{max-width:1440px;margin:24px auto 0;padding:20px 32px 0;border-top:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;font-size:11.5px;color:#64748b;font-family:var(--mono)}
+
+/* ── Impact results & Extras ── */
 .result-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.result-header h2{font-size:20px;font-weight:800}
-.risk-badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase}
+.result-header h2{font-size:20px;font-weight:800;color:#fff}
+.risk-badge{padding:4px 10px;border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:800;text-transform:uppercase}
 .risk-badge.high{background:#ef444420;color:var(--high)}
 .risk-badge.medium{background:#f59e0b20;color:var(--medium)}
 .risk-badge.low{background:#22c55e20;color:var(--low)}
 .result-stats{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px;font-size:13px;color:var(--muted)}
 .result-stats strong{color:var(--ink);font-size:17px;display:block}
-.report-sub-tabs{display:flex;gap:4px;margin-bottom:16px}
-.report-sub-tabs button{padding:8px 14px;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);font:13px/1 var(--font);font-weight:600;cursor:pointer;transition:.15s}
-.report-sub-tabs button.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.report-sub-tabs{display:flex;gap:6px;margin-bottom:16px}
+.report-sub-tabs button{padding:8px 16px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:12px var(--mono);font-weight:700;cursor:pointer;transition:.15s}
+.report-sub-tabs button.sel{background:var(--motion-yellow);color:#0a0a0a !important;border-color:var(--motion-yellow)}
 .file-list{max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
 .file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--ink);font:13px var(--font);cursor:pointer;text-align:left;transition:.15s;width:100%}
-.file-row:hover{background:#ffffff06;border-color:var(--line)}
-.file-row.chosen{background:#312e8130;border-color:var(--accent)}
+.file-row:hover{background:rgba(255,255,255,0.06);border-color:var(--line)}
+.file-row.chosen{background:rgba(251,213,9,0.12);border-color:var(--motion-yellow)}
 .file-row span{flex:1;overflow:hidden;text-overflow:ellipsis}
 .file-row small{display:block;color:var(--muted);font-size:11px}
 .detail-pane{font-size:13px;color:#b0bec5}
@@ -138,296 +268,520 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
 .test-card strong{color:var(--ink);display:block;margin-bottom:4px}
 .test-card p{color:var(--muted);margin:0}
 .test-card pre{margin:6px 0 0;font-size:11px;color:#7b8ba5}
-
-/* ── Evaluation tables ── */
-.eval-table{width:100%;border-collapse:collapse;font-size:13px}
-.eval-table th,.eval-table td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:right}
-.eval-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;user-select:none}
-.eval-table th:first-child,.eval-table td:first-child{text-align:left}
-.eval-table tbody tr:hover td{background:#ffffff04}
-.metric{font-variant-numeric:tabular-nums}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-.chart-panel{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.chart-panel h3{font-size:14px;margin-bottom:14px;color:#94a3b8}
-.chart-bars{display:grid;gap:10px}
-.chart-row{display:grid;grid-template-columns:100px 1fr 50px;gap:8px;align-items:center;font-size:11px}
-.chart-track{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
-.chart-bar{height:100%;border-radius:inherit;min-width:2px}
-.chart-value{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
-.legend{display:flex;gap:14px;margin:16px 0 -4px;font-size:11px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:5px}
-.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
-
-/* ── Category winners ── */
-.category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.category-card{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.category-card h3{font-size:13px;color:var(--muted);margin-bottom:8px;font-weight:600}
-.category-card .winner{font-size:16px;font-weight:800;margin-bottom:4px}
-.category-card .metric-detail{font-size:12px;color:var(--muted)}
-.category-card .metric-detail strong{color:#94a3b8}
-
-/* ── Guardrails ── */
-.guardrail-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-.guardrail-stat{padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.guardrail-stat .label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
-.guardrail-stat .value{font-size:22px;font-weight:800;margin:6px 0 3px}
-.guardrail-stat .meta{font-size:11px;color:var(--muted)}
-.status-tag{display:inline-flex;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
-.status-tag.pass,.status-tag.answered,.status-tag.accept{background:#22c55e18;color:var(--success)}
-.status-tag.fail,.status-tag.reject{background:#ef444418;color:var(--danger)}
-.status-tag.refused{background:#f59e0b18;color:var(--warn)}
-.exercise-table{width:100%;border-collapse:collapse;font-size:13px;white-space:normal}
-.exercise-table th,.exercise-table td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
-.exercise-table th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
-.prompt-cell{min-width:220px;max-width:380px}
-.reason-code{font:11px/1.4 'SF Mono',ui-monospace,Consolas,monospace;color:#7b8ba5}
-.report-prose{max-height:500px;overflow:auto;font-size:14px;color:#b0bec5;line-height:1.7}
-.report-prose h1,.report-prose h2,.report-prose h3{color:var(--ink);margin-top:1.3em}
-.report-prose code{padding:2px 5px;border-radius:4px;background:var(--surface);font-size:13px}
-.report-prose table{width:100%;border-collapse:collapse;font-size:13px}
-.report-prose th,.report-prose td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
-.report-prose th{background:var(--surface);color:var(--muted);font-size:11px;font-weight:700}
-
+.options-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;color:#94a3b8}
+.options-row label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.options-row input[type="checkbox"]{accent-color:var(--motion-yellow)}
+.run-row{display:flex;gap:12px;align-items:center}
+.run-row select{width:auto;flex:none;margin:0}
+.job-banner{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:10px;background:linear-gradient(135deg,rgba(251,213,9,0.1),rgba(15,23,42,0.6));border:1px solid rgba(251,213,9,0.25);color:#fde047;font-size:14px}
+.job-banner strong{color:#fff;display:block}
+.job-banner small{color:var(--muted);font-size:12px;display:block;margin-top:2px}
+.live-tag{margin-left:auto;padding:4px 10px;border-radius:999px;background:rgba(251,213,9,0.2);color:var(--motion-yellow);font-size:10px;font-weight:800;letter-spacing:.06em}
 .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
 .empty-state strong{color:var(--ink);display:block;margin-bottom:4px}
-.empty-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 14px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-size:22px}
+.empty-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 14px;border-radius:12px;background:rgba(251,213,9,0.12);color:var(--motion-yellow);font-size:22px}
 
-.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-
-footer.site-footer{text-align:center;padding:40px 32px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:48px}
-
-@media(max-width:1080px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.workspace{grid-template-columns:1fr}.guardrail-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}}
-@media(max-width:760px){.container{padding:0 16px}.kpi-grid{grid-template-columns:1fr}.topbar-inner{flex-direction:column;align-items:flex-start}.nav-pills{width:100%;overflow-x:auto}.guardrail-grid{grid-template-columns:1fr 1fr}.charts-row{grid-template-columns:1fr}}
+@media(max-width:1080px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.workspace{grid-template-columns:1fr}.guardrail-grid{grid-template-columns:repeat(3,1fr)}.charts-row{grid-template-columns:1fr}.motion-hero-card{max-width:480px}}
+@media(max-width:960px){.motion-topbar-inner{flex-wrap:wrap;padding:14px 20px;gap:14px}.motion-nav-links{overflow-x:auto;max-width:100%;padding-bottom:4px;gap:10px}.motion-readout-inner{grid-template-columns:repeat(2,1fr);gap:12px;padding:12px 20px}}
+@media(max-width:760px){.container{padding:0 16px}.kpi-grid{grid-template-columns:1fr}.topbar-inner{flex-direction:column;align-items:flex-start}.nav-pills{width:100%;overflow-x:auto}.guardrail-grid{grid-template-columns:1fr 1fr}.charts-row{grid-template-columns:1fr}.motion-canvas-container{min-height:500px}.motion-hero-content{padding:36px 16px}.motion-hero-card{padding:32px 24px;max-width:100%}.motion-card-actions{gap:14px}}
+@media(max-width:540px){.motion-readout-inner{grid-template-columns:1fr;gap:8px}}
 </style>
 </head>
 <body>
 
-<!-- ═══════ TOPBAR ═══════ -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <div class="brand">
-      <div class="brand-icon">⌬</div>
-      <div>CodeImpact AI<small>Change Intelligence</small></div>
+<!-- ═══════ MOTION UI HERO SECTION ═══════ -->
+<div class="motion-hero-wrapper" id="motionHero">
+  <!-- Motion Topbar -->
+  <header class="motion-topbar">
+    <div class="motion-topbar-inner">
+      <a class="motion-brand" href="/">
+        <div class="motion-brand-mark">
+          <span class="motion-slash"></span>
+          <span class="motion-slash"></span>
+          <span class="motion-slash"></span>
+        </div>
+        <div class="motion-brand-text">
+          <span>CodeImpact</span>
+          <span class="motion-brand-sub">Change Intelligence</span>
+        </div>
+      </a>
+      <nav class="motion-nav-links" aria-label="Page sections">
+        <a href="#telemetry">Telemetry</a>
+        <a href="#qa">Code Q&amp;A</a>
+        <a class="active" href="#impact">Impact Analysis</a>
+        <a href="#eval">Evaluation</a>
+        <a href="#guardrails">Guardrails</a>
+      </nav>
     </div>
-    <nav class="nav-pills" aria-label="Page sections">
-      <a class="active" href="#qa">Code Q&amp;A</a>
-      <a href="#impact">Impact Analysis</a>
-      <a href="#eval">Model Evaluation</a>
-      <a href="#guardrails">Guardrails</a>
-    </nav>
+  </header>
+
+  <!-- Canvas Stage with Animated ASCII Flow Field & Gradient Mesh -->
+  <div class="motion-canvas-container" id="motionCanvasContainer">
+    <canvas id="motionAsciiCanvas" class="motion-ascii-canvas" aria-label="Motion ASCII Flow Field Canvas"></canvas>
+
+    <!-- Floating Obsidian Hero Card -->
+    <div class="motion-hero-content">
+      <div class="motion-hero-card">
+        <div class="motion-card-meta">
+          <span>INCLUDED IN CODEIMPACT+</span>
+          <span>REPOSITORY AI</span>
+        </div>
+        <h1 class="motion-card-title">
+          <span class="motion-card-brand">CodeImpact AI.</span>
+          Understand your <em class="motion-hl">code</em>.<br>
+          Predict every <em class="motion-hl">change</em>.
+        </h1>
+        <p class="motion-card-desc">
+          Ship faster with production-ready, AI-powered change intelligence. Ask questions about your codebase, analyze ripple effects before merging, and evaluate model performance — all in one place.
+        </p>
+        <div class="motion-card-actions">
+          <a href="#impact" class="motion-card-primary-btn">
+            <span>ANALYZE IMPACT</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </a>
+          <a href="#qa" class="motion-card-secondary-btn">
+            <span>COMPARE MODELS</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
-</header>
 
-<div class="container">
-
-<!-- ═══════ HERO ═══════ -->
-<div class="hero">
-  <p class="eyebrow">AI-Powered Repository Intelligence</p>
-  <h1>Understand your code. Predict every change.</h1>
-  <p class="subtitle">Ask questions about your codebase, analyze the impact of changes, and evaluate model performance — all in one place.</p>
+  <!-- Bottom Monospace Readout Strip -->
+  <div class="motion-readout-strip" aria-hidden="true">
+    <div class="motion-readout-inner">
+      <span class="motion-readout-item">30+ EVAL METRICS</span>
+      <span class="motion-readout-item">4 CODE ENGINES</span>
+      <span class="motion-readout-item">AST DEPENDENCY GRAPH</span>
+      <span class="motion-readout-item">THEMED TO YOUR REPO</span>
+    </div>
+  </div>
 </div>
 
-<!-- ═══════ KPI STRIP ═══════ -->
-{% if rows %}{% set best_accuracy=rows|max(attribute='accuracy') %}{% set fastest=rows|min(attribute='latency_seconds') %}{% set lowest_hallucination=rows|min(attribute='hallucination_rate') %}{% set largest_run=rows|max(attribute='questions') %}{% set total_questions=largest_run.questions %}{% endif %}
-<section class="kpi-grid" aria-label="Key metrics">
-  <div class="kpi"><p class="kpi-label">Best Accuracy</p><p class="kpi-value">{{ '%.1f%%'|format(best_accuracy.accuracy*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">▲</span>{{ best_accuracy.model if rows else 'Awaiting data' }}</p></div>
-  <div class="kpi"><p class="kpi-label">Fastest Model</p><p class="kpi-value">{{ '%.2fs'|format(fastest.latency_seconds) if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">⚡</span>{{ fastest.model if rows else 'Awaiting data' }}</p></div>
-  <div class="kpi"><p class="kpi-label">Lowest Hallucination</p><p class="kpi-value">{{ '%.1f%%'|format(lowest_hallucination.hallucination_rate*100) if rows else '—' }}</p><p class="kpi-meta"><span class="trend down">▼</span>{{ lowest_hallucination.model if rows else 'Awaiting data' }}</p></div>
-  <div class="kpi"><p class="kpi-label">Questions Evaluated</p><p class="kpi-value">{{ total_questions if rows else '—' }}</p><p class="kpi-meta"><span class="trend up">✓</span>{{ rows|length if rows else 0 }} models</p></div>
+<div class="container" style="padding-top:36px">
+
+<!-- ═══════ SECTION 01: TELEMETRY & REPOSITORY ═══════ -->
+<section class="motion-section" id="telemetry">
+  <div class="fresh-section-heading">
+    <div class="fresh-section-index">
+      <span class="index-num">01</span>
+      <span class="index-title">Telemetry &amp; Codebase</span>
+    </div>
+    <div class="fresh-section-copy">
+      <h2>Evaluation benchmarks &amp; active repository</h2>
+      <p class="section-desc">Key performance indicators across all evaluated models and real-time AST repository binding.</p>
+    </div>
+  </div>
+
+  {% if rows %}{% set best_accuracy=rows|max(attribute='accuracy') %}{% set fastest=rows|min(attribute='latency_seconds') %}{% set lowest_hallucination=rows|min(attribute='hallucination_rate') %}{% set largest_run=rows|max(attribute='questions') %}{% set total_questions=largest_run.questions %}{% endif %}
+  <div class="motion-kpi-grid" aria-label="Key metrics">
+    <div class="motion-kpi-card">
+      <div class="kpi-kicker"><span class="kicker-prefix">&gt;</span>Best Accuracy</div>
+      <div class="kpi-val">{{ '%.1f%%'|format(best_accuracy.accuracy*100) if rows else '—' }}</div>
+      <div class="kpi-sub"><span class="trend up">▲</span>{{ best_accuracy.model if rows else 'Awaiting data' }}</div>
+    </div>
+    <div class="motion-kpi-card">
+      <div class="kpi-kicker"><span class="kicker-prefix">&gt;</span>Fastest Inference</div>
+      <div class="kpi-val">{{ '%.2fs'|format(fastest.latency_seconds) if rows else '—' }}</div>
+      <div class="kpi-sub"><span class="trend up">⚡</span>{{ fastest.model if rows else 'Awaiting data' }}</div>
+    </div>
+    <div class="motion-kpi-card">
+      <div class="kpi-kicker"><span class="kicker-prefix">&gt;</span>Lowest Hallucination</div>
+      <div class="kpi-val">{{ '%.1f%%'|format(lowest_hallucination.hallucination_rate*100) if rows else '—' }}</div>
+      <div class="kpi-sub"><span class="trend down">▼</span>{{ lowest_hallucination.model if rows else 'Awaiting data' }}</div>
+    </div>
+    <div class="motion-kpi-card">
+      <div class="kpi-kicker"><span class="kicker-prefix">&gt;</span>Questions Evaluated</div>
+      <div class="kpi-val">{{ total_questions if rows else '—' }}</div>
+      <div class="kpi-sub"><span class="trend up">✓</span>{{ rows|length if rows else 0 }} models audited</div>
+    </div>
+  </div>
+
+  <!-- Active Repository Dev-Tool Terminal -->
+  <div class="plus-terminal repo-terminal" style="margin-bottom:32px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">active-repository.json</span>
+      <span class="motion-radar-badge"><span class="radar-dot dot-live"></span>ACTIVE REPO BINDING</span>
+    </div>
+    <div class="plus-terminal-body repo-bar-body">
+      <div class="repo-bar-meta">
+        <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Active Codebase</span>
+        <strong>Repository under analysis</strong>
+      </div>
+      <div class="repo-bar-input-wrap">
+        <span class="repo-prompt">›</span>
+        <input type="text" id="sharedRepo" value="." placeholder="e.g. . or data/sample_repo" class="motion-input">
+      </div>
+      <div class="repo-bar-status">
+        <span id="repoStatsBadge" class="badge badge-idle">Scanning repository…</span>
+        <small>Shared by Code Q&amp;A &amp; Impact Analysis</small>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ═══════ SHARED ACTIVE REPOSITORY ═══════ -->
-<div class="card" style="margin-bottom:20px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-  <div style="display:flex;align-items:center;gap:12px">
-    <div style="display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-size:16px">📁</div>
-    <div>
-      <span style="font-size:11px;font-weight:800;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;display:block">Active Codebase</span>
-      <strong style="font-size:14px">Repository under analysis</strong>
+<!-- ═══════ SECTION 02: LIVE WORKSPACE ═══════ -->
+<section class="motion-section" id="workspaceSection">
+  <div class="fresh-section-heading">
+    <div class="fresh-section-index">
+      <span class="index-num">02</span>
+      <span class="index-title">Live Workspace</span>
+    </div>
+    <div class="fresh-section-copy">
+      <h2>Ask your codebase &amp; map change ripple effects</h2>
+      <p class="section-desc">Multi-model RAG comparisons answer simultaneously, while the impact engine maps affected files, tests, and risks in the active repository.</p>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;flex:1;max-width:540px;min-width:260px">
-    <input type="text" id="sharedRepo" value="." placeholder="e.g. . or data/sample_repo" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:14px var(--font);outline:none">
-  </div>
-  <div style="display:flex;align-items:center;gap:10px;font-size:12px">
-    <span id="repoStatsBadge" class="badge badge-idle">Scanning repository…</span>
-    <span style="color:var(--muted);font-size:11px">Shared by Code Q&amp;A &amp; Impact Analysis</span>
-  </div>
-</div>
 
-<!-- ═══════ SECTION: Code Q&A + Impact Analysis (side by side) ═══════ -->
-<div class="workspace" id="qa">
-
-  <!-- LEFT: Code Q&A -->
-  <section class="card qa-panel">
-    <div class="section-heading">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <p class="eyebrow">Repository Q&amp;A</p>
+  <div class="workspace" id="qa">
+    <!-- LEFT: Code Q&A Terminal Panel -->
+    <section class="plus-terminal qa-panel">
+      <div class="plus-terminal-header">
+        <div class="terminal-dots">
+          <span class="plus-terminal-dot dot-r"></span>
+          <span class="plus-terminal-dot dot-y"></span>
+          <span class="plus-terminal-dot dot-g"></span>
+        </div>
+        <span class="plus-terminal-title">code-qa.tsx</span>
         <span class="badge badge-idle" id="qaRepoBadge" style="font-size:10px">Target: .</span>
       </div>
-      <h2>Ask your codebase anything</h2>
-      <p class="note">Multi-model RAG comparison — all {{ models|length }} models answer simultaneously from the active repository</p>
-    </div>
-    <label>Your question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="btn btn-primary" id="ask" type="button" style="flex:none"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
-      <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none">⏱ <span id="elapsedSecs">0.0</span>s</span>
-      <span class="badge badge-idle" id="compareStatusPill">Ready</span>
-    </div>
-    <div class="table-wrap">
-      <table class="compare-table" id="comparisonTable">
-        <thead><tr><th style="width:140px">Model</th><th style="width:90px">Latency</th><th>Answer</th></tr></thead>
-        <tbody id="comparisonTbody">
-          {% for m in models %}
-          <tr data-compare-model="{{ m }}">
-            <td><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
-            <td><span class="badge badge-idle">Idle</span></td>
-            <td><div class="answer-box loading">Click "Compare All Models" to generate answers.</div></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    <details id="contextDetails"><summary>Retrieved RAG context (shared)</summary><pre id="context"></pre></details>
-  </section>
+      <div class="plus-terminal-body" style="display:flex;flex-direction:column;gap:16px">
+        <div>
+          <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Repository Q&amp;A</span>
+          <h3 class="panel-title">Ask your codebase anything</h3>
+          <p class="note">Multi-model RAG comparison — all {{ models|length }} models answer simultaneously from the active repository</p>
+        </div>
+        <label>Your question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-primary" id="ask" type="button" style="flex:none"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
+          <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none;font-family:var(--mono)">⏱ <span id="elapsedSecs">0.0</span>s</span>
+          <span class="badge badge-idle" id="compareStatusPill">Ready</span>
+        </div>
+        <div class="table-wrap">
+          <table class="compare-table" id="comparisonTable">
+            <thead><tr><th style="width:140px">Model</th><th style="width:90px">Latency</th><th>Answer</th></tr></thead>
+            <tbody id="comparisonTbody">
+              {% for m in models %}
+              <tr data-compare-model="{{ m }}">
+                <td><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
+                <td><span class="badge badge-idle">Idle</span></td>
+                <td><div class="answer-box loading">Click "Compare All Models" to generate answers.</div></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <details id="contextDetails"><summary>Retrieved RAG context (shared)</summary><pre id="context"></pre></details>
+      </div>
+    </section>
 
-  <!-- RIGHT: Impact Analysis -->
-  <section class="card impact-panel" id="impact">
-    <div class="section-heading">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <p class="eyebrow">Change Impact Analysis</p>
+    <!-- RIGHT: Impact Analysis Terminal Panel -->
+    <section class="plus-terminal impact-panel" id="impact">
+      <div class="plus-terminal-header">
+        <div class="terminal-dots">
+          <span class="plus-terminal-dot dot-r"></span>
+          <span class="plus-terminal-dot dot-y"></span>
+          <span class="plus-terminal-dot dot-g"></span>
+        </div>
+        <span class="plus-terminal-title">impact-analyzer.ts</span>
         <span class="badge badge-idle" id="impactRepoBadge" style="font-size:10px">Target: .</span>
       </div>
-      <h2>Predict the ripple effect</h2>
-      <p class="note">Describe a code change to map affected files, tests, and risks in the active repository</p>
-    </div>
-    <div class="input-modes">
-      <button class="sel" data-mode="description">Describe</button>
-      <button data-mode="diff">Paste diff</button>
-      <button data-mode="file">Select file</button>
-      <button data-mode="git">Git changes</button>
-    </div>
-    <div id="impactFileSelect" style="display:none"><label>Modified file<select id="impactFile"><option value="">Choose a file…</option></select></label></div>
-    <div id="impactDiffArea" style="display:none"><textarea id="impactDiff" placeholder="Paste your git diff here…" rows="4" spellcheck="false"></textarea></div>
-    <div id="impactGitNote" style="display:none;padding:12px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:13px;color:#94a3b8"><strong>Working tree vs HEAD</strong><br>Includes staged, unstaged, deleted, and untracked supported files.</div>
-    <textarea id="impactDesc" rows="4" placeholder="e.g. Change password validation rules. Which login flows and tests might be affected?"></textarea>
-    <div class="options-row">
-      <label><input type="checkbox" id="impactSemantic" checked> Semantic retrieval</label>
-      <label><input type="checkbox" id="impactLlm" checked> AI reasoning</label>
-    </div>
-    <div class="run-row">
-      <select id="impactModel"><option value="codellama">Code Llama</option><option value="qwen2.5-coder">Qwen2.5 Coder</option><option value="starcoder2">StarCoder2</option></select>
-      <button class="btn btn-primary" id="analyzeBtn" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Analyze Impact</span></button>
-    </div>
-    <p style="font-size:11px;color:var(--muted)">Read-only analysis. Suggested fixes are never applied automatically.</p>
-  </section>
-</div>
+      <div class="plus-terminal-body" style="display:flex;flex-direction:column;gap:16px">
+        <div>
+          <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Change Impact Engine</span>
+          <h3 class="panel-title">Predict the ripple effect</h3>
+          <p class="note">Describe a code change to map affected files, tests, and risks in the active repository</p>
+        </div>
+        <div class="input-modes ui-adapt-switcher">
+          <button class="sel" data-mode="description">Describe</button>
+          <button data-mode="diff">Paste diff</button>
+          <button data-mode="file">Select file</button>
+          <button data-mode="git">Git changes</button>
+        </div>
+        <div id="impactFileSelect" style="display:none"><label>Modified file<select id="impactFile"><option value="">Choose a file…</option></select></label></div>
+        <div id="impactDiffArea" style="display:none"><textarea id="impactDiff" placeholder="Paste your git diff here…" rows="4" spellcheck="false"></textarea></div>
+        <div id="impactGitNote" style="display:none;padding:12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:13px;color:#94a3b8"><strong>Working tree vs HEAD</strong><br>Includes staged, unstaged, deleted, and untracked supported files.</div>
+        <textarea id="impactDesc" rows="4" placeholder="e.g. Change password validation rules. Which login flows and tests might be affected?"></textarea>
+        <div class="options-row">
+          <label><input type="checkbox" id="impactSemantic" checked> Semantic retrieval</label>
+          <label><input type="checkbox" id="impactLlm" checked> AI reasoning</label>
+        </div>
+        <div class="run-row">
+          <select id="impactModel" class="motion-input" style="width:auto"><option value="codellama">Code Llama</option><option value="qwen2.5-coder">Qwen2.5 Coder</option><option value="starcoder2">StarCoder2</option></select>
+          <button class="btn btn-primary" id="analyzeBtn" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Analyze Impact</span></button>
+        </div>
+        <p style="font-size:11px;color:var(--muted);font-family:var(--mono)">Read-only analysis. Suggested fixes are never applied automatically.</p>
+      </div>
+    </section>
+  </div>
 
-<!-- ═══════ Impact Results (full width, shown after analysis) ═══════ -->
-<section id="impactResults" class="card workspace-full" style="display:none;margin-bottom:32px">
-  <div class="result-header">
-    <div>
-      <p class="eyebrow" style="margin-bottom:4px">CHANGE IMPACT REPORT</p>
-      <h2 id="impactTitle">Impact Report</h2>
-      <p id="impactSummary" style="color:var(--muted);font-size:13px;margin-top:4px"></p>
+  <!-- ═══════ Impact Results (full width, shown after analysis) ═══════ -->
+  <section id="impactResults" class="plus-terminal workspace-full" style="display:none;margin-bottom:32px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">impact-report.json</span>
+      <span class="badge badge-ok">ANALYSIS COMPLETE</span>
     </div>
-    <a class="btn btn-secondary" id="exportBtn" style="display:none">⬇ Export</a>
+    <div class="plus-terminal-body">
+      <div class="result-header">
+        <div>
+          <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Change Impact Report</span>
+          <h2 id="impactTitle" style="font-size:22px;color:#fff">Impact Report</h2>
+          <p id="impactSummary" style="color:var(--muted);font-size:13px;margin-top:4px"></p>
+        </div>
+        <a class="btn btn-secondary" id="exportBtn" style="display:none">⬇ Export</a>
+      </div>
+      <div class="result-stats" id="impactStats"></div>
+      <div class="report-sub-tabs ui-adapt-switcher" id="impactTabs">
+        <button class="sel" data-tab="impactMap">Impact Map</button>
+        <button data-tab="impactTests">Tests &amp; Fixes</button>
+        <button data-tab="impactAi">AI Reasoning</button>
+        <button data-tab="impactEvidence">Source Evidence</button>
+      </div>
+      <div id="impactMap"></div>
+      <div id="impactTests" style="display:none"></div>
+      <div id="impactAi" style="display:none"></div>
+      <div id="impactEvidence" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ═══════ Job Banner ═══════ -->
+  <div id="jobBanner" class="job-banner" style="display:none;margin-bottom:32px">
+    <div class="spinner" style="display:inline-block;border-color:rgba(251,213,9,0.3);border-top-color:var(--motion-yellow)"></div>
+    <div><strong id="jobMessage">Submitting analysis</strong><small>First-time embedding can take several minutes. Cached chunks are reused.</small></div>
+    <span class="live-tag">LIVE</span>
   </div>
-  <div class="result-stats" id="impactStats"></div>
-  <div class="report-sub-tabs" id="impactTabs">
-    <button class="sel" data-tab="impactMap">Impact Map</button>
-    <button data-tab="impactTests">Tests &amp; Fixes</button>
-    <button data-tab="impactAi">AI Reasoning</button>
-    <button data-tab="impactEvidence">Source Evidence</button>
-  </div>
-  <div id="impactMap"></div>
-  <div id="impactTests" style="display:none"></div>
-  <div id="impactAi" style="display:none"></div>
-  <div id="impactEvidence" style="display:none"></div>
 </section>
 
-<!-- ═══════ Job Banner ═══════ -->
-<div id="jobBanner" class="job-banner" style="display:none;margin-bottom:32px">
-  <div class="spinner" style="display:inline-block;border-color:#818cf844;border-top-color:#818cf8"></div>
-  <div><strong id="jobMessage">Submitting analysis</strong><small>First-time embedding can take several minutes. Cached chunks are reused.</small></div>
-  <span class="live-tag">LIVE</span>
-</div>
+<hr class="section-divider">
 
-<hr class="section-divider" id="eval">
-
-<!-- ═══════ SECTION: Model Evaluation ═══════ -->
-<div class="section-heading">
-  <p class="eyebrow">Model Evaluation</p>
-  <h2>Multi-model performance comparison</h2>
-  <p class="note">Average evaluation metrics across all tested questions</p>
-</div>
-
-{% if rows %}
-<div class="card" style="margin-bottom:20px">
-  <div class="table-wrap">
-    <table class="eval-table" id="models">
-      <thead><tr>
-        <th data-type="text">Model</th><th data-type="number">Accuracy</th><th data-type="number">Relevance</th><th data-type="number">Latency</th><th data-type="number">Tokens</th><th data-type="number">Hallucination</th><th data-type="number">Test pass</th>
-      </tr></thead>
-      <tbody>{% for r in rows %}<tr data-model="{{ r.model }}">
-        <td><span class="model-name"><span class="model-dot"></span>{{ r.model }}</span></td>
-        <td class="metric" data-v="{{ r.accuracy }}" data-metric="accuracy">{{ '%.1f%%'|format(r.accuracy*100) }}</td>
-        <td class="metric" data-v="{{ r.relevance }}" data-metric="relevance">{{ '%.3f'|format(r.relevance) }}</td>
-        <td class="metric" data-v="{{ r.latency_seconds }}" data-metric="latency" data-inverse="true">{{ '%.2f s'|format(r.latency_seconds) }}</td>
-        <td class="metric" data-v="{{ r.total_tokens }}" data-metric="tokens" data-inverse="true">{{ '%.1f'|format(r.total_tokens) }}</td>
-        <td class="metric" data-v="{{ r.hallucination_rate }}" data-metric="hallucination" data-inverse="true">{{ '%.1f%%'|format(r.hallucination_rate*100) }}</td>
-        <td class="metric" data-v="{{ '' if r.test_pass_rate is none else r.test_pass_rate }}" data-metric="test-pass">{{ 'n/a' if r.test_pass_rate is none else '%.1f%%'|format(r.test_pass_rate*100) }}</td>
-      </tr>{% endfor %}</tbody>
-    </table>
+<!-- ═══════ SECTION 03: MODEL EVALUATION ═══════ -->
+<section class="motion-section" id="eval">
+  <div class="fresh-section-heading">
+    <div class="fresh-section-index">
+      <span class="index-num">03</span>
+      <span class="index-title">Benchmark Suite</span>
+    </div>
+    <div class="fresh-section-copy">
+      <h2>Multi-model performance &amp; oscilloscope comparison</h2>
+      <p class="section-desc">Audited benchmarks across accuracy, relevance, inference latency, token efficiency, and hallucination grounding.</p>
+    </div>
   </div>
-  {% set max_latency=(rows|max(attribute='latency_seconds')).latency_seconds %}
-  <div class="legend" id="chartLegend"></div>
-  <div class="charts-row">
-    <div class="chart-panel"><h3>Accuracy by model</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span>{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ r.accuracy*100 }}%"></div></div><span class="chart-value">{{ '%.1f%%'|format(r.accuracy*100) }}</span></div>{% endfor %}</div></div>
-    <div class="chart-panel"><h3>Average latency</h3><div class="chart-bars">{% for r in rows %}<div class="chart-row" data-chart-model="{{ r.model }}"><span>{{ r.model }}</span><div class="chart-track"><div class="chart-bar" style="width:{{ (r.latency_seconds/max_latency*100) if max_latency else 0 }}%"></div></div><span class="chart-value">{{ '%.2fs'|format(r.latency_seconds) }}</span></div>{% endfor %}</div></div>
+
+  {% if rows %}
+  <div class="plus-terminal" style="margin-bottom:28px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">benchmark-matrix.csv</span>
+      <span class="motion-radar-badge"><span class="radar-dot dot-live"></span>{{ rows|length }} MODELS</span>
+    </div>
+    <div class="plus-terminal-body">
+      <div class="table-wrap">
+        <table class="eval-table" id="models">
+          <thead><tr>
+            <th data-type="text">Model</th><th data-type="number">Accuracy</th><th data-type="number">Relevance</th><th data-type="number">Latency</th><th data-type="number">Tokens</th><th data-type="number">Hallucination</th><th data-type="number">Test pass</th>
+          </tr></thead>
+          <tbody>{% for r in rows %}<tr data-model="{{ r.model }}">
+            <td><span class="model-name"><span class="model-dot"></span>{{ r.model }}</span></td>
+            <td class="metric" data-v="{{ r.accuracy }}" data-metric="accuracy">{{ '%.1f%%'|format(r.accuracy*100) }}</td>
+            <td class="metric" data-v="{{ r.relevance }}" data-metric="relevance">{{ '%.3f'|format(r.relevance) }}</td>
+            <td class="metric" data-v="{{ r.latency_seconds }}" data-metric="latency" data-inverse="true">{{ '%.2f s'|format(r.latency_seconds) }}</td>
+            <td class="metric" data-v="{{ r.total_tokens }}" data-metric="tokens" data-inverse="true">{{ '%.1f'|format(r.total_tokens) }}</td>
+            <td class="metric" data-v="{{ r.hallucination_rate }}" data-metric="hallucination" data-inverse="true">{{ '%.1f%%'|format(r.hallucination_rate*100) }}</td>
+            <td class="metric" data-v="{{ '' if r.test_pass_rate is none else r.test_pass_rate }}" data-metric="test-pass">{{ 'n/a' if r.test_pass_rate is none else '%.1f%%'|format(r.test_pass_rate*100) }}</td>
+          </tr>{% endfor %}</tbody>
+        </table>
+      </div>
+      <!-- ── Motion Dynamic Multi-Model Oscilloscope Comparison ── -->
+      <div class="motion-oscilloscope-card">
+        <div class="motion-oscilloscope-top">
+          <!-- 5 Tabs: ACCURACY, RELEVANCE, LATENCY, TOKENS, HALLUCINATION -->
+          <div class="motion-graph-tabs" role="tablist" aria-label="Metric comparison tabs">
+            <button type="button" class="motion-graph-tab active" data-metric="accuracy" role="tab" aria-selected="true">Accuracy</button>
+            <button type="button" class="motion-graph-tab" data-metric="relevance" role="tab" aria-selected="false">Relevance</button>
+            <button type="button" class="motion-graph-tab" data-metric="latency" role="tab" aria-selected="false">Latency</button>
+            <button type="button" class="motion-graph-tab" data-metric="tokens" role="tab" aria-selected="false">Tokens</button>
+            <button type="button" class="motion-graph-tab" data-metric="hallucination" role="tab" aria-selected="false">Hallucination</button>
+          </div>
+          <p class="motion-graph-subtitle" id="motionGraphSubtitle">
+            Answer precision and correctness across 24 benchmark code queries · Highest: Qwen2.5 Coder (70.8%)
+          </p>
+        </div>
+
+        <!-- Oscilloscope Screen Frame matching Image 2 -->
+        <div class="motion-oscilloscope-screen" id="oscilloscopeScreen">
+          <!-- Screen Header -->
+          <div class="motion-screen-header">
+            <span class="motion-screen-kicker"><span class="kicker-symbol">&gt;</span> X(T)</span>
+            <div class="motion-screen-readout" id="motionScreenReadout">
+              <span class="readout-tag">UI K 305 · C 33</span>
+              <span class="readout-live" id="motionLiveInspection">BENCHMARK Q1..Q24 · 3 MODELS</span>
+            </div>
+          </div>
+
+          <!-- Interactive HTML5 Oscilloscope Canvas -->
+          <div class="motion-canvas-wrapper">
+            <canvas id="motionOscilloscopeCanvas" class="motion-oscilloscope-canvas" aria-label="Multi-Model Performance Oscilloscope Graph"></canvas>
+            <!-- Hover HUD Tooltip -->
+            <div class="motion-graph-hud" id="motionGraphHud" style="display:none">
+              <div class="hud-q" id="hudQuestion">Q1 · auth.py</div>
+              <div class="hud-models" id="hudModels"></div>
+            </div>
+          </div>
+
+          <!-- Color Clarification Legend with Labels and Values -->
+          <div class="motion-graph-legend" id="motionGraphLegend">
+            <div class="legend-chip active-highlight" data-model="codellama" title="Click to isolate CodeLlama">
+              <span class="legend-dot" style="background:#818cf8;box-shadow:0 0 10px #818cf8"></span>
+              <span class="legend-name" style="color:#c7d2fe">codellama</span>
+              <span class="legend-val" id="legendVal_codellama">63.9%</span>
+            </div>
+            <div class="legend-chip active-highlight" data-model="starcoder2" title="Click to isolate StarCoder2">
+              <span class="legend-dot" style="background:#38bdf8;box-shadow:0 0 10px #38bdf8"></span>
+              <span class="legend-name" style="color:#bae6fd">starcoder2</span>
+              <span class="legend-val" id="legendVal_starcoder2">50.0%</span>
+            </div>
+            <div class="legend-chip active-highlight" data-model="qwen2.5-coder" title="Click to isolate Qwen2.5 Coder">
+              <span class="legend-dot" style="background:#fbd509;box-shadow:0 0 10px #fbd509"></span>
+              <span class="legend-name" style="color:#fef08a">qwen2.5-coder</span>
+              <span class="legend-val" id="legendVal_qwen2_5_coder">70.8%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
-<!-- Category Winners -->
-<div class="card" style="margin-bottom:20px">
-  <div class="section-heading" style="margin-bottom:16px"><h2>Category-wise model winners</h2><p class="note">Each model evaluated on the same questions; the primary metric changes with the SE task.</p></div>
-  {% if category_summaries %}<div class="category-grid">{% for item in category_summaries %}<div class="category-card"><h3>{{ item.label }}</h3><p class="winner">{{ item.model }}</p><p class="metric-detail">Best by <strong>{{ item.metric }}</strong>: {{ item.score }}</p><p class="metric-detail">Completion: {{ '%.1f%%'|format(item.completion_rate*100) }}</p></div>{% endfor %}</div>{% else %}<div class="empty-state"><span class="empty-icon">⌁</span><strong>No category data</strong></div>{% endif %}
-</div>
+  <!-- Category Winners Bento Grid -->
+  <div class="plus-terminal" style="margin-bottom:28px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">category-winners.json</span>
+      <span class="motion-radar-badge"><span class="radar-dot dot-live"></span>SE TASK SPECIALISTS</span>
+    </div>
+    <div class="plus-terminal-body">
+      <div style="margin-bottom:18px">
+        <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Category Matrix</span>
+        <h3 class="panel-title">Task-wise model winners</h3>
+        <p class="note">Each model evaluated on the same questions; the primary metric adapts to the engineering task.</p>
+      </div>
+      {% if category_summaries %}
+      <div class="category-grid">
+        {% for item in category_summaries %}
+        <div class="category-card">
+          <h3>{{ item.label }}</h3>
+          <p class="winner">{{ item.model }}</p>
+          <p class="metric-detail">Best by <strong>{{ item.metric }}</strong>: {{ item.score }}</p>
+          <p class="metric-detail">Completion: {{ '%.1f%%'|format(item.completion_rate*100) }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><span class="empty-icon">⌁</span><strong>No category data</strong></div>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="plus-terminal" style="margin-bottom:28px"><div class="plus-terminal-body"><div class="empty-state"><span class="empty-icon">⌁</span><strong>No evaluation results yet</strong>Run the evaluation service to populate this view.</div></div></div>
+  {% endif %}
+</section>
 
-{% else %}
-<div class="card" style="margin-bottom:20px"><div class="empty-state"><span class="empty-icon">⌁</span><strong>No evaluation results yet</strong>Run the evaluation service to populate this view.</div></div>
-{% endif %}
+<hr class="section-divider">
 
-<!-- Analysis Reports -->
-<div class="card" style="margin-bottom:20px"><div class="section-heading" style="margin-bottom:16px"><h2>Evaluation Analysis Reports</h2></div>
-  <details style="margin-bottom:12px"><summary>Quantitative Evaluation Analysis</summary><div class="report-prose" style="margin-top:12px">{{ evaluation_analysis|safe }}</div></details>
-  <details style="margin-bottom:12px"><summary>RAG Pipeline Analysis</summary><div class="report-prose" style="margin-top:12px">{{ pipeline_analysis|safe }}</div></details>
-  <details><summary>Repository Understanding</summary><div class="report-prose" style="margin-top:12px">{{ repository_analysis|safe }}</div></details>
-</div>
+<!-- ═══════ SECTION 04: GUARDRAILS & RELIABILITY ═══════ -->
+<section class="motion-section" id="guardrails">
+  <div class="fresh-section-heading">
+    <div class="fresh-section-index">
+      <span class="index-num">04</span>
+      <span class="index-title">Reliability &amp; Defense</span>
+    </div>
+    <div class="fresh-section-copy">
+      <h2>Deterministic guardrails &amp; output acceptance</h2>
+      <p class="section-desc">Guardrails control each request; output tests verify unsupported or hallucinated responses are declined.</p>
+    </div>
+  </div>
 
-<hr class="section-divider" id="guardrails">
-
-<!-- ═══════ SECTION: Guardrails ═══════ -->
-<div class="section-heading">
-  <p class="eyebrow">Reliability &amp; Safety</p>
-  <h2>Guardrail effectiveness</h2>
-  <p class="note">Guardrails control each request; output tests verify unsupported responses are rejected.</p>
-</div>
-
-<div class="guardrail-grid">
-  <div class="guardrail-stat"><p class="label">Guardrail tests</p><p class="value">{{ exercise5.guardrails.passed }}/{{ exercise5.guardrails.total }}</p><p class="meta">Expected decisions passed</p></div>
-  <div class="guardrail-stat"><p class="label">False accepts</p><p class="value">{{ exercise5.guardrails.false_accepts }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Unsupported requests answered</p></div>
-  <div class="guardrail-stat"><p class="label">False refusals</p><p class="value">{{ exercise5.guardrails.false_refusals }}/{{ exercise5.guardrails.supported_total }}</p><p class="meta">Supported requests blocked</p></div>
-  <div class="guardrail-stat"><p class="label">Stopped pre-model</p><p class="value">{{ exercise5.guardrails.blocked_before_model }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Requests saved from LLM</p></div>
-  <div class="guardrail-stat"><p class="label">Output tests</p><p class="value">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }}</p><p class="meta">Acceptance-policy checks</p></div>
-</div>
+  <div class="plus-terminal" style="margin-bottom:24px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">guardrail-policy.rego</span>
+      <span class="motion-radar-badge"><span class="radar-dot dot-live"></span>ZERO-TRUST FIREWALL</span>
+    </div>
+    <div class="plus-terminal-body" style="padding:22px">
+      <div class="guardrail-grid" style="margin-bottom:0">
+        <div class="guardrail-stat"><p class="label">Guardrail tests</p><p class="value">{{ exercise5.guardrails.passed }}/{{ exercise5.guardrails.total }}</p><p class="meta">Expected decisions passed</p></div>
+        <div class="guardrail-stat"><p class="label">False accepts</p><p class="value">{{ exercise5.guardrails.false_accepts }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Unsupported requests answered</p></div>
+        <div class="guardrail-stat"><p class="label">False refusals</p><p class="value">{{ exercise5.guardrails.false_refusals }}/{{ exercise5.guardrails.supported_total }}</p><p class="meta">Supported requests blocked</p></div>
+        <div class="guardrail-stat"><p class="label">Stopped pre-model</p><p class="value">{{ exercise5.guardrails.blocked_before_model }}/{{ exercise5.guardrails.refused_total }}</p><p class="meta">Requests saved from LLM</p></div>
+        <div class="guardrail-stat"><p class="label">Output tests</p><p class="value">{{ exercise5.output_tests.passed }}/{{ exercise5.output_tests.total }}</p><p class="meta">Acceptance-policy checks</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
 </div><!-- end .container -->
 
-<footer class="site-footer">CodeImpact AI — Repository evidence. Traceable reasoning. Informed changes.</footer>
+<!-- ═══════ MOTION UI SITE FOOTER ═══════ -->
+<footer class="motion-site-footer">
+  <div class="motion-footer-inner">
+    <div class="motion-footer-brand">
+      <div class="motion-brand-mark">
+        <span class="motion-slash"></span>
+        <span class="motion-slash"></span>
+        <span class="motion-slash"></span>
+      </div>
+      <div>
+        <strong>CodeImpact AI</strong>
+        <small>Change Intelligence &amp; Repository Reasoning</small>
+      </div>
+    </div>
+    <div class="motion-footer-status">
+      <span class="footer-status-pill">
+        <span class="radar-dot dot-live"></span>
+        <span>LOCAL REPOSITORY ACTIVE · OLLAMA ENGINE CONNECTED</span>
+      </span>
+    </div>
+    <nav class="motion-footer-nav" aria-label="Footer links">
+      <a href="#motionHero">Top ↑</a>
+      <a href="#telemetry">Telemetry</a>
+      <a href="#qa">Code Q&amp;A</a>
+      <a href="#impact">Impact</a>
+      <a href="#eval">Benchmarks</a>
+      <a href="#guardrails">Guardrails</a>
+    </nav>
+  </div>
+  <div class="motion-footer-bottom">
+    <span>Evidence-grounded AST reasoning. Audited for Motion UI design fidelity.</span>
+    <span>v2.4.0 · Localhost 5050</span>
+  </div>
+</footer>
 
 <script>
 /* ── Model colors ── */
-const modelColors=['#6366f1','#0ea5e9','#f59e0b','#22c55e','#ec4899','#8b5cf6'];
+/* ── Model colors (Matching Motion UI and Oscilloscope Lines) ── */
+const modelColors=['#818cf8','#38bdf8','#fbd509','#34d399','#ec4899','#8b5cf6'];
 const configuredModels={{ models|tojson }};
 const colorByModel={};
 configuredModels.forEach((m,i)=>colorByModel[m]=modelColors[i%modelColors.length]);
@@ -436,17 +790,497 @@ configuredModels.forEach((m,i)=>colorByModel[m]=modelColors[i%modelColors.length
 document.querySelectorAll('#models tbody tr').forEach(row=>{
   const m=row.dataset.model;if(colorByModel[m])row.style.setProperty('--model-color',colorByModel[m]);
 });
-document.querySelectorAll('[data-chart-model]').forEach(row=>{
-  const m=row.dataset.chartModel;if(colorByModel[m])row.querySelector('.chart-bar').style.background=colorByModel[m];
-});
-const chartLegend=document.getElementById('chartLegend');
-if(chartLegend)configuredModels.forEach(m=>{chartLegend.innerHTML+=`<span><i style="background:${colorByModel[m]}"></i>${m}</span>`;});
 
 /* Apply colors to compare table */
 document.querySelectorAll('[data-compare-model]').forEach(row=>{
   const m=row.dataset.compareModel,c=colorByModel[m];
   if(c){row.style.setProperty('--model-color',c);const d=row.querySelector('.model-dot');if(d)d.style.background=c;}
 });
+
+/* ══════════════ MOTION UI DYNAMIC MULTI-MODEL OSCILLOSCOPE ENGINE ══════════════ */
+(function initMotionOscilloscope() {
+  const canvas = document.getElementById('motionOscilloscopeCanvas');
+  const container = document.querySelector('.motion-canvas-wrapper');
+  if (!canvas || !container) return;
+
+  const ctx = canvas.getContext('2d');
+  const tabs = document.querySelectorAll('.motion-graph-tab');
+  const subtitleEl = document.getElementById('motionGraphSubtitle');
+  const readoutLiveEl = document.getElementById('motionLiveInspection');
+  const hudEl = document.getElementById('motionGraphHud');
+  const hudQuestionEl = document.getElementById('hudQuestion');
+  const hudModelsEl = document.getElementById('hudModels');
+  const legendChips = document.querySelectorAll('.legend-chip');
+
+  // Server-rendered or fallback benchmark data
+  const rawData = {{ benchmark_series|tojson if benchmark_series else 'null' }};
+
+  // Model Colors (Distinct neon colors matching Image 2 & Motion UI)
+  const MODEL_COLORS = {
+    'codellama': '#818cf8',      // Indigo / Purple
+    'starcoder2': '#38bdf8',     // Sky / Electric Cyan
+    'qwen2.5-coder': '#fbd509'   // Motion Vibrant Yellow
+  };
+  const MODEL_DEFAULT_COLORS = ['#818cf8', '#38bdf8', '#fbd509', '#34d399', '#ec4899'];
+
+  // Metrics metadata with smooth scales and subtitles
+  const METRICS = {
+    accuracy: {
+      name: 'Accuracy',
+      min: 0,
+      max: 1.0,
+      yTicks: [1.0, 0.75, 0.5, 0.25, 0],
+      formatY: v => (v * 100).toFixed(0) + '%',
+      formatVal: v => (v * 100).toFixed(1) + '%',
+      subtitle: 'Answer precision and ground-truth correctness across 24 benchmark code queries · Highest: Qwen2.5 Coder (70.8%)'
+    },
+    relevance: {
+      name: 'Relevance',
+      min: 0,
+      max: 1.0,
+      yTicks: [1.0, 0.8, 0.6, 0.4, 0.2, 0],
+      formatY: v => v.toFixed(1),
+      formatVal: v => v.toFixed(3),
+      subtitle: 'Semantic cosine relevance of retrieved context to gold-standard solutions · Highest: CodeLlama (0.798)'
+    },
+    latency: {
+      name: 'Latency',
+      min: 0,
+      max: 14.0,
+      yTicks: [14.0, 10.5, 7.0, 3.5, 0],
+      formatY: v => v.toFixed(0) + 's',
+      formatVal: v => v.toFixed(2) + 's',
+      subtitle: 'Inference response latency per query in seconds (lower is faster) · Fastest: StarCoder2 (5.09s)'
+    },
+    tokens: {
+      name: 'Tokens',
+      min: 0,
+      max: 1200.0,
+      yTicks: [1200, 900, 600, 300, 0],
+      formatY: v => v.toFixed(0),
+      formatVal: v => v.toFixed(0),
+      subtitle: 'Total prompt + completion tokens consumed per response (efficiency) · Most concise: Qwen2.5 Coder (665)'
+    },
+    hallucination: {
+      name: 'Hallucination',
+      min: 0,
+      max: 0.5,
+      yTicks: [0.5, 0.375, 0.25, 0.125, 0],
+      formatY: v => (v * 100).toFixed(0) + '%',
+      formatVal: v => (v * 100).toFixed(1) + '%',
+      subtitle: 'Cumulative ungrounded claim incidence rate (lower is better) · Lowest: CodeLlama & StarCoder2 (16.7%)'
+    }
+  };
+
+  let activeMetric = 'accuracy';
+  let focusedModel = null; // all models (CodeLlama, StarCoder, Qwen) highlighted with glowing neon curves
+
+  // Models list
+  const models = (rawData && rawData.models) ? rawData.models : ['codellama', 'starcoder2', 'qwen2.5-coder'];
+  const questions = (rawData && rawData.questions) ? rawData.questions : Array.from({length: 24}, (_, i) => ({
+    id: 'Q' + (i + 1),
+    question: 'Benchmark question ' + (i + 1),
+    category: 'code reasoning'
+  }));
+  const sampleCount = questions.length;
+
+  // Build series data map
+  const seriesData = {};
+  models.forEach((m, idx) => {
+    const c = MODEL_COLORS[m] || MODEL_DEFAULT_COLORS[idx % MODEL_DEFAULT_COLORS.length];
+    seriesData[m] = {
+      color: c,
+      metrics: (rawData && rawData.series && rawData.series[m]) ? rawData.series[m] : {
+        accuracy: Array.from({length: sampleCount}, (_, i) => 0.5 + Math.sin(i * 0.4 + idx) * 0.3),
+        relevance: Array.from({length: sampleCount}, (_, i) => 0.65 + Math.cos(i * 0.3 + idx) * 0.2),
+        latency: Array.from({length: sampleCount}, (_, i) => 4.5 + Math.sin(i * 0.5 + idx) * 2.5),
+        tokens: Array.from({length: sampleCount}, (_, i) => 750 + Math.sin(i * 0.6 + idx) * 200),
+        hallucination: Array.from({length: sampleCount}, (_, i) => 0.15 + (i / sampleCount) * 0.1)
+      }
+    };
+  });
+
+  // Interpolation state for smooth transitions
+  const currentY = {};
+  const targetY = {};
+  models.forEach(m => {
+    currentY[m] = new Float32Array(sampleCount);
+    targetY[m] = new Float32Array(sampleCount);
+    const initialVals = seriesData[m].metrics[activeMetric] || [];
+    for (let i = 0; i < sampleCount; i++) {
+      currentY[m][i] = initialVals[i] !== undefined ? initialVals[i] : 0;
+      targetY[m][i] = currentY[m][i];
+    }
+  });
+
+  let currentMin = METRICS[activeMetric].min;
+  let currentMax = METRICS[activeMetric].max;
+  let targetMin = currentMin;
+  let targetMax = currentMax;
+
+  // Tracker cursor physics (vertical tracking marker in Image 2)
+  const tracker = {
+    targetNormX: 0.25, // default rest position matching Image 2 (~0.25)
+    currentNormX: 0.25,
+    isHovering: false,
+    hoverPixelX: 0,
+    hoverPixelY: 0
+  };
+
+  // Dimensions & Canvas Sizing
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  const padding = { top: 28, right: 32, bottom: 36, left: 56 };
+
+  function resize() {
+    const rect = container.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height || 320;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Switch Metric Tab with Butter-Smooth Transition
+  function setMetric(metricKey) {
+    if (!METRICS[metricKey]) return;
+    activeMetric = metricKey;
+    const meta = METRICS[metricKey];
+
+    // Update tab classes
+    tabs.forEach(t => {
+      const isSel = t.dataset.metric === metricKey;
+      t.classList.toggle('active', isSel);
+      t.setAttribute('aria-selected', isSel ? 'true' : 'false');
+    });
+
+    // Update subtitle
+    if (subtitleEl) subtitleEl.textContent = meta.subtitle;
+
+    // Update target scale
+    targetMin = meta.min;
+    targetMax = meta.max;
+
+    // Update target values for smooth lerp
+    models.forEach(m => {
+      const vals = seriesData[m].metrics[metricKey] || [];
+      for (let i = 0; i < sampleCount; i++) {
+        targetY[m][i] = vals[i] !== undefined ? vals[i] : 0;
+      }
+    });
+
+    // Update legend values with model means
+    updateLegendValues();
+  }
+
+  function updateLegendValues() {
+    const meta = METRICS[activeMetric];
+    models.forEach(m => {
+      const vals = seriesData[m].metrics[activeMetric] || [];
+      let mean = 0;
+      if (vals.length) {
+        mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+      }
+      const el = document.getElementById('legendVal_' + m.replace(/[^a-zA-Z0-9]/g, '_'));
+      if (el) el.textContent = meta.formatVal(mean);
+    });
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => setMetric(tab.dataset.metric));
+  });
+
+  // Interactive Legend Hover & Focus
+  let lockedModel = null;
+  legendChips.forEach(chip => {
+    chip.addEventListener('mouseenter', () => {
+      const m = chip.dataset.model;
+      if (!lockedModel && m) {
+        focusedModel = m;
+        legendChips.forEach(c => c.classList.toggle('active-highlight', c === chip));
+      }
+    });
+    chip.addEventListener('mouseleave', () => {
+      if (!lockedModel) {
+        focusedModel = null;
+        legendChips.forEach(c => c.classList.add('active-highlight'));
+      }
+    });
+    chip.addEventListener('click', () => {
+      const m = chip.dataset.model;
+      if (lockedModel === m) {
+        lockedModel = null;
+        focusedModel = null;
+        legendChips.forEach(c => c.classList.add('active-highlight'));
+      } else {
+        lockedModel = m;
+        focusedModel = m;
+        legendChips.forEach(c => c.classList.toggle('active-highlight', c.dataset.model === m));
+      }
+    });
+  });
+
+  // Pointer Interaction for Vertical Tracker
+  container.addEventListener('pointermove', e => {
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const plotW = width - padding.left - padding.right;
+    const clampedX = Math.max(0, Math.min(plotW, x - padding.left));
+    tracker.targetNormX = clampedX / Math.max(plotW, 1);
+    tracker.isHovering = true;
+    tracker.hoverPixelX = x;
+    tracker.hoverPixelY = y;
+  });
+
+  container.addEventListener('pointerleave', () => {
+    tracker.isHovering = false;
+    tracker.targetNormX = 0.25; // return smoothly to default position
+    if (hudEl) hudEl.style.display = 'none';
+    if (readoutLiveEl) readoutLiveEl.textContent = 'BENCHMARK Q1..Q24 · 3 MODELS';
+  });
+
+  // Initial legend population
+  updateLegendValues();
+
+  // ── Render & Animation Loop ──
+  let startTime = performance.now();
+
+  function render(now) {
+    requestAnimationFrame(render);
+    const elapsed = (now - startTime) * 0.001;
+
+    // 1. Smooth Spring Lerp for Values and Scales (Guarantees Butter-Smooth Transitions)
+    const lerpSpeed = 0.12;
+    currentMin += (targetMin - currentMin) * lerpSpeed;
+    currentMax += (targetMax - currentMax) * lerpSpeed;
+
+    models.forEach(m => {
+      for (let i = 0; i < sampleCount; i++) {
+        currentY[m][i] += (targetY[m][i] - currentY[m][i]) * lerpSpeed;
+      }
+    });
+
+    // Tracker guide smooth movement
+    tracker.currentNormX += (tracker.targetNormX - tracker.currentNormX) * 0.18;
+
+    // 2. Clear Oscilloscope Screen
+    ctx.clearRect(0, 0, width, height);
+
+    const plotW = width - padding.left - padding.right;
+    const plotH = height - padding.top - padding.bottom;
+    if (plotW <= 0 || plotH <= 0) return;
+
+    const meta = METRICS[activeMetric];
+
+    // ── 3. Draw Grid Lines & Axes Labels ──
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 10.5px "JetBrains Mono", Consolas, monospace';
+
+    const ticks = meta.yTicks;
+    ticks.forEach(tVal => {
+      const normY = (tVal - currentMin) / Math.max(currentMax - currentMin, 0.0001);
+      const py = padding.top + (1 - normY) * plotH;
+
+      // Dashed horizontal guide line
+      ctx.beginPath();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(padding.left, py);
+      ctx.lineTo(width - padding.right, py);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Y-axis label
+      ctx.fillStyle = '#64748b';
+      ctx.fillText(meta.formatY(tVal), padding.left - 10, py);
+    });
+
+    // Bottom baseline
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(padding.left, height - padding.bottom);
+    ctx.lineTo(width - padding.right, height - padding.bottom);
+    ctx.stroke();
+
+    // X-axis Ticks & Labels (0, 0.25, 0.5, 0.75, 1.0 matching Image 2)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const xTickFractions = [0, 0.25, 0.5, 0.75, 1.0];
+    xTickFractions.forEach(f => {
+      const px = padding.left + f * plotW;
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+      ctx.moveTo(px, height - padding.bottom);
+      ctx.lineTo(px, height - padding.bottom + 5);
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.fillText(f.toFixed(2).replace(/\.00$/, ''), px, height - padding.bottom + 9);
+    });
+
+    // ── 4. Calculate Screen Coordinates for Each Model ──
+    const screenPoints = {};
+    models.forEach((m, mIdx) => {
+      const pts = [];
+      for (let i = 0; i < sampleCount; i++) {
+        const normX = i / Math.max(sampleCount - 1, 1);
+        const px = padding.left + normX * plotW;
+
+        const val = currentY[m][i];
+        const normY = (val - currentMin) / Math.max(currentMax - currentMin, 0.0001);
+
+        // Subtle live harmonic micro-breathing (keeps graph dynamic like Image 2)
+        const breathe = Math.sin(elapsed * 2.2 + i * 0.4 + mIdx * 1.6) * 1.2;
+        const py = padding.top + (1 - Math.max(0, Math.min(1.05, normY))) * plotH + breathe;
+
+        pts.push({ x: px, y: py, val: val });
+      }
+      screenPoints[m] = pts;
+    });
+
+    // ── 5. Draw Smooth Curves (Catmull-Rom Splines) ──
+    models.forEach(m => {
+      const pts = screenPoints[m];
+      if (!pts || pts.length < 2) return;
+
+      const isFocused = !focusedModel || (focusedModel === m);
+      const isMotionYellow = (m === 'qwen2.5-coder' || m === focusedModel);
+      const color = seriesData[m].color;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = i > 0 ? pts[i - 1] : pts[i];
+        const p1 = pts[i];
+        const p2 = pts[i + 1];
+        const p3 = i < pts.length - 2 ? pts[i + 2] : p2;
+
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+      }
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isFocused ? 3.2 : 1.6;
+      ctx.globalAlpha = isFocused ? 1.0 : 0.32;
+
+      if (isFocused) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+      }
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    // ── 6. Vertical Tracking Guide & Intersection Dots (Matching Image 2) ──
+    const trackX = padding.left + tracker.currentNormX * plotW;
+
+    // Draw vertical guide line
+    ctx.save();
+    ctx.beginPath();
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = 'rgba(251, 213, 9, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.moveTo(trackX, padding.top);
+    ctx.lineTo(trackX, height - padding.bottom);
+    ctx.stroke();
+    ctx.restore();
+
+    // Find closest question index
+    const closestIdx = Math.max(0, Math.min(sampleCount - 1, Math.round(tracker.currentNormX * (sampleCount - 1))));
+    const qData = questions[closestIdx] || { id: 'Q' + (closestIdx + 1), question: '', category: '' };
+
+    // Draw marker dot on each curve at intersection
+    models.forEach(m => {
+      const pts = screenPoints[m];
+      if (!pts || !pts[closestIdx]) return;
+
+      const pt = pts[closestIdx];
+      const isFocused = !focusedModel || (focusedModel === m);
+      const color = seriesData[m].color;
+
+      ctx.save();
+      if (isFocused) {
+        // Glowing Colored Dot with Halo for ALL highlighted models (CodeLlama, StarCoder, Qwen)
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 12;
+
+        // Outer halo ring
+        ctx.beginPath();
+        ctx.arc(trackX, pt.y, 6.8, 0, Math.PI * 2);
+        let haloColor = 'rgba(251, 213, 9, 0.28)';
+        if (m === 'codellama') haloColor = 'rgba(129, 140, 248, 0.28)';
+        else if (m === 'starcoder2') haloColor = 'rgba(56, 189, 248, 0.28)';
+        ctx.fillStyle = haloColor;
+        ctx.fill();
+
+        // Inner solid core in model's own vibrant color
+        ctx.beginPath();
+        ctx.arc(trackX, pt.y, 4.2, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Center white specular point for premium neon depth
+        ctx.beginPath();
+        ctx.arc(trackX, pt.y, 1.8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      } else {
+        // Subtle dot when a specific model is isolated
+        ctx.beginPath();
+        ctx.arc(trackX, pt.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+
+    // ── 7. Update HUD & Top Readout ──
+    const codellamaVal = seriesData['codellama']?.metrics[activeMetric]?.[closestIdx] ?? 0;
+    const starcoderVal = seriesData['starcoder2']?.metrics[activeMetric]?.[closestIdx] ?? 0;
+    const qwenVal = seriesData['qwen2.5-coder']?.metrics[activeMetric]?.[closestIdx] ?? 0;
+
+    if (tracker.isHovering) {
+      if (readoutLiveEl) {
+        readoutLiveEl.textContent = `${qData.id} · C:${meta.formatVal(codellamaVal)} · S:${meta.formatVal(starcoderVal)} · Q:${meta.formatVal(qwenVal)}`;
+      }
+      if (hudEl && hudQuestionEl && hudModelsEl) {
+        hudEl.style.display = 'block';
+        hudQuestionEl.textContent = `${qData.id} (${qData.category}): ${qData.question || ''}`;
+
+        let rowsHtml = '';
+        models.forEach(m => {
+          const v = seriesData[m]?.metrics[activeMetric]?.[closestIdx] ?? 0;
+          const c = seriesData[m].color;
+          rowsHtml += `<div class="hud-row"><span style="color:${c};display:inline-flex;align-items:center;gap:5px"><i style="width:7px;height:7px;border-radius:50%;background:${c};display:inline-block"></i>${m}</span><strong style="color:#fff">${meta.formatVal(v)}</strong></div>`;
+        });
+        hudModelsEl.innerHTML = rowsHtml;
+      }
+    }
+  }
+
+  requestAnimationFrame(render);
+})();
 
 /* ── Metric heatmap ── */
 const metrics=[...new Set([...document.querySelectorAll('.metric')].map(c=>c.dataset.metric))];
@@ -455,10 +1289,33 @@ metrics.forEach(metric=>{const cells=[...document.querySelectorAll(`[data-metric
 /* ── Table sort ── */
 document.querySelectorAll('#models th').forEach((th,i)=>th.addEventListener('click',()=>{const body=th.closest('table').tBodies[0],asc=th.getAttribute('aria-sort')!=='ascending',type=th.dataset.type;[...body.rows].sort((a,b)=>{const ar=a.cells[i].dataset.v??a.cells[i].textContent.trim(),br=b.cells[i].dataset.v??b.cells[i].textContent.trim();return(type==='number'?(Number(ar)||0)-(Number(br)||0):ar.localeCompare(br))*(asc?1:-1)}).forEach(r=>body.appendChild(r));document.querySelectorAll('#models th').forEach(h=>h.removeAttribute('aria-sort'));th.setAttribute('aria-sort',asc?'ascending':'descending')}));
 
+/* ── Sticky Topbar Scroll Morph ── */
+const topbar=document.querySelector('.motion-topbar');
+const heroWrapper=document.getElementById('motionHero');
+function updateTopbarScroll(){
+  if(!topbar)return;
+  const threshold=heroWrapper?Math.max(heroWrapper.offsetHeight-70,50):60;
+  if(window.scrollY>threshold){
+    topbar.classList.add('scrolled');
+  }else{
+    topbar.classList.remove('scrolled');
+  }
+}
+window.addEventListener('scroll',updateTopbarScroll,{passive:true});
+updateTopbarScroll();
+
 /* ── Nav highlight on scroll ── */
-const navLinks=document.querySelectorAll('.nav-pills a');
-const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>a.classList.remove('active'));const link=document.querySelector(`.nav-pills a[href="#${e.target.id}"]`);if(link)link.classList.add('active')}})},{threshold:0.3});
-['qa','impact','eval','guardrails'].forEach(id=>{const el=document.getElementById(id);if(el)observer.observe(el)});
+const navLinks=document.querySelectorAll('.motion-nav-links a');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>a.classList.remove('active'));
+      const link=document.querySelector(`.motion-nav-links a[href="#${e.target.id}"]`);
+      if(link)link.classList.add('active');
+    }
+  });
+},{threshold:0.25});
+['telemetry','qa','impact','eval','guardrails'].forEach(id=>{const el=document.getElementById(id);if(el)observer.observe(el)});
 
 /* ── Code Q&A ── */
 function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
@@ -631,5 +1488,209 @@ function renderEvidence(report){
 
 /* Load saved reports on page load */
 (async()=>{try{const reports=await fetch('/api/reports').then(r=>r.json());if(reports.length)await loadReport(reports[0].id)}catch(e){}})();
+
+/* ══════════════ MOTION UI ASCII FLOW FIELD CANVAS ENGINE ══════════════ */
+(function initMotionAsciiCanvas() {
+  const canvas = document.getElementById('motionAsciiCanvas');
+  const container = document.getElementById('motionCanvasContainer');
+  if (!canvas || !container) return;
+
+  const ctx = canvas.getContext('2d');
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+
+  // Mouse & Pointer Physics
+  const pointer = {
+    x: -9999,
+    y: -9999,
+    prevX: -9999,
+    prevY: -9999,
+    vx: 0,
+    vy: 0,
+    targetVx: 0,
+    targetVy: 0,
+    active: false,
+    radius: 200
+  };
+
+  function resize() {
+    const rect = container.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  function onPointerMove(e) {
+    const rect = container.getBoundingClientRect();
+    const curX = e.clientX - rect.left;
+    const curY = e.clientY - rect.top;
+
+    if (pointer.prevX !== -9999) {
+      pointer.targetVx = (curX - pointer.prevX) * 0.4;
+      pointer.targetVy = (curY - pointer.prevY) * 0.4;
+    }
+    pointer.x = curX;
+    pointer.y = curY;
+    pointer.prevX = curX;
+    pointer.prevY = curY;
+    pointer.active = true;
+  }
+
+  function onPointerLeave() {
+    pointer.active = false;
+    pointer.targetVx = 0;
+    pointer.targetVy = 0;
+  }
+
+  container.addEventListener('pointermove', onPointerMove);
+  container.addEventListener('pointerleave', onPointerLeave);
+  container.addEventListener('touchmove', (e) => {
+    if (e.touches && e.touches[0]) onPointerMove(e.touches[0]);
+  }, { passive: true });
+  container.addEventListener('touchend', onPointerLeave);
+
+  let startTime = performance.now();
+
+  function render(now) {
+    requestAnimationFrame(render);
+
+    const elapsed = (now - startTime) * 0.001; // in seconds
+
+    // Smooth velocity decay
+    pointer.vx += (pointer.targetVx - pointer.vx) * 0.15;
+    pointer.vy += (pointer.targetVy - pointer.vy) * 0.15;
+    pointer.targetVx *= 0.88;
+    pointer.targetVy *= 0.88;
+
+    // ── 1. Clear & Paint Background Base (#fbd509) ──
+    ctx.fillStyle = '#fbd509';
+    ctx.fillRect(0, 0, width, height);
+
+    // ── 2. Chromatic Aurora Mesh Gradients (Blue, Purple, Orange) ──
+    // Blob 1: Cyan / Electric Blue (drifting center-right)
+    const b1x = width * (0.52 + Math.sin(elapsed * 0.35) * 0.04);
+    const b1y = height * (0.46 + Math.cos(elapsed * 0.3) * 0.05);
+    const b1r = Math.max(width, height) * 0.36;
+    const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, b1r);
+    g1.addColorStop(0, 'rgba(14, 165, 233, 0.88)');
+    g1.addColorStop(0.42, 'rgba(59, 130, 246, 0.65)');
+    g1.addColorStop(0.75, 'rgba(37, 99, 235, 0.22)');
+    g1.addColorStop(1, 'rgba(251, 213, 9, 0)');
+    ctx.fillStyle = g1;
+    ctx.beginPath();
+    ctx.arc(b1x, b1y, b1r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Blob 2: Violet / Magenta / Hot Pink (drifting right-center)
+    const b2x = width * (0.74 + Math.cos(elapsed * 0.28) * 0.05);
+    const b2y = height * (0.58 + Math.sin(elapsed * 0.36) * 0.06);
+    const b2r = Math.max(width, height) * 0.40;
+    const g2 = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, b2r);
+    g2.addColorStop(0, 'rgba(168, 85, 247, 0.85)');
+    g2.addColorStop(0.38, 'rgba(217, 70, 239, 0.68)');
+    g2.addColorStop(0.72, 'rgba(236, 72, 153, 0.28)');
+    g2.addColorStop(1, 'rgba(251, 213, 9, 0)');
+    ctx.fillStyle = g2;
+    ctx.beginPath();
+    ctx.arc(b2x, b2y, b2r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Blob 3: Sunset Coral / Orange (right corner)
+    const b3x = width * (0.93 + Math.sin(elapsed * 0.42) * 0.03);
+    const b3y = height * (0.32 + Math.cos(elapsed * 0.38) * 0.05);
+    const b3r = Math.max(width, height) * 0.32;
+    const g3 = ctx.createRadialGradient(b3x, b3y, 0, b3x, b3y, b3r);
+    g3.addColorStop(0, 'rgba(249, 115, 22, 0.82)');
+    g3.addColorStop(0.48, 'rgba(251, 146, 60, 0.48)');
+    g3.addColorStop(1, 'rgba(251, 213, 9, 0)');
+    ctx.fillStyle = g3;
+    ctx.beginPath();
+    ctx.arc(b3x, b3y, b3r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── 3. Render ASCII Vector Field ──
+    const cellW = 16;
+    const cellH = 17;
+    const cols = Math.ceil(width / cellW) + 1;
+    const rows = Math.ceil(height / cellH) + 1;
+
+    ctx.font = '700 12.5px "JetBrains Mono", Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    const aspect = width / Math.max(height, 1);
+    const pVx = pointer.vx;
+    const pVy = pointer.vy;
+    const pSpeed = Math.hypot(pVx, pVy);
+
+    for (let r = 0; r < rows; r++) {
+      const cy = r * cellH + cellH * 0.5;
+      const ny = cy / height;
+      const py = ny - 0.5;
+
+      for (let c = 0; c < cols; c++) {
+        const cx = c * cellW + cellW * 0.5;
+        const nx = cx / width;
+        const px = (nx - 0.56) * aspect;
+
+        // Procedural flow field mathematics
+        const warp = (Math.sin(py * 5.2 + elapsed * 0.34) * 0.13 + Math.sin(px * 4.1 - elapsed * 0.27) * 0.1) * 0.8;
+        const foldA = Math.sin((px + warp) * 7.0 + py * 3.1 + elapsed * 0.42);
+        const foldB = Math.cos(py * 8.2 - (px + warp) * 2.7 - elapsed * 0.31);
+        let angle = foldA * 1.5 + foldB * 1.3;
+        let curl = Math.abs(foldA * foldB);
+
+        // Pointer swish & wake interaction
+        if (pointer.active) {
+          const dx = cx - pointer.x;
+          const dy = cy - pointer.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < pointer.radius) {
+            const inf = Math.exp(-(dist * dist) / (pointer.radius * pointer.radius * 0.45));
+            const pAngle = Math.atan2(pVy, pVx || 0.0001);
+            const swirl = Math.atan2(dy, dx) + Math.PI * 0.5;
+            const pBlend = pAngle * 0.55 + swirl * 0.45;
+            angle = angle * (1 - inf) + pBlend * inf * 2.4;
+            curl = Math.min(1.2, curl + inf * (0.5 + pSpeed * 0.1));
+          }
+        }
+
+        // Map angle & curl to ASCII characters
+        let normAngle = ((angle % Math.PI) + Math.PI) % Math.PI;
+        let deg = (normAngle * 180) / Math.PI;
+        let char = '-';
+
+        if (curl > 0.72) {
+          char = curl > 0.88 ? '+' : (curl > 0.80 ? '%' : '~');
+        } else if (deg < 18 || deg >= 162) {
+          char = '-';
+        } else if (deg >= 18 && deg < 68) {
+          char = '/';
+        } else if (deg >= 68 && deg < 112) {
+          char = '|';
+        } else {
+          char = '\\';
+        }
+
+        // Variable alpha for depth and luminescence
+        const alpha = Math.min(0.96, Math.max(0.48, 0.65 + curl * 0.28));
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.fillText(char, cx, cy);
+      }
+    }
+  }
+
+  requestAnimationFrame(render);
+})();
 </script>
 </body></html>
