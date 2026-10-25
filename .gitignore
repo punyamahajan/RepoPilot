@@ -7,3 +7,9 @@ dist/
 build/
 .pytest_cache/
 .chroma/
+
+.codeimpact/reports/
+.codeimpact/chroma/
+.codeimpact/repos/
+.codeimpact/credentials.json
+.codeimpact/*.tmp

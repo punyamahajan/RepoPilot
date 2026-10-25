@@ -60,6 +60,12 @@ services:
       LLM_SERVICE_URL: http://app:5000
       RESULTS_PATH: /repopilot/evaluation/results.json
       EVALUATION_MODELS: codellama,starcoder2,qwen2.5-coder
+      # Optional: provider keys can also come from the environment instead of the UI.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       GUNICORN_CMD_ARGS: "--timeout 600 --threads 4"
     command: sh -c "pip install -r codeimpact/requirements.txt && gunicorn --bind 0.0.0.0:5050 --workers 1 --threads 4 --timeout 600 dashboard.app:app"
     volumes:
@@ -71,6 +77,8 @@ services:
       - ./data:/repopilot/data:ro
       - ./app:/repopilot/app:ro
       - ./ingestion:/repopilot/ingestion:ro
+      # Reports, cloned live repositories and remembered model settings survive restarts.
+      - ./.codeimpact:/repopilot/.codeimpact
     extra_hosts: *host-mapping
     ports:
       - "5050:5050"

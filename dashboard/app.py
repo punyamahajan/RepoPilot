@@ -3,8 +3,10 @@
 import concurrent.futures
 import json
 import os
+import secrets
 import sys
 import time
+from urllib.parse import urlsplit
 
 import markdown
 import requests
@@ -27,8 +29,13 @@ from codeimpact.api import service, resolve_repository, AnalysisRequest, WatchRe
 from codeimpact.repository import snapshot
 from codeimpact.graph import build_graph
 from codeimpact.engine import markdown_report
+from codeimpact import llm, remote
+from codeimpact.api import ALLOWED_ROOT
 
 service.watcher.start()
+CREDENTIALS = llm.CredentialStore(STATE / 'credentials.json')
+REMOTE_DIR = STATE / 'repos'
+SESSION_COOKIE = 'codeimpact_session'
 
 RESULTS_PATH = os.getenv("RESULTS_PATH", os.path.join(ROOT, "evaluation", "results.json"))
 GUARDRAIL_RESULTS_PATH = os.getenv(
@@ -48,6 +55,38 @@ PRESET_QUESTION_IDS = [
     "rag-03",
 ]
 app = Flask(__name__)
+
+
+@app.before_request
+def local_write_protection():
+    # Prevent another website open in the browser from posting jobs or reading keys.
+    origin = request.headers.get('Origin')
+    if request.method not in {'GET', 'HEAD', 'OPTIONS'} and origin and urlsplit(origin).netloc != request.host:
+        return jsonify({'error': 'Cross-origin writes are disabled.'}), 403
+    request.codeimpact_session = request.cookies.get(SESSION_COOKIE) or secrets.token_urlsafe(24)
+
+
+@app.after_request
+def attach_session_cookie(response):
+    session_id = getattr(request, 'codeimpact_session', None)
+    if session_id and request.cookies.get(SESSION_COOKIE) != session_id:
+        response.set_cookie(SESSION_COOKIE, session_id, httponly=True, samesite='Strict', secure=request.is_secure)
+    return response
+
+
+def session_llm(model=None):
+    """Resolve which provider and model a request should use.
+
+    The three benchmark Ollama models keep working by name; anything else uses the
+    provider (and API key) chosen in Model settings for this browser session.
+    """
+    config = CREDENTIALS.get(request.codeimpact_session)
+    model = (model or '').strip()
+    if not model or model == 'active':
+        return config
+    if model in MODELS:
+        return {'provider': 'ollama', 'model': model, 'base_url': '', 'api_key': ''}
+    return {**config, 'model': llm.validate_model(model)}
 
 
 def read_markdown(relative_path):
@@ -324,7 +363,9 @@ def create_analysis():
         req = AnalysisRequest(**payload)
         if not (req.description.strip() or req.diff.strip() or req.changed_files or req.use_git):
             return jsonify({'error': 'Provide a change description...'}), 400
-        return jsonify(service.submit(req)), 202
+        config = session_llm(req.model)
+        req.model = config['model']
+        return jsonify(service.submit(req, llm_config=config)), 202
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
 
@@ -385,6 +426,59 @@ def watch_status():
         return jsonify(dict(service.watch))
 
 
+@app.get('/api/llm/providers')
+def llm_providers():
+    return jsonify({'providers': [{'id': key, 'label': value['label'], 'needs_key': value['needs_key'],
+                                   'base_url': value['base_url']} for key, value in llm.PROVIDERS.items()],
+                    'benchmark_models': MODELS,
+                    'active': CREDENTIALS.public(request.codeimpact_session)})
+
+
+@app.route('/api/llm/config', methods=['GET', 'POST', 'DELETE'])
+def llm_config():
+    session_id = request.codeimpact_session
+    if request.method == 'DELETE':
+        CREDENTIALS.clear(session_id)
+    elif request.method == 'POST':
+        payload = request.get_json(silent=True) or {}
+        try:
+            CREDENTIALS.set(session_id, payload, remember=bool(payload.get('remember')))
+        except ValueError as exc:
+            return jsonify({'error': str(exc)}), 400
+    return jsonify(CREDENTIALS.public(session_id))
+
+
+@app.post('/api/llm/models')
+def llm_models():
+    """List models the chosen provider and key can access (the key is not stored by this call)."""
+    payload = request.get_json(silent=True) or {}
+    stored = CREDENTIALS.get(request.codeimpact_session)
+    try:
+        config = llm.validate_config({**payload, 'model': payload.get('model') or 'probe'})
+        if not config['api_key'] and stored['provider'] == config['provider']:
+            config['api_key'] = stored['api_key']
+        if not config['api_key']:
+            config['api_key'] = os.getenv(llm.ENV_KEYS.get(config['provider'], ''), '')
+        return jsonify({'models': llm.list_models(config)})
+    except (ValueError, llm.LLMError) as exc:
+        return jsonify({'error': str(exc), 'models': []}), 400
+
+
+@app.route('/api/repositories/remote', methods=['GET', 'POST'])
+def remote_repositories():
+    if request.method == 'GET':
+        return jsonify(remote.cloned(REMOTE_DIR, ALLOWED_ROOT))
+    payload = request.get_json(silent=True) or {}
+    try:
+        result = remote.sync(str(payload.get('url', '')), REMOTE_DIR, ALLOWED_ROOT,
+                             branch=str(payload.get('branch') or '') or None, token=str(payload.get('token') or ''))
+        data = snapshot(resolve_repository(result['repository']))
+        graph = build_graph(data['files'])
+        return jsonify({**result, 'files': len(data['files']), 'edges': len(graph['edges'])})
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
+
+
 @app.get("/health")
 def health():
     try:
@@ -443,10 +537,15 @@ def ask():
     if not question:
         return jsonify({"error": "question is required"}), 400
 
-    if model != "all" and model not in MODELS:
-        return jsonify({"error": f"unsupported model: {model}"}), 400
-
-    target_models = MODELS if model == "all" else [model]
+    try:
+        if model == "all":
+            configs = [session_llm(m) for m in MODELS]
+        else:
+            configs = [session_llm(model)]
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    config_by_model = {c["model"]: c for c in configs}
+    target_models = list(config_by_model)
 
     # Retrieve code chunks directly from the active repository
     retrieved_chunks, retrieval_matches = retrieve_repository_chunks(repository, question, k=3)
@@ -467,53 +566,54 @@ def ask():
                 f"Retrieved repository evidence from {repository}:\n{context}\n\n"
                 f"User question:\n{question}"
             )
+            config = config_by_model[m]
             try:
-                resp = requests.post(
-                    f"{OLLAMA_BASE_URL}/api/generate",
-                    json={
-                        "model": m,
-                        "prompt": full_prompt,
-                        "stream": False,
-                        "options": {
-                            "num_predict": 512,
-                            "temperature": 0.0,
-                        },
+                generated = llm.generate(config, full_prompt, max_tokens=512, temperature=0.0, timeout=300)
+                prompt_tokens = generated["prompt_tokens"]
+                completion_tokens = generated["completion_tokens"]
+                return {
+                    "model": m,
+                    "provider": config["provider"],
+                    "response": generated["text"],
+                    "retrieved_chunks": retrieved_chunks,
+                    "retrieval_matches": retrieval_matches,
+                    "sources": sources,
+                    "repository": repository,
+                    "metrics": {
+                        "prompt_tokens": prompt_tokens,
+                        "completion_tokens": completion_tokens,
+                        "total_tokens": prompt_tokens + completion_tokens,
                     },
-                    timeout=300,
-                )
-                latency = round(time.perf_counter() - t0, 2)
-                if resp.status_code == 200:
-                    result_data = resp.json()
-                    answer = result_data.get("response", "").strip()
-                    prompt_tokens = int(result_data.get("prompt_eval_count", 0) or 0)
-                    completion_tokens = int(result_data.get("eval_count", 0) or 0)
+                    "guardrail": {"status": "allowed", "checks": ["evidence_grounded"]},
+                    "latency_seconds": round(time.perf_counter() - t0, 2),
+                    "status": "answered",
+                    "error": None,
+                }
+            except llm.LLMError as exc:
+                app.logger.warning(f"Model query error for {m}: {exc}")
+                # Only an unreachable local Ollama falls back to the legacy RAG service.
+                if config["provider"] != "ollama" or str(exc).startswith("Provider error"):
                     return {
                         "model": m,
-                        "response": answer,
-                        "retrieved_chunks": retrieved_chunks,
-                        "retrieval_matches": retrieval_matches,
-                        "sources": sources,
-                        "repository": repository,
-                        "metrics": {
-                            "prompt_tokens": prompt_tokens,
-                            "completion_tokens": completion_tokens,
-                            "total_tokens": prompt_tokens + completion_tokens,
-                        },
-                        "guardrail": {"status": "allowed", "checks": ["evidence_grounded"]},
-                        "latency_seconds": latency,
-                        "status": "answered",
-                        "error": None,
-                    }
-                else:
-                    return {
-                        "model": m,
-                        "response": f"Ollama error ({resp.status_code}): {resp.text}",
-                        "latency_seconds": latency,
+                        "provider": config["provider"],
+                        "response": str(exc),
+                        "latency_seconds": round(time.perf_counter() - t0, 2),
                         "status": "error",
-                        "error": resp.text,
+                        "error": str(exc),
                     }
-            except Exception as exc:
-                app.logger.warning(f"Ollama direct query error for {m}: {exc}")
+
+        if config_by_model[m]["provider"] != "ollama":
+            return {
+                "model": m,
+                "provider": config_by_model[m]["provider"],
+                "response": "No repository evidence matched this question in the selected repository.",
+                "retrieved_chunks": [],
+                "sources": [],
+                "repository": repository,
+                "latency_seconds": round(time.perf_counter() - t0, 2),
+                "status": "insufficient_evidence",
+                "error": None,
+            }
 
         # Fallback to LLM_URL
         try:

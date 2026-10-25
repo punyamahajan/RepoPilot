@@ -65,6 +65,12 @@ def build_graph(files):
                 # Direct-script imports in RepoPilot use the script's directory.
                 if not level:
                     candidates += module_candidates(module, path, 1)
+                    # Monorepos keep each project in a subfolder (e.g. backend/app/...), so an
+                    # absolute import may be rooted at any ancestor directory of the importer.
+                    ancestor = posixpath.dirname(posixpath.dirname(path))
+                    while ancestor:
+                        candidates += module_candidates(module, ancestor + '/_', 1)
+                        ancestor = posixpath.dirname(ancestor)
                 target = next((p for p in candidates if p in known), None)
                 if target:
                     aliases[alias] = target

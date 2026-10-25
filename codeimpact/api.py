@@ -70,7 +70,7 @@ class Service:
         self.pending_fingerprint = None
         self.watcher = threading.Thread(target=self.watch_loop, daemon=True)
 
-    def submit(self, request, trigger='manual'):
+    def submit(self, request, trigger='manual', llm_config=None):
         root = resolve_repository(request.repository)
         job_id = uuid.uuid4().hex
         with self.lock:
@@ -83,16 +83,16 @@ class Service:
                 oldest = next((k for k, j in self.jobs.items() if j['status'] not in {'queued', 'running'}), None)
                 if oldest:
                     del self.jobs[oldest]
-        self.executor.submit(self.run, job_id, root, request)
+        self.executor.submit(self.run, job_id, root, request, llm_config)
         return dict(self.jobs[job_id])
 
-    def run(self, job_id, root, request):
+    def run(self, job_id, root, request, llm_config=None):
         def update(message):
             with self.lock:
                 self.jobs[job_id].update(status='running', message=message)
         try:
             arguments = request.model_dump(exclude={'repository'})
-            report = analyze(root, STATE, progress=update, **arguments)
+            report = analyze(root, STATE, progress=update, llm_config=llm_config, **arguments)
             report['trigger'] = self.jobs[job_id]['trigger']
             atomic_json(STATE / 'reports' / (report['id'] + '.json'), report)
             with self.lock:

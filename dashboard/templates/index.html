@@ -126,6 +126,20 @@ a{color:var(--accent);text-decoration:none}
 .workspace-full{grid-column:1/-1}
 .qa-panel label,.impact-panel label{font-size:12.5px;font-weight:700;color:#94a3b8;font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
 .qa-panel textarea,.impact-panel textarea{width:100%;margin-top:8px;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13.5px/1.6 var(--mono);resize:vertical;min-height:92px;outline:none;transition:.2s}
+.ci-field{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13px var(--mono);outline:none;transition:border-color .2s,box-shadow .2s}
+.ci-field:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
+.ci-label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#94a3b8;min-width:0}
+.settings-grid{display:grid;grid-template-columns:minmax(160px,1fr) minmax(200px,1.3fr) minmax(200px,1.3fr) minmax(220px,1.4fr);gap:14px;align-items:end}
+.settings-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.settings-actions .btn{flex:none}
+.model-pick{display:flex;gap:8px}
+.remote-repo-row{display:grid;grid-template-columns:minmax(220px,2fr) minmax(120px,.8fr) minmax(160px,1fr) auto;gap:12px;align-items:end;margin-top:18px;padding-top:18px;border-top:1px dashed var(--line)}
+.remote-repo-row .btn{flex:none;white-space:nowrap}
+.cloned-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cloned-list button{background:rgba(255,255,255,0.04);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:4px 12px;font:12px var(--mono);cursor:pointer}
+.cloned-list button:hover{border-color:var(--motion-yellow)}
+@media(max-width:1080px){.settings-grid,.remote-repo-row{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.settings-grid,.remote-repo-row{grid-template-columns:1fr}}
 .qa-panel textarea:focus,.impact-panel textarea:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
 .impact-panel select,.impact-panel input[type="text"]{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:13.5px var(--mono);outline:none;transition:.2s}
 .impact-panel select:focus,.impact-panel input:focus{border-color:var(--motion-yellow);box-shadow:0 0 0 2px rgba(251,213,9,0.2)}
@@ -423,6 +437,18 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
         <small>Shared by Code Q&amp;A &amp; Impact Analysis</small>
       </div>
     </div>
+    <div class="plus-terminal-body" style="padding-top:0">
+      <div class="remote-repo-row">
+        <label class="ci-label">Live repository URL<input type="url" id="remoteRepoUrl" class="ci-field" placeholder="https://github.com/owner/repo" autocomplete="off" spellcheck="false"></label>
+        <label class="ci-label">Branch (optional)<input type="text" id="remoteRepoBranch" class="ci-field" placeholder="default branch" autocomplete="off" spellcheck="false"></label>
+        <label class="ci-label">Access token (private repos only)<input type="password" id="remoteRepoToken" class="ci-field" placeholder="not stored" autocomplete="off"></label>
+        <button class="btn btn-primary" id="remoteRepoBtn" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Clone &amp; Analyze</span></button>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <small id="remoteRepoStatus" style="color:var(--muted);font-family:var(--mono);font-size:12px">Paste a GitHub, GitLab or Bitbucket URL to pull the latest commit and make it the active repository.</small>
+      </div>
+      <div class="cloned-list" id="clonedRepos"></div>
+    </div>
   </div>
 </section>
 
@@ -438,6 +464,38 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
       <p class="section-desc">Multi-model RAG comparisons answer simultaneously, while the impact engine maps affected files, tests, and risks in the active repository.</p>
     </div>
   </div>
+
+  <!-- Model settings: provider, API key and model shared by Q&A and Impact Analysis -->
+  <section class="plus-terminal" id="modelSettings" style="margin-bottom:24px">
+    <div class="plus-terminal-header">
+      <div class="terminal-dots">
+        <span class="plus-terminal-dot dot-r"></span>
+        <span class="plus-terminal-dot dot-y"></span>
+        <span class="plus-terminal-dot dot-g"></span>
+      </div>
+      <span class="plus-terminal-title">model-settings.json</span>
+      <span class="badge badge-idle" id="llmActiveBadge" style="font-size:10px">Loading…</span>
+    </div>
+    <div class="plus-terminal-body">
+      <div style="margin-bottom:16px">
+        <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Model Settings</span>
+        <h3 class="panel-title">Choose your model and API key</h3>
+        <p class="note">Use local Ollama or any provider you have a key for. The key stays on this server: it is never shown again, written to reports, or sent to anything except the provider you choose.</p>
+      </div>
+      <div class="settings-grid">
+        <label class="ci-label">Provider<select id="llmProvider" class="ci-field"></select></label>
+        <label class="ci-label">API key<input type="password" id="llmApiKey" class="ci-field" placeholder="Paste key" autocomplete="off" spellcheck="false"></label>
+        <label class="ci-label" id="llmBaseUrlWrap">Base URL<input type="url" id="llmBaseUrl" class="ci-field" placeholder="https://…" autocomplete="off" spellcheck="false"></label>
+        <label class="ci-label">Model<span class="model-pick"><input type="text" id="llmModel" class="ci-field" list="llmModelList" placeholder="e.g. gpt-4o-mini" autocomplete="off" spellcheck="false"><button class="btn btn-secondary" id="llmLoadModels" type="button" title="List models available to this key">List</button></span><datalist id="llmModelList"></datalist></label>
+      </div>
+      <div class="settings-actions">
+        <button class="btn btn-primary" id="llmSave" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Save &amp; Use</span></button>
+        <label style="font-size:13px;color:#94a3b8;display:flex;gap:6px;align-items:center"><input type="checkbox" id="llmRemember"> Remember on this computer</label>
+        <button class="btn btn-secondary" id="llmForget" type="button">Forget key</button>
+        <small id="llmStatus" style="color:var(--muted);font-family:var(--mono);font-size:12px"></small>
+      </div>
+    </div>
+  </section>
 
   <div class="workspace" id="qa">
     <!-- LEFT: Code Q&A Terminal Panel -->
@@ -455,11 +513,12 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
         <div>
           <span class="ui-kicker"><span class="ui-kicker-prefix">&gt;</span>Repository Q&amp;A</span>
           <h3 class="panel-title">Ask your codebase anything</h3>
-          <p class="note">Multi-model RAG comparison — all {{ models|length }} models answer simultaneously from the active repository</p>
+          <p class="note">RAG answer from your selected model in Model settings. Tick the box to also compare the {{ models|length }} benchmark Ollama models side by side.</p>
         </div>
         <label>Your question<textarea id="question" rows="3" placeholder="How is the payment fee calculated?"></textarea></label>
         <div style="display:flex;align-items:center;gap:12px">
-          <button class="btn btn-primary" id="ask" type="button" style="flex:none"><span class="spinner" aria-hidden="true"></span><span class="button-label">Compare All Models</span></button>
+          <button class="btn btn-primary" id="ask" type="button" style="flex:none"><span class="spinner" aria-hidden="true"></span><span class="button-label">Ask</span></button>
+          <label style="font-size:12px;color:#94a3b8;display:flex;gap:6px;align-items:center;flex:none"><input type="checkbox" id="compareAll"> Compare benchmark models</label>
           <span id="compareTimer" style="color:var(--muted);font-size:12px;display:none;font-family:var(--mono)">⏱ <span id="elapsedSecs">0.0</span>s</span>
           <span class="badge badge-idle" id="compareStatusPill">Ready</span>
         </div>
@@ -471,7 +530,7 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
               <tr data-compare-model="{{ m }}">
                 <td><span class="model-name"><span class="model-dot"></span>{{ m }}</span></td>
                 <td><span class="badge badge-idle">Idle</span></td>
-                <td><div class="answer-box loading">Click "Compare All Models" to generate answers.</div></td>
+                <td><div class="answer-box loading">Tick "Compare benchmark models" and click Ask to compare.</div></td>
               </tr>
               {% endfor %}
             </tbody>
@@ -506,14 +565,14 @@ summary{cursor:pointer;font-weight:600;color:#94a3b8}
         </div>
         <div id="impactFileSelect" style="display:none"><label>Modified file<select id="impactFile"><option value="">Choose a file…</option></select></label></div>
         <div id="impactDiffArea" style="display:none"><textarea id="impactDiff" placeholder="Paste your git diff here…" rows="4" spellcheck="false"></textarea></div>
-        <div id="impactGitNote" style="display:none;padding:12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:13px;color:#94a3b8"><strong>Working tree vs HEAD</strong><br>Includes staged, unstaged, deleted, and untracked supported files.</div>
+        <div id="impactGitNote" style="display:none;padding:12px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-size:13px;color:#94a3b8"><strong>Working tree vs <span id="impactBaseLabel">HEAD</span></strong><br>Includes staged, unstaged, deleted, and untracked supported files.<label class="ci-label" style="margin-top:10px">Compare against (Git ref)<input type="text" id="impactBase" class="ci-field" value="HEAD" placeholder="HEAD, HEAD~1, origin/main" autocomplete="off" spellcheck="false"></label><small style="display:block;margin-top:6px">Tip: for a freshly cloned repository use <code>HEAD~1</code> to analyze the latest commit.</small></div>
         <textarea id="impactDesc" rows="4" placeholder="e.g. Change password validation rules. Which login flows and tests might be affected?"></textarea>
         <div class="options-row">
           <label><input type="checkbox" id="impactSemantic" checked> Semantic retrieval</label>
           <label><input type="checkbox" id="impactLlm" checked> AI reasoning</label>
         </div>
         <div class="run-row">
-          <select id="impactModel" class="motion-input" style="width:auto"><option value="codellama">Code Llama</option><option value="qwen2.5-coder">Qwen2.5 Coder</option><option value="starcoder2">StarCoder2</option></select>
+          <select id="impactModel" class="motion-input" style="width:auto"><option value="active" selected>Model settings choice</option><option value="codellama">Code Llama</option><option value="qwen2.5-coder">Qwen2.5 Coder</option><option value="starcoder2">StarCoder2</option></select>
           <button class="btn btn-primary" id="analyzeBtn" type="button"><span class="spinner" aria-hidden="true"></span><span class="button-label">Analyze Impact</span></button>
         </div>
         <p style="font-size:11px;color:var(--muted);font-family:var(--mono)">Read-only analysis. Suggested fixes are never applied automatically.</p>
@@ -1053,9 +1112,30 @@ document.querySelectorAll('[data-compare-model]').forEach(row=>{
 
   // ── Render & Animation Loop ──
   let startTime = performance.now();
+  let lastOscNow = 0;
+  const oscInterval = 1000 / 30; // 30 FPS cap to keep main thread responsive
+  let isOscVisible = true;
+
+  if ('IntersectionObserver' in window) {
+    const oscObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const wasVisible = isOscVisible;
+        isOscVisible = e.isIntersecting;
+        if (!wasVisible && isOscVisible) {
+          lastOscNow = performance.now();
+          requestAnimationFrame(render);
+        }
+      });
+    }, { threshold: 0.05 });
+    oscObserver.observe(container);
+  }
 
   function render(now) {
+    if (!isOscVisible) return;
     requestAnimationFrame(render);
+    if (now - lastOscNow < oscInterval) return;
+    lastOscNow = now;
+
     const elapsed = (now - startTime) * 0.001;
 
     // 1. Smooth Spring Lerp for Values and Scales (Guarantees Butter-Smooth Transitions)
@@ -1321,29 +1401,130 @@ const observer=new IntersectionObserver(entries=>{
 function escapeHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 const askBtn=document.getElementById('ask'),questionInput=document.getElementById('question'),compareTbody=document.getElementById('comparisonTbody'),contextPre=document.getElementById('context'),timerSpan=document.getElementById('compareTimer'),elapsedSecs=document.getElementById('elapsedSecs'),statusPill=document.getElementById('compareStatusPill');
 let timerInterval=null;
+function compareRow(m){let row=compareTbody.querySelector(`tr[data-compare-model="${CSS.escape(m)}"]`);if(!row){row=document.createElement('tr');row.dataset.compareModel=m;compareTbody.appendChild(row)}return row}
 askBtn.onclick=async()=>{
   const question=(questionInput.value||'').trim();if(!question){questionInput.focus();return}
+  const compare=document.getElementById('compareAll')?.checked;
+  const active=activeLlm&&activeLlm.model?activeLlm.model:'active';
+  // One request per answer: the Model settings choice, plus the benchmark models when comparing.
+  const targets=[{label:active,model:'active'}];
+  if(compare)configuredModels.forEach(m=>{if(m!==active)targets.push({label:m,model:m})});
   askBtn.disabled=true;askBtn.classList.add('loading');askBtn.querySelector('.button-label').textContent='Querying…';
   const startTime=Date.now();timerSpan.style.display='inline';elapsedSecs.textContent='0.0';clearInterval(timerInterval);timerInterval=setInterval(()=>elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1),100);
   statusPill.textContent='Querying…';statusPill.className='badge badge-loading';
-  configuredModels.forEach(m=>{
-    let row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(!row){row=document.createElement('tr');row.dataset.compareModel=m;compareTbody.appendChild(row)}
-    const c=colorByModel[m]||'#6366f1';
-    row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${m}</span></td><td><span class="badge badge-loading"><span class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:3px"></span>…</span></td><td><div class="answer-box loading">Generating…</div></td>`;
+  compareTbody.innerHTML='';
+  targets.forEach(t=>{
+    const row=compareRow(t.label);
+    const c=colorByModel[t.label]||'#6366f1';
+    row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${escapeHtml(t.label)}</span></td><td><span class="badge badge-loading"><span class="spinner" style="display:inline-block;width:10px;height:10px;border-width:1.5px;margin-right:3px"></span>…</span></td><td><div class="answer-box loading">Generating…</div></td>`;
   });
-  let done=0,ok=false;const total=configuredModels.length;
+  let done=0,ok=false;const total=targets.length;
   const currentRepo=(document.getElementById('sharedRepo')?.value||'.').trim();
-  const queries=configuredModels.map(async m=>{
+  const queries=targets.map(async t=>{
+    const m=t.label;
     try{
-      const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,model:m,repository:currentRepo})});
+      const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question,model:t.model,repository:currentRepo})});
       const ct=r.headers.get('content-type')||'';const txt=await r.text();let d;if(ct.includes('application/json'))d=JSON.parse(txt);else throw Error(`Server error (${r.status})`);if(!r.ok)throw Error(d.error||r.statusText);
-      const row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(row){const c=colorByModel[m]||'#6366f1';row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${m}</span></td><td><span class="badge badge-ok">${d.latency_seconds!==undefined?Number(d.latency_seconds).toFixed(2)+'s':'Done'}</span></td><td><div class="answer-box">${escapeHtml(d.response||'(Empty)')}</div></td>`}
-      const chunks=d.retrieved_chunks||[];if(chunks.length){contextPre.textContent=chunks.join('\n\n');document.getElementById('contextDetails').open=true}ok=true;
-    }catch(e){const row=compareTbody.querySelector(`tr[data-compare-model="${m}"]`);if(row){const a=row.querySelector('.answer-box');if(a){a.className='answer-box error';a.textContent='Error: '+e.message}const l=row.querySelector('.badge');if(l){l.className='badge badge-error';l.textContent='Error'}}}
+      const row=compareRow(m);const c=colorByModel[m]||'#6366f1';const failed=d.status==='error';
+      row.innerHTML=`<td><span class="model-name"><span class="model-dot" style="background:${c}"></span>${escapeHtml(m)}</span></td><td><span class="badge ${failed?'badge-error':'badge-ok'}">${failed?'Error':(d.latency_seconds!==undefined?Number(d.latency_seconds).toFixed(2)+'s':'Done')}</span></td><td><div class="answer-box${failed?' error':''}">${escapeHtml(d.response||'(Empty)')}</div></td>`;
+      const chunks=d.retrieved_chunks||[];if(chunks.length){contextPre.textContent=chunks.join('\n\n');document.getElementById('contextDetails').open=true}if(!failed)ok=true;
+    }catch(e){const row=compareRow(m);row.innerHTML=`<td><span class="model-name"><span class="model-dot"></span>${escapeHtml(m)}</span></td><td><span class="badge badge-error">Error</span></td><td><div class="answer-box error"></div></td>`;row.querySelector('.answer-box').textContent='Error: '+e.message}
     finally{done++;statusPill.textContent=done<total?`${done}/${total}`:(ok?'Done':'Error');if(done>=total){statusPill.className='badge '+(ok?'badge-ok':'badge-error')}}
   });
-  await Promise.allSettled(queries);clearInterval(timerInterval);elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);askBtn.disabled=false;askBtn.classList.remove('loading');askBtn.querySelector('.button-label').textContent='Compare All Models';
+  await Promise.allSettled(queries);clearInterval(timerInterval);elapsedSecs.textContent=((Date.now()-startTime)/1000).toFixed(1);askBtn.disabled=false;askBtn.classList.remove('loading');askBtn.querySelector('.button-label').textContent='Ask';
 };
+
+/* ── Model settings ── */
+let activeLlm=null,llmProviders=[];
+const llmEl=id=>document.getElementById(id);
+function setLlmStatus(text,isError){const el=llmEl('llmStatus');el.textContent=text;el.style.color=isError?'var(--danger)':'var(--muted)'}
+function renderActiveLlm(a){
+  activeLlm=a;
+  const badge=llmEl('llmActiveBadge');badge.className='badge '+(a.needs_key&&!a.has_key?'badge-error':'badge-ok');
+  badge.textContent=`${a.provider_label} · ${a.model}`;
+  llmEl('llmProvider').value=a.provider;llmEl('llmModel').value=a.model;
+  llmEl('llmBaseUrl').value=a.base_url||'';
+  llmEl('llmApiKey').value='';llmEl('llmApiKey').placeholder=a.has_key?`Saved key ${a.key_hint} (leave blank to keep)`:(a.needs_key?'Paste key':'Optional');
+  llmEl('llmRemember').checked=!!a.remembered;
+  syncProviderFields();
+  const opt=document.querySelector('#impactModel option[value="active"]');if(opt)opt.textContent=`${a.model} (Model settings)`;
+}
+function syncProviderFields(){
+  const p=llmProviders.find(x=>x.id===llmEl('llmProvider').value);if(!p)return;
+  llmEl('llmBaseUrlWrap').style.display=(p.id==='ollama'||p.id==='custom')?'':'none';
+  if(!llmEl('llmBaseUrl').value||(activeLlm&&activeLlm.provider!==p.id))llmEl('llmBaseUrl').value=p.base_url||'';
+  llmEl('llmApiKey').disabled=p.id==='ollama';
+}
+async function loadLlmSettings(){
+  try{
+    const d=await fetch('/api/llm/providers').then(r=>r.json());
+    llmProviders=d.providers;
+    llmEl('llmProvider').innerHTML=d.providers.map(p=>`<option value="${p.id}">${escapeHtml(p.label)}</option>`).join('');
+    renderActiveLlm(d.active);
+  }catch(e){setLlmStatus('Could not load model settings: '+e.message,true)}
+}
+function llmFormPayload(){
+  const provider=llmEl('llmProvider').value;
+  const baseUrl=llmEl('llmBaseUrl').value.trim();
+  const p=llmProviders.find(x=>x.id===provider);
+  return {provider,api_key:llmEl('llmApiKey').value.trim(),model:llmEl('llmModel').value.trim(),
+          base_url:(p&&baseUrl===p.base_url)?'':baseUrl,remember:llmEl('llmRemember').checked};
+}
+llmEl('llmProvider').addEventListener('change',()=>{llmEl('llmModel').value='';llmEl('llmModelList').innerHTML='';
+  const p=llmProviders.find(x=>x.id===llmEl('llmProvider').value);llmEl('llmBaseUrl').value=p?p.base_url:'';
+  llmEl('llmApiKey').placeholder=(activeLlm&&activeLlm.provider===llmEl('llmProvider').value&&activeLlm.has_key)?`Saved key ${activeLlm.key_hint} (leave blank to keep)`:(p&&p.needs_key?'Paste key':'Optional');
+  syncProviderFields()});
+llmEl('llmLoadModels').onclick=async()=>{
+  setLlmStatus('Listing models…');
+  try{
+    const r=await fetch('/api/llm/models',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(llmFormPayload())});
+    const d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);
+    llmEl('llmModelList').innerHTML=d.models.map(m=>`<option value="${escapeHtml(m)}">`).join('');
+    setLlmStatus(`${d.models.length} models available. Type to filter, or enter any model name.`);
+    if(!llmEl('llmModel').value&&d.models.length)llmEl('llmModel').value=d.models[0];
+  }catch(e){setLlmStatus(e.message,true)}
+};
+llmEl('llmSave').onclick=async()=>{
+  const btn=llmEl('llmSave');btn.disabled=true;btn.classList.add('loading');
+  try{
+    const payload=llmFormPayload();if(!payload.model){llmEl('llmModel').focus();throw Error('Choose a model first.')}
+    const r=await fetch('/api/llm/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);
+    renderActiveLlm(d);setLlmStatus(d.needs_key&&!d.has_key?'Saved, but this provider needs an API key.':`Using ${d.model}${d.remembered?' · remembered on this computer':''}.`,d.needs_key&&!d.has_key);
+  }catch(e){setLlmStatus(e.message,true)}
+  finally{btn.disabled=false;btn.classList.remove('loading')}
+};
+llmEl('llmForget').onclick=async()=>{
+  try{const d=await fetch('/api/llm/config',{method:'DELETE'}).then(r=>r.json());renderActiveLlm(d);setLlmStatus('Stored key removed. Back to local Ollama.')}
+  catch(e){setLlmStatus(e.message,true)}
+};
+loadLlmSettings();
+
+/* ── Live remote repositories ── */
+async function loadClonedRepos(){
+  try{
+    const list=await fetch('/api/repositories/remote').then(r=>r.json());
+    const box=document.getElementById('clonedRepos');
+    box.innerHTML=list.map(x=>`<button type="button" data-repo="${escapeHtml(x.repository)}" title="${escapeHtml(x.url)} @ ${escapeHtml(x.head)}">${escapeHtml(x.url.replace(/^https:\/\//,''))} · ${escapeHtml(x.branch)}</button>`).join('');
+    box.querySelectorAll('button').forEach(b=>b.onclick=()=>{document.getElementById('sharedRepo').value=b.dataset.repo;loadRepoFiles()});
+  }catch(e){}
+}
+document.getElementById('remoteRepoBtn').onclick=async()=>{
+  const btn=document.getElementById('remoteRepoBtn'),status=document.getElementById('remoteRepoStatus');
+  const url=document.getElementById('remoteRepoUrl').value.trim();if(!url){document.getElementById('remoteRepoUrl').focus();return}
+  btn.disabled=true;btn.classList.add('loading');btn.querySelector('.button-label').textContent='Syncing…';
+  status.style.color='var(--muted)';status.textContent='Downloading the latest commit…';
+  try{
+    const r=await fetch('/api/repositories/remote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,branch:document.getElementById('remoteRepoBranch').value.trim(),token:document.getElementById('remoteRepoToken').value.trim()})});
+    const d=await r.json();if(!r.ok)throw Error(d.error||r.statusText);
+    document.getElementById('remoteRepoToken').value='';
+    document.getElementById('sharedRepo').value=d.repository;
+    status.textContent=`${d.action==='cloned'?'Cloned':'Updated'} ${d.url} · ${d.branch} @ ${d.head.slice(0,7)} "${d.commit_subject}" · ${d.files} files, ${d.edges} links`;
+    await loadRepoFiles();loadClonedRepos();
+  }catch(e){status.style.color='var(--danger)';status.textContent=e.message}
+  finally{btn.disabled=false;btn.classList.remove('loading');btn.querySelector('.button-label').textContent='Clone & Analyze'}
+};
+loadClonedRepos();
 
 /* ── Impact Analysis ── */
 let impactMode='description',impactJob=null,impactReport=null,impactSelected='',impactTab='impactMap';
@@ -1360,6 +1541,7 @@ document.querySelectorAll('.input-modes button').forEach(btn=>{btn.addEventListe
   document.getElementById('impactGitNote').style.display=impactMode==='git'?'':'none';
   document.getElementById('impactDesc').required=impactMode==='description';
 })});
+document.getElementById('impactBase')?.addEventListener('input',e=>{document.getElementById('impactBaseLabel').textContent=e.target.value.trim()||'HEAD'});
 
 /* Load repo files for file selector & sync badges */
 async function loadRepoFiles(){
@@ -1409,7 +1591,7 @@ analyzeBtn.onclick=async()=>{
   if(!desc&&impactMode==='description'){document.getElementById('impactDesc').focus();return}
   analyzeBtn.disabled=true;analyzeBtn.classList.add('loading');analyzeBtn.querySelector('.button-label').textContent='Analyzing…';
   try{
-    const payload={repository:repo,description:desc,semantic:document.getElementById('impactSemantic').checked,use_llm:document.getElementById('impactLlm').checked,model:document.getElementById('impactModel').value,use_git:impactMode==='git',changed_files:impactMode==='file'&&file?[file]:[],diff:impactMode==='diff'?diff:''};
+    const payload={repository:repo,description:desc,semantic:document.getElementById('impactSemantic').checked,use_llm:document.getElementById('impactLlm').checked,model:document.getElementById('impactModel').value,use_git:impactMode==='git',base:impactMode==='git'?((document.getElementById('impactBase')?.value||'HEAD').trim()||'HEAD'):'HEAD',changed_files:impactMode==='file'&&file?[file]:[],diff:impactMode==='diff'?diff:''};
     const job=await fetch('/api/analyses',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json());
     if(job.error){throw Error(job.error)}
     impactJob=job;jobBanner.style.display='flex';jobMessage.textContent=job.message||'Queued…';pollJob(job.id);
@@ -1560,9 +1742,29 @@ function renderEvidence(report){
   container.addEventListener('touchend', onPointerLeave);
 
   let startTime = performance.now();
+  let lastHeroNow = 0;
+  const heroInterval = 1000 / 30; // 30 FPS cap to preserve CPU & keep typing smooth
+  let isHeroVisible = true;
+
+  if ('IntersectionObserver' in window) {
+    const heroObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const wasVisible = isHeroVisible;
+        isHeroVisible = e.isIntersecting;
+        if (!wasVisible && isHeroVisible) {
+          lastHeroNow = performance.now();
+          requestAnimationFrame(render);
+        }
+      });
+    }, { threshold: 0.05 });
+    heroObserver.observe(container);
+  }
 
   function render(now) {
+    if (!isHeroVisible) return;
     requestAnimationFrame(render);
+    if (now - lastHeroNow < heroInterval) return;
+    lastHeroNow = now;
 
     const elapsed = (now - startTime) * 0.001; // in seconds
 
@@ -1619,12 +1821,12 @@ function renderEvidence(report){
     ctx.fill();
 
     // ── 3. Render ASCII Vector Field ──
-    const cellW = 16;
-    const cellH = 17;
+    const cellW = 20;
+    const cellH = 22;
     const cols = Math.ceil(width / cellW) + 1;
     const rows = Math.ceil(height / cellH) + 1;
 
-    ctx.font = '700 12.5px "JetBrains Mono", Consolas, monospace';
+    ctx.font = '700 13px "JetBrains Mono", Consolas, monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 

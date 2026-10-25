@@ -15,6 +15,14 @@ powershell -ExecutionPolicy Bypass -File codeimpact/start.ps1
 
 The models only need downloading once. If Ollama is not running, use `ollama serve` in a separate terminal. Open **http://127.0.0.1:5070/**. Subsequent runs can use `codeimpact/start.ps1 -NoBuild` when source has not changed. To rebuild only CodeImpact: `docker compose up --build -d codeimpact`. Stop with `docker compose stop` (saved reports and indexes remain in the named volume). Do not use `down -v` if you want to retain reports.
 
+## Models, API keys and live repositories (unified dashboard on :5050)
+
+- **Model settings** (top of the Live Workspace): pick Local Ollama, OpenAI, Anthropic Claude, Google Gemini, Groq, OpenRouter, or any OpenAI-compatible endpoint, paste an API key, press **List** to see the models that key can use (or type any model name), then **Save & Use**. Q&A and AI impact review both use this choice. The key is held in server memory for your browser session only and is never returned to the page, logged, or written to reports. Tick **Remember on this computer** to keep it in `.codeimpact/credentials.json` (owner-only permissions, git-ignored). **Forget key** deletes it. Keys can also come from `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY` or `OPENROUTER_API_KEY`.
+- **Ask** answers with the selected model only. Tick **Compare benchmark models** to also run codellama, starcoder2 and qwen2.5-coder through Ollama side by side, as before.
+- **Live repository URL**: paste `https://github.com/owner/repo` (optionally `/tree/<branch>`, or a branch name) and press **Clone & Analyze**. CodeImpact shallow-clones it into `.codeimpact/repos/` and makes it the active repository; pressing it again pulls the latest commit. Private repositories need an access token, which is used for that one Git command and not stored. In **Git changes** mode, set **Compare against** to `HEAD~1` to analyze the latest commit of a cloned repository.
+- Absolute Python imports are resolved from every ancestor folder, so monorepos such as `backend/app/...` produce a full dependency graph.
+- Semantic retrieval still uses Ollama embeddings (`nomic-embed-text`). Without Ollama, reports fall back to keyword evidence automatically.
+
 ## Use the application
 
 1. Leave repository as `.` to analyze RepoPilot, or select a subdirectory such as `data/codeimpact_demo`. The overview shows source/test/documentation coverage.
